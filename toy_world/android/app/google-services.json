@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1050164696391",
+    "project_id": "toy-world-system",
+    "storage_bucket": "toy-world-system.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1050164696391:android:de530cf81776dcdec36862",
+        "android_client_info": {
+          "package_name": "com.example.toy_world"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1050164696391-2drkop6gd7nh8247talmp6lgscbndne2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.toy_world",
+            "certificate_hash": "32479d0310829d5917afb1e7099fa4842430ffb7"
+          }
+        },
+        {
+          "client_id": "1050164696391-5780uu0ipajmbp7bcg6fpi2qcn6kifdc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-rLf7edGiv_0CiVCqTTvM0h2hJitsDUA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1050164696391-5780uu0ipajmbp7bcg6fpi2qcn6kifdc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
