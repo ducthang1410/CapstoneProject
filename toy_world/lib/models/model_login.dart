@@ -9,6 +9,10 @@ class ModelLogin {
     this.accountId,
     this.avatar,
     this.name,
+    this.biography,
+    this.email,
+    this.phoneNumber,
+    this.gender,
     this.role,
     this.status,
     this.token,
@@ -17,6 +21,10 @@ class ModelLogin {
   int? accountId;
   String? avatar;
   String? name;
+  String? biography;
+  String? email;
+  String? phoneNumber;
+  String? gender;
   int? role;
   bool? status;
   String? token;
@@ -25,6 +33,10 @@ class ModelLogin {
         accountId: json["accountId"],
         avatar: json["avatar"],
         name: json["name"],
+        biography: json["biography"],
+        email: json["email"],
+        phoneNumber: json["phoneNumber"],
+        gender: json["gender"],
         role: json["role"],
         status: json["status"],
         token: json["token"],
@@ -34,6 +46,10 @@ class ModelLogin {
         "accountId": accountId,
         "avatar": avatar,
         "name": name,
+        "biography": biography,
+        "email": email,
+        "phoneNumber": phoneNumber,
+        "gender": gender,
         "role": role,
         "status": status,
         "token": token,

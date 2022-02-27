@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/screens/contest_list_page.dart';
 import 'package:toy_world/screens/following_account_page.dart';
-import 'package:toy_world/screens/group_page.dart';
+import 'package:toy_world/screens/list_group_page.dart';
 import 'package:toy_world/screens/home_page.dart';
-import 'package:toy_world/screens/profile_page.dart';
 import 'package:toy_world/screens/proposal_contest_page.dart';
 import 'package:toy_world/screens/toy_page.dart';
 import 'package:toy_world/utils/google_login.dart';
@@ -39,25 +38,28 @@ selectedItem(BuildContext context, item, role, token) {
               )));
       break;
     case 1:
-      Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const ProposalPage()));
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => const ProposalPage()));
       break;
     case 2:
-      Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const ContestPage()));
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => const ContestPage()));
       break;
     case 3:
-      Navigator.of(context).push(
-          MaterialPageRoute(
-              builder: (context) => GroupPage(role: role, token: token)));
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ListGroupPage(role: role, token: token)));
       break;
     case 4:
-      Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const FollowingPage()));
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => const FollowingPage()));
       break;
     case 5:
       Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const ToyPage()));
+          MaterialPageRoute(
+              builder: (context) => ToyPage(
+                    role: role,
+                    token: token,
+                  )));
       break;
     case 6:
       signOut(context);

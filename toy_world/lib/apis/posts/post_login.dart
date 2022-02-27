@@ -25,6 +25,10 @@ class PostLogin {
       prefs.setInt("accountId", data.accountId ?? 0);
       prefs.setString("avatar", "${data.avatar}");
       prefs.setString("name", "${data.name}");
+      prefs.setString("biography", "${data.biography}");
+      prefs.setString("email", "${data.email}");
+      prefs.setString("phoneNumber", "${data.phoneNumber}");
+      prefs.setString("gender", "${data.gender}");
       prefs.setInt("role", data.role ?? 0);
       prefs.setBool("status", data.status ?? false);
       prefs.setString("token", "${data.token}");
@@ -56,6 +60,10 @@ class PostLoginSystemAccount {
       prefs.setInt("accountId", data.accountId ?? 0);
       prefs.setString("avatar", "${data.avatar}");
       prefs.setString("name", "${data.name}");
+      prefs.setString("biography", "${data.biography}");
+      prefs.setString("email", "${data.email}");
+      prefs.setString("phoneNumber", "${data.phoneNumber}");
+      prefs.setString("gender", "${data.gender}");
       prefs.setInt("role", data.role ?? 0);
       prefs.setBool("status", data.status ?? false);
       prefs.setString("token", "${data.token}");

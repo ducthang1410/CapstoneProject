@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       builder: EasyLoading.init(),
+      theme: ThemeData(dividerColor: Colors.grey.shade800, primaryColor: Colors.grey),
       home: const LoginPage(),
       // home: HomePage(role: 2,),
       // home: SendApplication(),

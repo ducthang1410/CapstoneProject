@@ -47,6 +47,10 @@ void signOut(BuildContext context) async {
   prefs.remove("accountId");
   prefs.remove("avatar");
   prefs.remove("name");
+  prefs.remove("biography");
+  prefs.remove("email");
+  prefs.remove("phoneNumber");
+  prefs.remove("gender");
   prefs.remove("role");
   prefs.remove("status");
   prefs.remove("token");

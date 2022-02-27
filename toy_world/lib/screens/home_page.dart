@@ -13,6 +13,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String _avatar = "";
   String _name = "";
   @override
   void initState() {
@@ -24,6 +25,7 @@ class _HomePageState extends State<HomePage> {
   _loadCounter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
+      _avatar = (prefs.getString('avatar') ?? "");
       _name = (prefs.getString('name') ?? "");
     });
   }
@@ -31,7 +33,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      endDrawer: drawerMenu(context, widget.role, widget.token, _name),
+      endDrawer: drawerMenu(context, widget.role, widget.token, _name, _avatar),
       body: Builder(
         builder: (context) => Column(
           children: [
