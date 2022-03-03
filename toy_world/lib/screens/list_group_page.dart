@@ -25,6 +25,7 @@ class _ListGroupPageState extends State<ListGroupPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    _loadCounter();
     getData();
   }
 

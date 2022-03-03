@@ -54,15 +54,26 @@ selectedItem(BuildContext context, item, role, token) {
           .push(MaterialPageRoute(builder: (context) => const FollowingPage()));
       break;
     case 5:
-      Navigator.of(context).push(
-          MaterialPageRoute(
-              builder: (context) => ToyPage(
-                    role: role,
-                    token: token,
-                  )));
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ToyPage(
+                role: role,
+                token: token,
+              )));
       break;
     case 6:
       signOut(context);
       break;
+  }
+}
+
+timeControl(Duration duration) {
+  if (duration.inMinutes < 1) {
+    return "<1 minutes ago";
+  } else if (duration.inMinutes < 60) {
+    return duration.inMinutes.toString() + " minutes ago";
+  } else if (duration.inMinutes < 1440) {
+    return duration.inHours.toString() + " hours ago";
+  } else if (duration.inMinutes >= 1440) {
+    return duration.inDays.toString() + " days ago";
   }
 }

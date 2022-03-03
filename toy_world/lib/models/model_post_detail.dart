@@ -1,9 +1,13 @@
 import 'dart:convert';
 
-List<Post> postFromJson(String str) => List<Post>.from(json.decode(str).map((x) => Post.fromJson(x)));
+import 'model_comment.dart';
 
-class Post {
-  Post({
+PostDetail postDetailFromJson(String str) => PostDetail.fromJson(json.decode(str));
+
+String postDetailToJson(PostDetail data) => json.encode(data.toJson());
+
+class PostDetail {
+  PostDetail({
     this.id,
     this.ownerId,
     this.ownerAvatar,
@@ -12,6 +16,7 @@ class Post {
     this.content,
     this.publicDate,
     this.images,
+    this.comments,
     this.numOfReact,
     this.numOfComment,
   });
@@ -24,10 +29,11 @@ class Post {
   String? content;
   DateTime? publicDate;
   List<String>? images;
+  List<Comment>? comments;
   int? numOfReact;
   int? numOfComment;
 
-  factory Post.fromJson(Map<String, dynamic> json) => Post(
+  factory PostDetail.fromJson(Map<String, dynamic> json) => PostDetail(
     id: json["id"],
     ownerId: json["ownerId"],
     ownerAvatar: json["ownerAvatar"],
@@ -36,6 +42,7 @@ class Post {
     content: json["content"],
     publicDate: DateTime.parse(json["publicDate"]),
     images: List<String>.from(json["images"].map((x) => x)),
+    comments: List<Comment>.from(json["comments"].map((x) => Comment.fromJson(x))),
     numOfReact: json["numOfReact"],
     numOfComment: json["numOfComment"],
   );
@@ -49,6 +56,7 @@ class Post {
     "content": content,
     "publicDate": publicDate!.toIso8601String(),
     "images": List<String>.from(images!.map((x) => x)),
+    "comments": List<Comment>.from(comments!.map((x) => x.toJson())),
     "numOfReact": numOfReact,
     "numOfComment": numOfComment,
   };
