@@ -1,8 +1,12 @@
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:toy_world/screens/contest_list_page.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:multi_image_picker2/multi_image_picker2.dart';
+
+import 'package:toy_world/screens/contest_page.dart';
 import 'package:toy_world/screens/following_account_page.dart';
 import 'package:toy_world/screens/list_group_page.dart';
 import 'package:toy_world/screens/home_page.dart';
@@ -28,7 +32,7 @@ colorHexa(String hexColor) {
   return Color(int.parse(hexColor, radix: 16));
 }
 
-selectedItem(BuildContext context, item, role, token) {
+selectedDrawerItem(BuildContext context, item, role, token) {
   switch (item) {
     case 0:
       Navigator.of(context).push(MaterialPageRoute(
@@ -77,3 +81,32 @@ timeControl(Duration duration) {
     return duration.inDays.toString() + " days ago";
   }
 }
+
+onImageClicked(int i) {
+  print("Image was click");
+}
+
+onExpandClicked() {
+  print("Expand Image click");
+}
+
+  Future<String> postImage(Asset asset) async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    ByteData byteData = await asset.getByteData();
+    List<int> imageData = byteData.buffer.asUint8List();
+    Reference ref = FirebaseStorage.instance.ref().child("Post/" + fileName);
+    UploadTask uploadTask = ref.putData(Uint8List.fromList(imageData));
+
+    TaskSnapshot snapshot= await uploadTask;
+    return snapshot.ref.getDownloadURL();
+  }
+
+
+  uploadImages(List<Asset> images) async {
+    final imageUrls = <String>[];
+    for ( var image in images) {
+      final url = await postImage(image);
+      imageUrls.add(url);
+    }
+    return imageUrls;
+  }

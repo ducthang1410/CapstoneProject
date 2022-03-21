@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:toy_world/screens/home_page.dart';
 
 import 'package:toy_world/screens/login_page.dart';
 import 'package:toy_world/utils/helpers.dart';
@@ -33,10 +35,26 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       builder: EasyLoading.init(),
-      theme: ThemeData(dividerColor: Colors.grey.shade800, primaryColor: Colors.grey),
-      home: const LoginPage(),
-      // home: HomePage(role: 2,),
-      // home: SendApplication(),
+      theme: ThemeData(
+          dividerColor: Colors.grey.shade800, primaryColor: Colors.grey),
+      // home: const LoginPage(),
+      home: AnimatedSplashScreen(
+        splashIconSize: 180,
+        centered: true,
+        duration: 1500,
+        splashTransition: SplashTransition.fadeTransition,
+        backgroundColor: const Color(0xffDB36A4),
+        splash: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Expanded(child: Text("Welcome to", style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold, color: Colors.white),)),
+            Expanded(child: Image.asset("assets/icons/Logo_Word_Black_Pink.png", width: 250,))
+          ],
+        ),
+        nextScreen: const LoginPage(),
+      ),
     );
   }
 }

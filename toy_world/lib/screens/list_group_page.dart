@@ -17,24 +17,13 @@ class ListGroupPage extends StatefulWidget {
 }
 
 class _ListGroupPageState extends State<ListGroupPage> {
-  String _avatar = "";
-  String _name = "";
   List<Group>? data = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _loadCounter();
     getData();
-  }
-
-  _loadCounter() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _name = (prefs.getString('name') ?? "");
-      _avatar = (prefs.getString('avatar') ?? "");
-      });
   }
 
   getData() async {
@@ -48,18 +37,13 @@ class _ListGroupPageState extends State<ListGroupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      endDrawer: drawerMenu(context, widget.role, widget.token, _name, _avatar),
       backgroundColor: Colors.grey[200],
-      body: Builder(
-        builder: (context) => SingleChildScrollView(
+      body: SingleChildScrollView(
           child: Column(
             children: [
-              defaultAppBar(context),
-              menuHome(context, widget.role, widget.token),
               _content(context)
             ],
           ),
-        ),
       ),
     );
   }
@@ -75,22 +59,28 @@ class _ListGroupPageState extends State<ListGroupPage> {
             "Group",
             textAlign: TextAlign.center,
             style: TextStyle(
-                fontSize: 50,
+                fontSize: 40,
                 fontWeight: FontWeight.bold,
                 color: Color(0xffDB36A4)),
           ),
-          GridView.builder(
-            shrinkWrap: true,
-            primary: false,
-            itemCount: data?.length ?? 0,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: size.width * 0.03,
-                mainAxisSpacing: size.width * 0.03),
-            itemBuilder: (BuildContext context, int index) {
-              return _group(size, name: data?[index].name ?? "", groupID: data?[index].id ?? 0);
-            },
-          ),
+          data != null
+              ? GridView.builder(
+                  shrinkWrap: true,
+                  primary: false,
+                  itemCount: data?.length ?? 0,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: size.width * 0.03,
+                      mainAxisSpacing: size.width * 0.03),
+                  itemBuilder: (BuildContext context, int index) {
+                    return _group(size,
+                        name: data?[index].name ?? "",
+                        groupID: data?[index].id ?? 0);
+                  },
+                )
+              : const Center(
+                  child: CircularProgressIndicator(),
+                ),
         ],
       ),
     );
@@ -99,9 +89,8 @@ class _ListGroupPageState extends State<ListGroupPage> {
   Widget _group(Size size, {name, groupID}) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (context) => GroupPage(
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => GroupPage(
                   role: widget.role,
                   token: widget.token,
                   groupID: groupID,

@@ -13,35 +13,22 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String _avatar = "";
-  String _name = "";
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _loadCounter();
-  }
-
-  _loadCounter() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _avatar = (prefs.getString('avatar') ?? "");
-      _name = (prefs.getString('name') ?? "");
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      endDrawer: drawerMenu(context, widget.role, widget.token, _name, _avatar),
-      body: Builder(
-        builder: (context) => Column(
-          children: [
-            defaultAppBar(context),
-            menuHome(context, widget.role, widget.token),
+      body: Column(
+          children: const [
+            Center(
+              child: Text("Hello"),
+            )
           ],
         ),
-      ),
     );
   }
 }

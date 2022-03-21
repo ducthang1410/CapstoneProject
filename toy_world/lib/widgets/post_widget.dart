@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:toy_world/apis/puts/put_react_post.dart';
+import 'package:toy_world/components/component.dart';
+import 'package:toy_world/models/model_image_post.dart';
 import 'package:toy_world/screens/post_detail_page.dart';
 
 import 'package:toy_world/utils/helpers.dart';
@@ -11,11 +16,12 @@ class PostWidget extends StatefulWidget {
   String token;
   int? postId;
   bool? isPostDetail;
-  String? imgAvatar;
+  String? ownerAvatar;
   String? ownerName;
+  bool? isLikedPost;
   DateTime? timePublic;
   String? content;
-  String? images;
+  List<ImagePost>? images;
   int? numOfReact;
   int? numOfComment;
 
@@ -24,11 +30,12 @@ class PostWidget extends StatefulWidget {
       required this.token,
       required this.postId,
       required this.isPostDetail,
-      required this.imgAvatar,
+      required this.ownerAvatar,
       required this.ownerName,
+      required this.isLikedPost,
       required this.timePublic,
       required this.content,
-      required this.images,
+      this.images,
       required this.numOfReact,
       required this.numOfComment});
 
@@ -37,11 +44,14 @@ class PostWidget extends StatefulWidget {
 }
 
 class _PostWidgetState extends State<PostWidget> {
+  int _choice = 0;
+
   @override
   Widget build(BuildContext context) {
     return _post(
-        imgAvatar: widget.imgAvatar,
+        ownerAvatar: widget.ownerAvatar,
         ownerName: widget.ownerName,
+        isLikedPost: widget.isLikedPost,
         timePublic: widget.timePublic,
         content: widget.content,
         images: widget.images,
@@ -50,13 +60,15 @@ class _PostWidgetState extends State<PostWidget> {
   }
 
   Widget _post(
-      {imgAvatar,
+      {ownerAvatar,
       ownerName,
+      isLikedPost,
       timePublic,
       content,
-      images,
+      List<ImagePost>? images,
       numOfReact,
       numOfComment}) {
+    var size = MediaQuery.of(context).size;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5.0),
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -69,14 +81,14 @@ class _PostWidgetState extends State<PostWidget> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _postHeader(
-                    imgAvatar: imgAvatar,
+                    ownerAvatar: ownerAvatar,
                     ownerName: ownerName,
                     timePublic: timePublic),
                 const SizedBox(
                   height: 4.0,
                 ),
                 Text(content),
-                images != null
+                images!.isNotEmpty
                     ? const SizedBox.shrink()
                     : const SizedBox(
                         height: 6.0,
@@ -84,25 +96,35 @@ class _PostWidgetState extends State<PostWidget> {
               ],
             ),
           ),
-          images != null
+          images!.isNotEmpty
               ? Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: CachedNetworkImage(
-                    imageUrl:
-                        "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Post%2FPostImage.jpg?alt=media&token=067a93a0-516d-4d11-bb03-bb7b57c99530",
-                  ))
+                  child: GridView(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    primary: false,
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: size.width * 0.5,
+                      crossAxisSpacing: 2,
+                      mainAxisSpacing: 2,
+                    ),
+                    children: buildImages(),
+                  ),
+                )
               : const SizedBox.shrink(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child:
-                _postStats(numOfReact: numOfReact, numOfComment: numOfComment),
+            child: _postStats(
+                isLikedPost: isLikedPost,
+                numOfReact: numOfReact,
+                numOfComment: numOfComment),
           ),
         ],
       ),
     );
   }
 
-  Widget _postHeader({imgAvatar, ownerName, timePublic}) {
+  Widget _postHeader({ownerAvatar, ownerName, timePublic}) {
     DateTime now = DateTime.now();
     Duration difference = now.difference(timePublic);
     String formattedDate = timeControl(difference);
@@ -111,7 +133,7 @@ class _PostWidgetState extends State<PostWidget> {
         CircleAvatar(
           radius: 20,
           backgroundColor: Colors.grey[200],
-          backgroundImage: CachedNetworkImageProvider(imgAvatar),
+          backgroundImage: CachedNetworkImageProvider(ownerAvatar),
         ),
         const SizedBox(
           width: 8.0,
@@ -135,15 +157,29 @@ class _PostWidgetState extends State<PostWidget> {
             ],
           ),
         ),
-        IconButton(
-          icon: const Icon(Icons.more_horiz),
-          onPressed: () {},
-        )
+        PopupMenuButton(
+            icon: const Icon(Icons.more_horiz),
+            onSelected: (int value) {
+              setState(() {
+                _choice = value;
+                selectedPopupMenuButton(_choice);
+              });
+            },
+            itemBuilder: (context) => const [
+                  PopupMenuItem(
+                    child: Text("Feedback"),
+                    value: 1,
+                  ),
+                  PopupMenuItem(
+                    child: Text("Delete post"),
+                    value: 2,
+                  )
+                ]),
       ],
     );
   }
 
-  Widget _postStats({numOfReact, numOfComment}) {
+  Widget _postStats({isLikedPost, numOfReact, numOfComment}) {
     return Column(
       children: [
         Row(
@@ -178,11 +214,17 @@ class _PostWidgetState extends State<PostWidget> {
             _postButton(
               Icon(
                 FontAwesomeIcons.heart,
-                color: Colors.grey[600],
+                color: isLikedPost ? Colors.red : Colors.grey[600],
                 size: 20,
               ),
-              "Love",
-              onTap: () => print("Love"),
+              Text(
+                "Love",
+                style: TextStyle(
+                  color: isLikedPost ? Colors.red : Colors.grey[600],
+                ),
+              ),
+              onTap: () =>
+                  reactPost(token: widget.token, postId: widget.postId),
             ),
             _postButton(
               Icon(
@@ -190,7 +232,7 @@ class _PostWidgetState extends State<PostWidget> {
                 color: Colors.grey[600],
                 size: 20,
               ),
-              "Comment",
+              const Text("Comment"),
               onTap: () => widget.isPostDetail == false
                   ? Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => PostDetailPage(
@@ -202,17 +244,22 @@ class _PostWidgetState extends State<PostWidget> {
             )
           ],
         ),
-        widget.isPostDetail == true ? Column(
-          children: [
-            const Divider(),
-            CommentWidget(role: widget.role, token: widget.token, postID: widget.postId)
-          ],
-        ) : const SizedBox(),
+        widget.isPostDetail == true
+            ? Column(
+                children: [
+                  const Divider(),
+                  CommentWidget(
+                      role: widget.role,
+                      token: widget.token,
+                      postID: widget.postId)
+                ],
+              )
+            : const SizedBox(),
       ],
     );
   }
 
-  Widget _postButton(Icon icon, String label, {onTap}) {
+  Widget _postButton(Icon icon, Text text, {onTap}) {
     return Expanded(
       child: Material(
         color: Colors.white,
@@ -228,12 +275,106 @@ class _PostWidgetState extends State<PostWidget> {
                 const SizedBox(
                   width: 4.0,
                 ),
-                Text(label)
+                text
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  List<Widget> buildImages() {
+    int numImages = widget.images!.length;
+    int maxImages = 4;
+    return List<Widget>.generate(min(numImages, maxImages), (index) {
+      String? imageUrl = widget.images![index].url;
+
+      // If its the last image
+      if (index == maxImages - 1) {
+        // Check how many more images are left
+        int remaining = numImages - maxImages;
+
+        // If no more are remaining return a simple image widget
+        if (remaining == 0) {
+          return GestureDetector(
+            child: CachedNetworkImage(
+              imageUrl: imageUrl!,
+              fit: BoxFit.cover,
+              errorWidget: (context, url, error) => Image.network(
+                "https://www.trendsetter.com/pub/media/catalog/product/placeholder/default/no_image_placeholder.jpg",
+                fit: BoxFit.cover,
+              ),
+            ),
+            onTap: () {
+              onImageClicked(index);
+            },
+          );
+        } else {
+          // Create the facebook like effect for the last image with number of remaining  images
+          return GestureDetector(
+            onTap: () => onExpandClicked(),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                CachedNetworkImage(
+                  imageUrl: imageUrl!,
+                  fit: BoxFit.cover,
+                  errorWidget: (context, url, error) => Image.network(
+                    "https://www.trendsetter.com/pub/media/catalog/product/placeholder/default/no_image_placeholder.jpg",
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Positioned.fill(
+                  child: Container(
+                    alignment: Alignment.center,
+                    color: Colors.black54,
+                    child: Text(
+                      '+' + remaining.toString(),
+                      style: TextStyle(fontSize: 32),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+      } else {
+        return GestureDetector(
+          child: CachedNetworkImage(
+              imageUrl: imageUrl!,
+              fit: BoxFit.cover,
+              errorWidget: (context, url, error) => Image.network(
+                    "https://www.trendsetter.com/pub/media/catalog/product/placeholder/default/no_image_placeholder.jpg",
+                    fit: BoxFit.cover,
+                  )),
+          onTap: () {
+            onImageClicked(index);
+          },
+        );
+      }
+    });
+  }
+
+  selectedPopupMenuButton(int value, {token}) {
+    switch (value) {
+      case 1:
+        print(value);
+        break;
+      case 2:
+        print(value);
+        break;
+    }
+  }
+
+  reactPost({token, postId}) async {
+    ReactPost react = ReactPost();
+    int status = await react.reactPost(token: token, postId: postId);
+    if (status == 200) {
+      setState(() {});
+    } else {
+      loadingFail(status: "Love Failed !!!");
+    }
+    setState(() {});
   }
 }

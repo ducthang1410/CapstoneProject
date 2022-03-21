@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/apis/gets/get_account_profile.dart';
 import 'package:toy_world/components/component.dart';
 import 'package:toy_world/models/model_account_profile.dart';
+import 'package:toy_world/screens/post_of_account_page.dart';
 
 class ProfilePage extends StatefulWidget {
   int role;
@@ -96,9 +97,9 @@ class _ProfilePageState extends State<ProfilePage> {
         radius: size.height * 0.09,
         backgroundColor: Colors.white,
         child: CircleAvatar(
-          radius: size.height * 0.085, backgroundColor: Colors.grey.shade300,
-          backgroundImage: NetworkImage(
-              _avatar),
+          radius: size.height * 0.085,
+          backgroundColor: Colors.grey.shade300,
+          backgroundImage: NetworkImage(_avatar),
         ));
   }
 
@@ -116,7 +117,9 @@ class _ProfilePageState extends State<ProfilePage> {
         const SizedBox(
           height: 10,
         ),
-        const Divider(thickness: 0.5,),
+        const Divider(
+          thickness: 0.5,
+        ),
         const SizedBox(
           height: 5,
         ),
@@ -125,7 +128,14 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildNumber(size,
-                  value: "${_data?.noOfPost ?? "0"}", text: "Post"),
+                  value: "${_data?.noOfPost ?? "0"}",
+                  text: "Post",
+                  function: Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => PostAccountPage(
+                            role: widget.role,
+                            token: widget.token,
+                            accountID: _id,
+                          )))),
               _buildNumber(size,
                   value: "${_data?.noOfFollowing ?? "0"}", text: "Following"),
               _buildNumber(size,
@@ -136,14 +146,17 @@ class _ProfilePageState extends State<ProfilePage> {
         const SizedBox(
           height: 5,
         ),
-        const Divider(thickness: 0.5,),
+        const Divider(
+          thickness: 0.5,
+        ),
         const SizedBox(
           height: 20,
         ),
         Container(
           padding: const EdgeInsets.only(left: 20),
           alignment: Alignment.centerLeft,
-          child: const Text("About me", style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold)),
+          child: const Text("About me",
+              style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold)),
         ),
         const SizedBox(
           height: 20,
@@ -151,27 +164,34 @@ class _ProfilePageState extends State<ProfilePage> {
         containerProfile(size, title: "Gender", content: _gender),
         containerProfile(size, title: "Email", content: _email),
         containerProfile(size, title: "Phone", content: _phoneNumber),
-        const Divider(thickness: 0.5,),
+        const Divider(
+          thickness: 0.5,
+        ),
         const SizedBox(
           height: 20,
         ),
         Container(
           padding: const EdgeInsets.only(left: 20),
           alignment: Alignment.centerLeft,
-          child: const Text("Biography", style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold)),
+          child: const Text("Biography",
+              style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold)),
         ),
-        Container(margin: const EdgeInsets.all(20),
+        Container(
+            margin: const EdgeInsets.all(20),
             alignment: Alignment.centerLeft,
-            child: Text(_biography, style: const TextStyle(color: Colors.black54, fontSize: 20),))
+            child: Text(
+              _biography,
+              style: const TextStyle(color: Colors.black54, fontSize: 20),
+            ))
       ],
     );
   }
 
-  Widget _buildNumber(size, {String? value, String? text}) {
+  Widget _buildNumber(size, {String? value, String? text, function}) {
     return SizedBox(
       width: size.width * 0.3,
       child: MaterialButton(
-        onPressed: () {},
+        onPressed: function,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Column(
@@ -203,12 +223,18 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           SizedBox(
             width: size.width * 0.2,
-            child: Text("$label",style: const TextStyle(fontSize: 20),),
+            child: Text(
+              "$label",
+              style: const TextStyle(fontSize: 20),
+            ),
           ),
           Expanded(
             child: SizedBox(
               width: size.width * 0.65,
-              child: Text("$info",style: const TextStyle(fontSize: 20, color: Colors.grey),),
+              child: Text(
+                "$info",
+                style: const TextStyle(fontSize: 20, color: Colors.grey),
+              ),
             ),
           )
         ],
@@ -228,8 +254,16 @@ class _ProfilePageState extends State<ProfilePage> {
                 Container(
                     margin: const EdgeInsets.only(left: 20),
                     width: size.width * 0.2,
-                    child: Text("$title", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),)),
-                Expanded(child: Text("$content", style: const TextStyle(color: Colors.black54, fontSize: 20),)),
+                    child: Text(
+                      "$title",
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    )),
+                Expanded(
+                    child: Text(
+                  "$content",
+                  style: const TextStyle(color: Colors.black54, fontSize: 20),
+                )),
               ],
             ),
           ),

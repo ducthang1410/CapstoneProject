@@ -3,10 +3,9 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:sign_button/sign_button.dart';
 import 'package:toy_world/apis/posts/post_login.dart';
 import 'package:toy_world/components/component.dart';
+import 'package:toy_world/screens/welcome_page.dart';
 import 'package:toy_world/utils/google_login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -26,7 +25,6 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _loadCounter();
   }
 
   _loadCounter() async {
@@ -57,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
     var size = MediaQuery.of(context).size;
     return Center(
       child: Container(
-        width: size.width * 0.85,
+        width: size.width * 0.8,
         height: size.height * 0.75,
         decoration: BoxDecoration(
           color: Colors.white,
@@ -162,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
             decoration: InputDecoration(
               labelText: "Password",
               filled: true,
-              fillColor: Colors.grey[200],
+              fillColor: Colors.grey[300],
               prefixIcon: const Icon(
                 Icons.lock,
                 color: Color(0xffDB36A4),
@@ -218,10 +216,11 @@ class _LoginPageState extends State<LoginPage> {
                     if (await checkLoginSystemAccount(
                             email: _email, password: _password) ==
                         200) {
+                      _loadCounter();
                       EasyLoading.dismiss();
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
-                              builder: (context) => HomePage(
+                              builder: (context) => WelcomePage(
                                     role: _roleValue,
                                     token: _token,
                                   )),
@@ -264,10 +263,11 @@ class _LoginPageState extends State<LoginPage> {
             loadingLoad(status: "Signing In...");
             String? fbToken = await signIn();
             if (await checkLogin(firebaseToken: fbToken) == 200) {
+              _loadCounter();
               EasyLoading.dismiss();
               Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
-                      builder: (context) => HomePage(
+                      builder: (context) => WelcomePage(
                             role: _roleValue,
                             token: _token,
                           )),

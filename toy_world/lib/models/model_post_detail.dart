@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'model_comment.dart';
+import 'model_image_post.dart';
 
 PostDetail postDetailFromJson(String str) => PostDetail.fromJson(json.decode(str));
 
@@ -28,7 +29,7 @@ class PostDetail {
   bool? isLikedPost;
   String? content;
   DateTime? publicDate;
-  List<String>? images;
+  List<ImagePost>? images;
   List<Comment>? comments;
   int? numOfReact;
   int? numOfComment;
@@ -41,7 +42,7 @@ class PostDetail {
     isLikedPost: json["isLikedPost"],
     content: json["content"],
     publicDate: DateTime.parse(json["publicDate"]),
-    images: List<String>.from(json["images"].map((x) => x)),
+    images: List<ImagePost>.from(json["images"].map((x) => ImagePost.fromJson(x))),
     comments: List<Comment>.from(json["comments"].map((x) => Comment.fromJson(x))),
     numOfReact: json["numOfReact"],
     numOfComment: json["numOfComment"],
@@ -55,7 +56,7 @@ class PostDetail {
     "isLikedPost": isLikedPost,
     "content": content,
     "publicDate": publicDate!.toIso8601String(),
-    "images": List<String>.from(images!.map((x) => x)),
+    "images": List<dynamic>.from(images!.map((x) => x.toJson())),
     "comments": List<Comment>.from(comments!.map((x) => x.toJson())),
     "numOfReact": numOfReact,
     "numOfComment": numOfComment,

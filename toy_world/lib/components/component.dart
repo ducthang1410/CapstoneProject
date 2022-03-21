@@ -30,7 +30,7 @@ Widget defaultAppBar(BuildContext context) {
   return Center(
     child: Container(
       width: size.width,
-      height: size.height * 0.1,
+      height: size.height * 0.09,
       color: const Color(0xffDB36A4),
       padding: const EdgeInsets.only(left: 5, right: 10),
       child: Row(
@@ -84,7 +84,7 @@ Widget sideAppBar(BuildContext context) {
   return Center(
     child: Container(
       width: size.width,
-      height: size.height * 0.1,
+      height: size.height * 0.09,
       color: const Color(0xffDB36A4),
       padding: const EdgeInsets.only(left: 5, right: 10),
       child: Row(
@@ -132,10 +132,11 @@ Widget sideAppBar(BuildContext context) {
   );
 }
 
-Widget drawerMenu(BuildContext context, int role, String token, String name, String urlImage) {
+Widget drawerMenu(BuildContext context, int role, String token, String name,
+    String urlImage) {
   var size = MediaQuery.of(context).size;
   return SizedBox(
-      width: size.width * 0.75,
+      width: size.width * 0.7,
       height: size.height,
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
@@ -144,28 +145,28 @@ Widget drawerMenu(BuildContext context, int role, String token, String name, Str
           child: Container(
             decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                  colors: [
-                    Color(0xffDB36A4),
-                    Color(0xffF7FF00),
-                  ],
-                )),
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: [
+                Color(0xffDB36A4),
+                Color(0xffF7FF00),
+              ],
+            )),
             child: ListView(
               children: [
                 buildHeader(
-                  urlImage: urlImage,
-                  name: name,
-                  onClicked: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => ProfilePage(
-                      role: role,
-                      token: token,
-                    ),
-                  )),
-                ),
+                    urlImage: urlImage,
+                    name: name,
+                    onClicked: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ProfilePage(
+                          role: role,
+                          token: token,
+                        ),
+                      ));
+                    }),
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Divider(
                       color: Color(0xffDB36A4),
@@ -174,7 +175,10 @@ Widget drawerMenu(BuildContext context, int role, String token, String name, Str
                     buildMenuItem(
                       text: 'Home',
                       urlImage: "assets/icons/home.png",
-                      onClicked: () => selectedItem(context, 0, role, token),
+                      onClicked: () {
+                        Navigator.of(context).pop();
+                        selectedDrawerItem(context, 0, role, token);
+                      },
                     ),
                     const Divider(
                       color: Color(0xffDB36A4),
@@ -183,7 +187,10 @@ Widget drawerMenu(BuildContext context, int role, String token, String name, Str
                     buildMenuItem(
                       text: 'Proposal',
                       urlImage: "assets/icons/proposal.png",
-                      onClicked: () => selectedItem(context, 1, role, token),
+                      onClicked: () {
+                        Navigator.of(context).pop();
+                        selectedDrawerItem(context, 1, role, token);
+                      },
                     ),
                     const Divider(
                       color: Color(0xffDB36A4),
@@ -192,7 +199,10 @@ Widget drawerMenu(BuildContext context, int role, String token, String name, Str
                     buildMenuItem(
                       text: 'Contest',
                       urlImage: "assets/icons/swords.png",
-                      onClicked: () => selectedItem(context, 2, role, token),
+                      onClicked: () {
+                        Navigator.of(context).pop();
+                        selectedDrawerItem(context, 2, role, token);
+                      },
                     ),
                     const Divider(
                       color: Color(0xffDB36A4),
@@ -201,7 +211,10 @@ Widget drawerMenu(BuildContext context, int role, String token, String name, Str
                     buildMenuItem(
                       text: 'Group',
                       urlImage: "assets/icons/group.png",
-                      onClicked: () => selectedItem(context, 3, role, token),
+                      onClicked: () {
+                        Navigator.of(context).pop();
+                        selectedDrawerItem(context, 3, role, token);
+                      },
                     ),
                     const Divider(
                       color: Color(0xffDB36A4),
@@ -210,7 +223,10 @@ Widget drawerMenu(BuildContext context, int role, String token, String name, Str
                     buildMenuItem(
                       text: 'Following',
                       urlImage: "assets/icons/followers.png",
-                      onClicked: () => selectedItem(context, 4, role, token),
+                      onClicked: () {
+                        Navigator.of(context).pop();
+                        selectedDrawerItem(context, 4, role, token);
+                      },
                     ),
                     const Divider(
                       color: Color(0xffDB36A4),
@@ -219,7 +235,10 @@ Widget drawerMenu(BuildContext context, int role, String token, String name, Str
                     buildMenuItem(
                       text: 'Toys',
                       urlImage: "assets/icons/toy.png",
-                      onClicked: () => selectedItem(context, 5, role, token),
+                      onClicked: () {
+                        Navigator.of(context).pop();
+                        selectedDrawerItem(context, 5, role, token);
+                      },
                     ),
                     const Divider(
                       color: Color(0xffDB36A4),
@@ -228,7 +247,10 @@ Widget drawerMenu(BuildContext context, int role, String token, String name, Str
                     buildMenuItem(
                       text: 'Sign out',
                       urlImage: "assets/icons/logout.png",
-                      onClicked: () => selectedItem(context, 6, role, token),
+                      onClicked: () {
+                        Navigator.of(context).pop();
+                        selectedDrawerItem(context, 6, role, token);
+                      },
                     ),
                   ],
                 ),
@@ -237,82 +259,6 @@ Widget drawerMenu(BuildContext context, int role, String token, String name, Str
           ),
         ),
       ));
-}
-
-Widget menuHome(BuildContext context, int role, String token) {
-  var size = MediaQuery.of(context).size;
-  return SizedBox(
-    width: size.width,
-    height: size.height * 0.08,
-    child: Container(
-        alignment: Alignment.center,
-        color: Colors.white,
-        padding: const EdgeInsets.only(left: 15, right: 15),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              iconSize: size.height * 0.045,
-              alignment: Alignment.center,
-              icon: Image.asset(
-                "assets/icons/home.png",
-                color: Colors.grey,
-              ),
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => HomePage(
-                          role: role,
-                          token: token,
-                        )));
-              },
-            ),
-            IconButton(
-              iconSize: size.height * 0.045,
-              alignment: Alignment.center,
-              icon: Image.asset(
-                "assets/icons/group.png",
-                color: Colors.grey,
-              ),
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => ListGroupPage(
-                          role: role,
-                          token: token,
-                        )));
-              },
-            ),
-            IconButton(
-              iconSize: size.height * 0.04,
-              alignment: Alignment.center,
-              icon: Image.asset(
-                "assets/icons/swords.png",
-                color: Colors.grey,
-              ),
-              onPressed: () {},
-            ),
-            IconButton(
-              iconSize: size.height * 0.045,
-              alignment: Alignment.center,
-              icon: Image.asset(
-                "assets/icons/bell.png",
-                color: Colors.grey,
-              ),
-              onPressed: () {},
-            ),
-            IconButton(
-              iconSize: size.height * 0.04,
-              alignment: Alignment.center,
-              icon: Image.asset(
-                "assets/icons/3line_button.png",
-                color: Colors.grey,
-              ),
-              onPressed: () {
-                Scaffold.of(context).openEndDrawer();
-              },
-            ),
-          ],
-        )),
-  );
 }
 
 Widget buildHeader({
@@ -324,11 +270,12 @@ Widget buildHeader({
       onTap: onClicked,
       child: Container(
         alignment: Alignment.center,
-        padding: const EdgeInsets.all(20),
-
         child: Column(
           children: [
-            CircleAvatar(radius: 50, backgroundImage: NetworkImage(urlImage), backgroundColor: Colors.grey.shade300),
+            CircleAvatar(
+                radius: 40,
+                backgroundImage: NetworkImage(urlImage),
+                backgroundColor: Colors.grey.shade300),
             const SizedBox(height: 20),
             Text(
               name,
@@ -348,8 +295,8 @@ Widget buildMenuItem({
     padding: const EdgeInsets.only(left: 50, right: 10),
     child: ListTile(
       leading: SizedBox(
-        height: 35,
-        width: 35,
+        height: 30,
+        width: 30,
         child: Image.asset(urlImage, fit: BoxFit.cover),
       ),
       title: Text(

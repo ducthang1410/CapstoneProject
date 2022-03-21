@@ -16,7 +16,7 @@ class CommentPost {
       body: jsonEncode(
           <String, dynamic>{"postId": "$postId", "content": "$content"}),
     );
-    print("Status postApi Login User/Pass:${response.statusCode}");
+    print("Status postApi Comment Post:${response.statusCode}");
 
     return response.statusCode;
   }
