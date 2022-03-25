@@ -110,6 +110,7 @@ class _WelcomePageState extends State<WelcomePage>
                 )),
             Expanded(
                 child: PageView(
+              physics: const NeverScrollableScrollPhysics(),
               controller: _pageController,
               children: [
                 Center(

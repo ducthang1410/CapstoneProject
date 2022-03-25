@@ -17,10 +17,10 @@ class NewPost {
         "Access-Control-Allow-Origin": "*",
         'Authorization': 'Bearer $token',
       },
-      body: jsonEncode(<String, dynamic>{
+      body: jsonEncode(<dynamic, dynamic>{
         "groupId": "$groupId",
         "content": "$content",
-        "imagesLink": "$imgLink",
+        "imagesLink": ["$imgLink"],
       }),
     );
     print("Status postApi New Post:${response.statusCode}");

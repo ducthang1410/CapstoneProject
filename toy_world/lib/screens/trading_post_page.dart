@@ -13,7 +13,8 @@ class TradingPostPage extends StatefulWidget {
   String token;
   int groupID;
 
-  TradingPostPage({required this.role, required this.token, required this.groupID});
+  TradingPostPage(
+      {required this.role, required this.token, required this.groupID});
 
   @override
   State<TradingPostPage> createState() => _TradingPostPageState();
@@ -66,53 +67,58 @@ class _TradingPostPageState extends State<TradingPostPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      // _newPost(),
-      const SizedBox(
-        height: 6,
-      ),
-      Flexible(
-        fit: FlexFit.loose,
-        child: FutureBuilder(
-            future: getData(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                if (posts?.length != null) {
-                  return ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: EdgeInsets.zero,
-                      itemCount: posts?.length,
-                      itemBuilder: (context, index) {
-                        images = posts![index].images!.cast<ImagePost>();
-                        return TradingPostWidget(
-                            role: widget.role,
-                            token: widget.token,
-                            tradingPostId: posts![index].id,
-                            isPostDetail: false,
-                            ownerAvatar: posts![index].ownerAvatar,
-                            ownerName: posts![index].ownerName,
-                            isLikedPost: posts![index].isLikedPost,
-                            postDate: posts![index].postDate,
-                            content: posts![index].content,
-                            toyName: posts![index].toyName,
-                            address: posts![index].address,
-                            exchange: posts![index].exchange,
-                            value: posts![index].value,
-                            images: images,
-                            numOfReact: posts![index].noOfReact!.toInt(),
-                            numOfComment: posts![index].noOfComment!.toInt());
-                      });
-                } else {
-                  return const Center(child: Text("There is no posts :(((("));
+    return Scaffold(
+      backgroundColor: Colors.grey[400],
+      body: Column(mainAxisSize: MainAxisSize.min, children: [
+        // _newPost(),
+        const SizedBox(
+          height: 6,
+        ),
+        Flexible(
+          fit: FlexFit.loose,
+          child: FutureBuilder(
+              future: getData(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  if (posts?.length != null) {
+                    return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.zero,
+                        itemCount: posts?.length,
+                        itemBuilder: (context, index) {
+                          images = posts![index].images!.cast<ImagePost>();
+                          return TradingPostWidget(
+                              role: widget.role,
+                              token: widget.token,
+                              tradingPostId: posts![index].id,
+                              isPostDetail: false,
+                              ownerAvatar: posts![index].ownerAvatar,
+                              ownerName: posts![index].ownerName,
+                              isLikedPost: posts![index].isLikedPost,
+                              postDate: posts![index].postDate,
+                              title: posts![index].title,
+                              content: posts![index].content,
+                              toyName: posts![index].toyName,
+                              address: posts![index].address,
+                              phoneNum: posts![index].phone,
+                              exchange: posts![index].exchange,
+                              value: posts![index].value,
+                              images: images,
+                              numOfReact: posts![index].noOfReact!.toInt(),
+                              numOfComment: posts![index].noOfComment!.toInt());
+                        });
+                  } else {
+                    return const Center(child: Text("There is no posts :(((("));
+                  }
                 }
-              }
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }),
-      )
-    ]);
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }),
+        )
+      ]),
+    );
   }
 
   // Widget _newPost() {

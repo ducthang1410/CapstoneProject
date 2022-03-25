@@ -15,6 +15,8 @@ class TradingPost {
     this.type,
     this.brand,
     this.address,
+    this.phone,
+    this.title,
     this.content,
     this.exchange,
     this.value,
@@ -33,6 +35,8 @@ class TradingPost {
   String? type;
   String? brand;
   String? address;
+  String? phone;
+  String? title;
   String? content;
   String? exchange;
   double? value;
@@ -51,6 +55,8 @@ class TradingPost {
     type: json["type"],
     brand: json["brand"],
     address: json["address"],
+    phone: json["phone"],
+    title: json["title"],
     content: json["content"],
     exchange: json["exchange"],
     value: json["value"],
@@ -70,6 +76,8 @@ class TradingPost {
     "type": type,
     "brand": brand,
     "address": address,
+    "phone": phone,
+    "title": title,
     "content": content,
     "exchange": exchange,
     "value": value,

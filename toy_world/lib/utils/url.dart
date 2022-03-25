@@ -10,6 +10,7 @@ String urlGetCommentByPost = "api/posts/details";
 String urlCommentPost = "api/comments/news/post";
 String urlNewPost = "api/posts/new";
 String urlGetPostByAccount = "api/posts/account";
+String urlGetUserChat = "api/accounts";
 String urlPutReactPost = "api/posts/reacts";
 String urlPutUpdateComment = "api/comments";
 String urlDeleteComment = "api/comments";

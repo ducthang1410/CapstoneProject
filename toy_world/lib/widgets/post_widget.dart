@@ -104,7 +104,7 @@ class _PostWidgetState extends State<PostWidget> {
                     shrinkWrap: true,
                     primary: false,
                     gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: size.width * 0.5,
+                      maxCrossAxisExtent: imageShow(images, size),
                       crossAxisSpacing: 2,
                       mainAxisSpacing: 2,
                     ),
@@ -331,7 +331,7 @@ class _PostWidgetState extends State<PostWidget> {
                     color: Colors.black54,
                     child: Text(
                       '+' + remaining.toString(),
-                      style: TextStyle(fontSize: 32),
+                      style: const TextStyle(fontSize: 32),
                     ),
                   ),
                 ),

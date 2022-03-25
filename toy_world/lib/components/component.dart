@@ -3,6 +3,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:toy_world/screens/list_group_page.dart';
 import 'package:toy_world/screens/home_page.dart';
+import 'package:toy_world/screens/message_list_page.dart';
 import 'package:toy_world/screens/profile_page.dart';
 import 'package:toy_world/utils/helpers.dart';
 
@@ -68,7 +69,11 @@ Widget defaultAppBar(BuildContext context) {
                       iconSize: size.height * 0.035,
                       icon: const Icon(FontAwesomeIcons.commentDots,
                           color: Colors.white),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => MessageListPage(),
+                        ));
+                      },
                     ),
                   ),
                 ],
@@ -121,7 +126,11 @@ Widget sideAppBar(BuildContext context) {
                       iconSize: size.height * 0.035,
                       icon: const Icon(FontAwesomeIcons.commentDots,
                           color: Colors.white),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => MessageListPage(),
+                        ));
+                      },
                     ),
                   ),
                 ],
@@ -140,7 +149,7 @@ Widget drawerMenu(BuildContext context, int role, String token, String name,
       height: size.height,
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(25), bottomLeft: Radius.circular(25)),
+            topLeft: Radius.circular(15), bottomLeft: Radius.circular(15)),
         child: Drawer(
           child: Container(
             decoration: const BoxDecoration(
@@ -168,18 +177,18 @@ Widget drawerMenu(BuildContext context, int role, String token, String name,
                     }),
                 Column(
                   children: [
-                    const Divider(
-                      color: Color(0xffDB36A4),
-                      thickness: 1,
-                    ),
-                    buildMenuItem(
-                      text: 'Home',
-                      urlImage: "assets/icons/home.png",
-                      onClicked: () {
-                        Navigator.of(context).pop();
-                        selectedDrawerItem(context, 0, role, token);
-                      },
-                    ),
+                    // const Divider(
+                    //   color: Color(0xffDB36A4),
+                    //   thickness: 1,
+                    // ),
+                    // buildMenuItem(
+                    //   text: 'Management',
+                    //   urlImage: "assets/icons/home.png",
+                    //   onClicked: () {
+                    //     Navigator.of(context).pop();
+                    //     selectedDrawerItem(context, 0, role, token);
+                    //   },
+                    // ),
                     const Divider(
                       color: Color(0xffDB36A4),
                       thickness: 1,
@@ -190,30 +199,6 @@ Widget drawerMenu(BuildContext context, int role, String token, String name,
                       onClicked: () {
                         Navigator.of(context).pop();
                         selectedDrawerItem(context, 1, role, token);
-                      },
-                    ),
-                    const Divider(
-                      color: Color(0xffDB36A4),
-                      thickness: 1,
-                    ),
-                    buildMenuItem(
-                      text: 'Contest',
-                      urlImage: "assets/icons/swords.png",
-                      onClicked: () {
-                        Navigator.of(context).pop();
-                        selectedDrawerItem(context, 2, role, token);
-                      },
-                    ),
-                    const Divider(
-                      color: Color(0xffDB36A4),
-                      thickness: 1,
-                    ),
-                    buildMenuItem(
-                      text: 'Group',
-                      urlImage: "assets/icons/group.png",
-                      onClicked: () {
-                        Navigator.of(context).pop();
-                        selectedDrawerItem(context, 3, role, token);
                       },
                     ),
                     const Divider(
@@ -292,7 +277,7 @@ Widget buildMenuItem({
   VoidCallback? onClicked,
 }) {
   return Container(
-    padding: const EdgeInsets.only(left: 50, right: 10),
+    padding: const EdgeInsets.only(left: 30, right: 10),
     child: ListTile(
       leading: SizedBox(
         height: 30,

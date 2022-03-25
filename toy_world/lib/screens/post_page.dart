@@ -172,7 +172,7 @@ class _PostPageState extends State<PostPage> {
                       onPressed: () async {
                         try {
                           List<String> imageUrls;
-                          imageUrls = uploadImages(imagesPicker);
+                          imageUrls = uploadImages(imagesPicker, "Post");
                           if (await checkNewPost(
                                 token: widget.token,
                                 groupId: widget.groupID,
@@ -194,7 +194,7 @@ class _PostPageState extends State<PostPage> {
                       },
                       child: const Text(
                         'Post',
-                        style: TextStyle(fontSize: 20, color: Colors.white),
+                        style: TextStyle(fontSize: 18, color: Colors.white),
                       ))
                 ],
               ),

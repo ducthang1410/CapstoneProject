@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:intl/intl.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -7,7 +8,6 @@ import 'package:toy_world/components/component.dart';
 import 'package:toy_world/models/model_image_post.dart';
 
 import 'package:toy_world/utils/helpers.dart';
-
 
 class TradingPostWidget extends StatefulWidget {
   int role;
@@ -18,8 +18,10 @@ class TradingPostWidget extends StatefulWidget {
   String? ownerName;
   bool? isLikedPost;
   DateTime? postDate;
+  String? title;
   String? toyName;
   String? address;
+  String? phoneNum;
   String? exchange;
   double? value;
   String? content;
@@ -36,8 +38,10 @@ class TradingPostWidget extends StatefulWidget {
       required this.ownerName,
       required this.isLikedPost,
       required this.postDate,
+      required this.title,
       required this.toyName,
       required this.address,
+      required this.phoneNum,
       required this.exchange,
       this.value,
       required this.content,
@@ -51,6 +55,7 @@ class TradingPostWidget extends StatefulWidget {
 
 class _TradingPostWidgetState extends State<TradingPostWidget> {
   int _choice = 0;
+  final oCcy = NumberFormat("#,##0.00", "vi-VN");
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +64,13 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
         ownerName: widget.ownerName,
         isLikedPost: widget.isLikedPost,
         postDate: widget.postDate,
+        title: widget.title,
+        toyName: widget.toyName,
         content: widget.content,
+        exchange: widget.exchange,
+        value: widget.value,
+        address: widget.address,
+        phoneNum: widget.phoneNum,
         images: widget.images,
         numOfReact: widget.numOfReact,
         numOfComment: widget.numOfComment);
@@ -68,6 +79,12 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
   Widget _post(
       {ownerAvatar,
       ownerName,
+      title,
+      toyName,
+      address,
+      exchange,
+      value,
+      phoneNum,
       isLikedPost,
       postDate,
       content,
@@ -93,7 +110,40 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                 const SizedBox(
                   height: 4.0,
                 ),
+                Text(
+                  title,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+                const SizedBox(
+                  height: 4.0,
+                ),
                 Text(content),
+                const Divider(),
+                const SizedBox(
+                  height: 4.0,
+                ),
+                _buildInfo(const Icon(Icons.toys, color: Color(0xffDB36A4),), toyName),
+                const SizedBox(
+                  height: 4.0,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Exchange: " + exchange, style: const TextStyle(fontWeight: FontWeight.bold),),
+                    value != null
+                        ? _buildInfo(const Icon(Icons.money, color: Colors.teal,), oCcy.format(value).toString())
+                        : const SizedBox.shrink(),
+                  ],
+                ),
+                const SizedBox(
+                  height: 4.0,
+                ),
+                _buildInfo(const Icon(Icons.location_on, color: Colors.red,), address),
+                const SizedBox(
+                  height: 4.0,
+                ),
+                _buildInfo(const Icon(Icons.phone, color: Colors.green,), phoneNum),
                 images!.isNotEmpty
                     ? const SizedBox.shrink()
                     : const SizedBox(
@@ -110,7 +160,7 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                     shrinkWrap: true,
                     primary: false,
                     gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: size.width * 0.5,
+                      maxCrossAxisExtent: imageShow(images, size),
                       crossAxisSpacing: 2,
                       mainAxisSpacing: 2,
                     ),
@@ -177,11 +227,11 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                     value: 1,
                   ),
                   PopupMenuItem(
-                    child: Text("Edit trading post"),
+                    child: Text("Edit"),
                     value: 2,
                   ),
                   PopupMenuItem(
-                    child: Text("Delete trading post"),
+                    child: Text("Delete"),
                     value: 3,
                   )
                 ]),
@@ -390,4 +440,17 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
   //   }
   //   setState(() {});
   // }
+
+  Widget _buildInfo(Icon icon, String text) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        icon,
+        const SizedBox(
+          width: 8.0,
+        ),
+        Text(text + " VND"),
+      ],
+    );
+  }
 }
