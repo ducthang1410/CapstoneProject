@@ -25,7 +25,7 @@ class _MessageListPageState extends State<MessageListPage> {
   final ScrollController listScrollController = ScrollController();
 
   int _limit = 20;
-  int _limitIncrement = 20;
+  final int _limitIncrement = 20;
   String _textSearch = "";
   bool isLoading = false;
 
@@ -76,7 +76,6 @@ class _MessageListPageState extends State<MessageListPage> {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xffDB36A4),

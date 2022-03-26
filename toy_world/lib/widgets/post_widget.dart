@@ -307,7 +307,7 @@ class _PostWidgetState extends State<PostWidget> {
               ),
             ),
             onTap: () {
-              onImageClicked(index);
+              onImageClicked(context, imageUrl);
             },
           );
         } else {
@@ -320,8 +320,8 @@ class _PostWidgetState extends State<PostWidget> {
                 CachedNetworkImage(
                   imageUrl: imageUrl!,
                   fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => Image.network(
-                    "https://www.trendsetter.com/pub/media/catalog/product/placeholder/default/no_image_placeholder.jpg",
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/images/img_not_available.jpeg',
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -344,12 +344,12 @@ class _PostWidgetState extends State<PostWidget> {
           child: CachedNetworkImage(
               imageUrl: imageUrl!,
               fit: BoxFit.cover,
-              errorWidget: (context, url, error) => Image.network(
-                    "https://www.trendsetter.com/pub/media/catalog/product/placeholder/default/no_image_placeholder.jpg",
-                    fit: BoxFit.cover,
-                  )),
+              errorWidget: (context, url, error) => Image.asset(
+                'assets/images/img_not_available.jpeg',
+                fit: BoxFit.cover,
+              ),),
           onTap: () {
-            onImageClicked(index);
+            onImageClicked(context, imageUrl);
           },
         );
       }

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:multi_image_picker2/multi_image_picker2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/apis/gets/get_post_group.dart';
@@ -27,10 +28,15 @@ class _PostPageState extends State<PostPage> {
   PostGroup? data;
   List<Post>? posts;
   List<ImagePost>? images;
-  int size = 10;
+  int _limit = 10;
+  final int _limitIncrement = 10;
   String _avatar =
       "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Avatar%2FdefaultAvatar.png?alt=media&token=b5fbfe09-9045-4838-bca5-649ff5667cad";
+
   late TextEditingController controller;
+  final ScrollController listScrollController = ScrollController();
+  bool _isVisible = true;
+
   List<Asset> imagesPicker = <Asset>[];
   String _error = 'No Error Dectected';
 
@@ -39,6 +45,7 @@ class _PostPageState extends State<PostPage> {
     // TODO: implement initState
     super.initState();
     _loadCounter();
+    listScrollController.addListener(scrollListener);
     controller = TextEditingController()
       ..addListener(() {
         setState(() {});
@@ -54,7 +61,7 @@ class _PostPageState extends State<PostPage> {
   getData() async {
     PostGroupList postGroup = PostGroupList();
     data = await postGroup.getPostGroup(
-        token: widget.token, groupId: widget.groupID, size: size);
+        token: widget.token, groupId: widget.groupID, size: _limit);
     if (data == null) return List.empty();
     posts = data!.data!.cast<Post>();
     setState(() {});
@@ -68,56 +75,79 @@ class _PostPageState extends State<PostPage> {
     });
   }
 
+  void scrollListener() {
+    if (listScrollController.offset >=
+            listScrollController.position.maxScrollExtent &&
+        !listScrollController.position.outOfRange) {
+      setState(() {
+        _limit += _limitIncrement;
+      });
+    }
+    if (listScrollController.position.userScrollDirection ==
+        ScrollDirection.reverse) {
+      setState(() {
+        _isVisible = false;
+      });
+    } else if (listScrollController.position.userScrollDirection ==
+        ScrollDirection.forward) {
+      setState(() {
+        _isVisible = true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[400],
-      body: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _newPost(),
-            const SizedBox(
-              height: 6,
-            ),
-            Expanded(
-              child: FutureBuilder(
-                  future: getData(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      if (posts?.length != null) {
-                        return ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            padding: EdgeInsets.zero,
-                            itemCount: posts?.length,
-                            itemBuilder: (context, index) {
-                              images = posts![index].images!.cast<ImagePost>();
-                              return PostWidget(
-                                  role: widget.role,
-                                  token: widget.token,
-                                  postId: posts![index].id,
-                                  isPostDetail: false,
-                                  ownerAvatar: posts![index].ownerAvatar,
-                                  ownerName: posts![index].ownerName,
-                                  isLikedPost: posts![index].isLikedPost,
-                                  timePublic: posts![index].publicDate,
-                                  content: posts![index].content,
-                                  images: images,
-                                  numOfReact: posts![index].numOfReact!.toInt(),
-                                  numOfComment:
-                                      posts![index].numOfComment!.toInt());
-                            });
-                      } else {
-                        return const Center(
-                            child: Text("There is no posts :(((("));
-                      }
-                    }
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }),
-            )
-          ]),
+      body: Column(mainAxisSize: MainAxisSize.min, children: [
+        Visibility(
+            visible: _isVisible,
+            child: Column(
+              children: [
+                _newPost(),
+                const SizedBox(
+                  height: 6,
+                ),
+              ],
+            )),
+        Expanded(
+          child: FutureBuilder(
+              future: getData(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  if (posts?.length != null) {
+                    return ListView.builder(
+                        controller: listScrollController,
+                        padding: EdgeInsets.zero,
+                        itemCount: posts?.length,
+                        itemBuilder: (context, index) {
+                          images = posts![index].images!.cast<ImagePost>();
+                          return PostWidget(
+                              role: widget.role,
+                              token: widget.token,
+                              postId: posts![index].id,
+                              isPostDetail: false,
+                              ownerAvatar: posts![index].ownerAvatar,
+                              ownerName: posts![index].ownerName,
+                              isLikedPost: posts![index].isLikedPost,
+                              timePublic: posts![index].publicDate,
+                              content: posts![index].content,
+                              images: images,
+                              numOfReact: posts![index].numOfReact!.toInt(),
+                              numOfComment:
+                                  posts![index].numOfComment!.toInt());
+                        });
+                  } else {
+                    return const Center(child: Text("There is no posts :(((("));
+                  }
+                }
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }),
+        )
+      ]),
     );
   }
 
@@ -172,7 +202,7 @@ class _PostPageState extends State<PostPage> {
                       onPressed: () async {
                         try {
                           List<String> imageUrls;
-                          imageUrls = uploadImages(imagesPicker, "Post");
+                          imageUrls = await uploadImages(imagesPicker, "Post");
                           if (await checkNewPost(
                                 token: widget.token,
                                 groupId: widget.groupID,
@@ -182,6 +212,9 @@ class _PostPageState extends State<PostPage> {
                               200) {
                             imagesPicker.clear();
                             controller.clear();
+                            loadingSuccess(
+                                status:
+                                    "Post success!!!\nPlease wait for approval.");
                             setState(() {});
                           } else {
                             loadingFail(

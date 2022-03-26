@@ -23,7 +23,7 @@ void loadingFail({required status}) {
 void loadingSuccess({required status}) {
   EasyLoading.showSuccess("$status",
       maskType: EasyLoadingMaskType.black,
-      duration: const Duration(seconds: 2));
+      duration: const Duration(seconds: 4));
 }
 
 Widget defaultAppBar(BuildContext context) {
@@ -79,6 +79,56 @@ Widget defaultAppBar(BuildContext context) {
                 ],
               ))
         ],
+      ),
+    ),
+  );
+}
+
+Widget groupAppBar(BuildContext context) {
+  var size = MediaQuery.of(context).size;
+  return Center(
+    child: Opacity(
+      opacity: 0.7,
+      child: Container(
+        width: size.width,
+        height: size.height * 0.09,
+        padding: const EdgeInsets.only(left: 5, right: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+                iconSize: size.height * 0.04,
+                icon: const Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                ),
+                onPressed: () => Navigator.of(context).pop()),
+            SizedBox(
+                width: size.width * 0.3,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      iconSize: size.height * 0.04,
+                      alignment: Alignment.center,
+                      icon: const Icon(Icons.search, color: Colors.white),
+                      onPressed: () {},
+                    ),
+                    IconButton(
+                      alignment: Alignment.center,
+                      iconSize: size.height * 0.04,
+                      icon: const Icon(FontAwesomeIcons.commentDots,
+                          color: Colors.white),
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => MessageListPage(),
+                        ));
+                      },
+                    ),
+                  ],
+                ))
+          ],
+        ),
       ),
     ),
   );

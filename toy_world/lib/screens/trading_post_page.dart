@@ -24,10 +24,12 @@ class _TradingPostPageState extends State<TradingPostPage> {
   TradingPostGroup? data;
   List<TradingPost>? posts;
   List<ImagePost>? images;
-  int size = 10;
+  int _limit = 10;
+  final int _limitIncrement = 10;
   String _avatar =
       "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Avatar%2FdefaultAvatar.png?alt=media&token=b5fbfe09-9045-4838-bca5-649ff5667cad";
   late TextEditingController controller;
+  final ScrollController listScrollController = ScrollController();
   List<Asset> imagesPicker = <Asset>[];
   String _error = 'No Error Dectected';
 
@@ -36,6 +38,7 @@ class _TradingPostPageState extends State<TradingPostPage> {
     // TODO: implement initState
     super.initState();
     _loadCounter();
+    listScrollController.addListener(scrollListener);
     controller = TextEditingController()
       ..addListener(() {
         setState(() {});
@@ -51,7 +54,7 @@ class _TradingPostPageState extends State<TradingPostPage> {
   getData() async {
     TradingPostGroupList postGroup = TradingPostGroupList();
     data = await postGroup.getTradingPostGroup(
-        token: widget.token, groupId: widget.groupID, size: size);
+        token: widget.token, groupId: widget.groupID, size: _limit);
     if (data == null) return List.empty();
     posts = data!.data!.cast<TradingPost>();
     setState(() {});
@@ -65,6 +68,16 @@ class _TradingPostPageState extends State<TradingPostPage> {
     });
   }
 
+  void scrollListener() {
+    if (listScrollController.offset >=
+        listScrollController.position.maxScrollExtent &&
+        !listScrollController.position.outOfRange) {
+      setState(() {
+        _limit += _limitIncrement;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,16 +87,14 @@ class _TradingPostPageState extends State<TradingPostPage> {
         const SizedBox(
           height: 6,
         ),
-        Flexible(
-          fit: FlexFit.loose,
+        Expanded(
           child: FutureBuilder(
               future: getData(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   if (posts?.length != null) {
                     return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
+                        controller: listScrollController,
                         padding: EdgeInsets.zero,
                         itemCount: posts?.length,
                         itemBuilder: (context, index) {

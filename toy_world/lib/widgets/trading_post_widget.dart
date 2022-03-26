@@ -130,9 +130,9 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Exchange: " + exchange, style: const TextStyle(fontWeight: FontWeight.bold),),
+                    Text("Exchange: " + exchange,),
                     value != null
-                        ? _buildInfo(const Icon(Icons.money, color: Colors.teal,), oCcy.format(value).toString())
+                        ? _buildInfo(const Icon(Icons.money, color: Colors.teal,), oCcy.format(value).toString() + " VND")
                         : const SizedBox.shrink(),
                   ],
                 ),
@@ -168,6 +168,13 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                   ),
                 )
               : const SizedBox.shrink(),
+          const SizedBox(
+            height: 4.0,
+          ),
+          _buildContact(),
+          const SizedBox(
+            height: 4.0,
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: _postStats(
@@ -236,6 +243,40 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                   )
                 ]),
       ],
+    );
+  }
+
+  Widget _buildContact(){
+    return Container(
+      color: Colors.grey.shade200,
+      padding: const EdgeInsets.all(12.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text("Contact Owner", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+          GestureDetector(
+            onTap: (){},
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.all(10.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                border: Border.all(
+                    width: 1, style: BorderStyle.solid, color: Colors.black87),
+              ),
+              child: Row(
+                children: const [
+                  Icon(FontAwesomeIcons.commentDots),
+                  SizedBox(
+                    width: 10.0,
+                  ),
+                  Text("Chat", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 
@@ -367,7 +408,7 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
               ),
             ),
             onTap: () {
-              onImageClicked(index);
+              onImageClicked(context, imageUrl);
             },
           );
         } else {
@@ -391,7 +432,7 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                     color: Colors.black54,
                     child: Text(
                       '+' + remaining.toString(),
-                      style: TextStyle(fontSize: 32),
+                      style: const TextStyle(fontSize: 32),
                     ),
                   ),
                 ),
@@ -409,7 +450,7 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                     fit: BoxFit.cover,
                   )),
           onTap: () {
-            onImageClicked(index);
+            onImageClicked(context, imageUrl);
           },
         );
       }
@@ -449,7 +490,7 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
         const SizedBox(
           width: 8.0,
         ),
-        Text(text + " VND"),
+        Text(text),
       ],
     );
   }

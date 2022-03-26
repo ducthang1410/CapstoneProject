@@ -20,7 +20,7 @@ class NewPost {
       body: jsonEncode(<dynamic, dynamic>{
         "groupId": "$groupId",
         "content": "$content",
-        "imagesLink": ["$imgLink"],
+        "imagesLink": imgLink,
       }),
     );
     print("Status postApi New Post:${response.statusCode}");

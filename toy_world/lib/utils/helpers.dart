@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -10,6 +9,7 @@ import 'package:toy_world/models/model_image_post.dart';
 
 import 'package:toy_world/screens/contest_page.dart';
 import 'package:toy_world/screens/following_account_page.dart';
+import 'package:toy_world/screens/full_photo_page.dart';
 import 'package:toy_world/screens/list_group_page.dart';
 import 'package:toy_world/screens/home_page.dart';
 import 'package:toy_world/screens/proposal_contest_page.dart';
@@ -85,8 +85,15 @@ timeControl(Duration duration) {
   }
 }
 
-onImageClicked(int i) {
-  print("Image was click");
+onImageClicked(BuildContext context, String url) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => FullPhotoPage(
+        url: url,
+      ),
+    ),
+  );
 }
 
 onExpandClicked() {
@@ -97,7 +104,8 @@ Future<String> postImage(Asset asset, String directory) async {
   String fileName = DateTime.now().millisecondsSinceEpoch.toString();
   ByteData byteData = await asset.getByteData();
   List<int> imageData = byteData.buffer.asUint8List();
-  Reference ref = FirebaseStorage.instance.ref().child("$directory/" + fileName);
+  Reference ref =
+      FirebaseStorage.instance.ref().child("$directory/" + fileName);
   UploadTask uploadTask = ref.putData(Uint8List.fromList(imageData));
 
   TaskSnapshot snapshot = await uploadTask;
@@ -107,7 +115,7 @@ Future<String> postImage(Asset asset, String directory) async {
 uploadImages(List<Asset> images, String directory) async {
   final imageUrls = <String>[];
   for (var image in images) {
-    final url = await postImage(image, directory);
+    String url = await postImage(image, directory);
     imageUrls.add(url);
   }
   return imageUrls;
@@ -122,4 +130,3 @@ imageShow(List<ImagePost> images, Size size) {
     return size.width * 0.5;
   }
 }
-

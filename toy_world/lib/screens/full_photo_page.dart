@@ -10,9 +10,10 @@ class FullPhotoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color(0xffDB36A4),
         title: const Text(
           "Photo",
-          style: TextStyle(color: Color(0xffDB36A4)),
+          style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
       ),

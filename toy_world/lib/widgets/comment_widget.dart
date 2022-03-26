@@ -129,7 +129,7 @@ class _CommentWidgetState extends State<CommentWidget> {
           ),
           IconButton(
             icon: const Icon(
-              FontAwesomeIcons.arrowCircleRight,
+              Icons.send,
               color: Color(0xffDB36A4),
             ),
             onPressed: () async {
