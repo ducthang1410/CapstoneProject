@@ -4,8 +4,11 @@ import 'package:intl/intl.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/components/component.dart';
 import 'package:toy_world/models/model_image_post.dart';
+import 'package:toy_world/screens/trading_chat_page.dart';
+import 'package:toy_world/utils/firestore_service.dart';
 
 import 'package:toy_world/utils/helpers.dart';
 
@@ -14,9 +17,11 @@ class TradingPostWidget extends StatefulWidget {
   String token;
   int? tradingPostId;
   bool? isPostDetail;
+  int? ownerId;
   String? ownerAvatar;
   String? ownerName;
   bool? isLikedPost;
+  int? status;
   DateTime? postDate;
   String? title;
   String? toyName;
@@ -34,9 +39,11 @@ class TradingPostWidget extends StatefulWidget {
       required this.token,
       required this.tradingPostId,
       required this.isPostDetail,
+      required this.ownerId,
       required this.ownerAvatar,
       required this.ownerName,
       required this.isLikedPost,
+      required this.status,
       required this.postDate,
       required this.title,
       required this.toyName,
@@ -55,7 +62,22 @@ class TradingPostWidget extends StatefulWidget {
 
 class _TradingPostWidgetState extends State<TradingPostWidget> {
   int _choice = 0;
+  int _currentUserId = 0;
   final oCcy = NumberFormat("#,##0.00", "vi-VN");
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadCounter();
+  }
+
+  _loadCounter() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _currentUserId = (prefs.getInt('accountId') ?? 0);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,27 +145,50 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                 const SizedBox(
                   height: 4.0,
                 ),
-                _buildInfo(const Icon(Icons.toys, color: Color(0xffDB36A4),), toyName),
+                _buildInfo(
+                    const Icon(
+                      Icons.toys,
+                      color: Color(0xffDB36A4),
+                    ),
+                    toyName),
                 const SizedBox(
                   height: 4.0,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Exchange: " + exchange,),
+                    Text(
+                      "Exchange: " + exchange,
+                      maxLines: 1,
+                    ),
                     value != null
-                        ? _buildInfo(const Icon(Icons.money, color: Colors.teal,), oCcy.format(value).toString() + " VND")
+                        ? _buildInfo(
+                            const Icon(
+                              Icons.money,
+                              color: Colors.teal,
+                            ),
+                            oCcy.format(value).toString() + " VND")
                         : const SizedBox.shrink(),
                   ],
                 ),
                 const SizedBox(
                   height: 4.0,
                 ),
-                _buildInfo(const Icon(Icons.location_on, color: Colors.red,), address),
+                _buildInfo(
+                    const Icon(
+                      Icons.location_on,
+                      color: Colors.red,
+                    ),
+                    address),
                 const SizedBox(
                   height: 4.0,
                 ),
-                _buildInfo(const Icon(Icons.phone, color: Colors.green,), phoneNum),
+                _buildInfo(
+                    const Icon(
+                      Icons.phone,
+                      color: Colors.green,
+                    ),
+                    phoneNum),
                 images!.isNotEmpty
                     ? const SizedBox.shrink()
                     : const SizedBox(
@@ -154,7 +199,7 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
           ),
           images!.isNotEmpty
               ? Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding: const EdgeInsets.only(top: 8.0),
                   child: GridView(
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
@@ -168,15 +213,13 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                   ),
                 )
               : const SizedBox.shrink(),
-          const SizedBox(
-            height: 4.0,
-          ),
-          _buildContact(),
-          const SizedBox(
-            height: 4.0,
-          ),
+          _currentUserId != widget.ownerId
+              ? widget.status == 0
+                  ? _buildContact()
+                  : const SizedBox.shrink()
+              : const SizedBox.shrink(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            padding: const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 0),
             child: _postStats(
                 isLikedPost: isLikedPost,
                 numOfReact: numOfReact,
@@ -246,20 +289,50 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
     );
   }
 
-  Widget _buildContact(){
+  Widget _buildContact() {
     return Container(
       color: Colors.grey.shade200,
       padding: const EdgeInsets.all(12.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text("Contact Owner", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+          const Text(
+            "Contact Owner",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           GestureDetector(
-            onTap: (){},
+            onTap: () async {
+              await createTradingConversation(
+                  widget.title,
+                  widget.tradingPostId,
+                  widget.toyName,
+                  _currentUserId,
+                  widget.ownerId,
+                  widget.content);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TradingChatPage(
+                    arguments: TradingChatPageArguments(
+                      token: widget.token,
+                      currentUserId: _currentUserId,
+                      peerId: widget.ownerId,
+                      sellerId: widget.ownerId,
+                      buyerId: _currentUserId,
+                      tradingPostId: widget.tradingPostId,
+                      toyName: widget.toyName,
+                      title: widget.title,
+                    ),
+                  ),
+                ),
+              );
+            },
             child: Container(
               alignment: Alignment.center,
-              padding: const EdgeInsets.all(10.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 15.0),
               decoration: BoxDecoration(
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(10.0),
                 border: Border.all(
                     width: 1, style: BorderStyle.solid, color: Colors.black87),
@@ -270,7 +343,10 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                   SizedBox(
                     width: 10.0,
                   ),
-                  Text("Chat", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+                  Text(
+                    "Chat",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
             ),
@@ -490,7 +566,10 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
         const SizedBox(
           width: 8.0,
         ),
-        Text(text),
+        Text(
+          text,
+          maxLines: 2,
+        ),
       ],
     );
   }

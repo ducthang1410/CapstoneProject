@@ -65,6 +65,7 @@ class _GroupPageState extends State<GroupPage> {
               ),
               Expanded(
                 child: TabBarView(
+                  physics: const NeverScrollableScrollPhysics(),
                   children: [
                     PostPage(
                       role: widget.role,

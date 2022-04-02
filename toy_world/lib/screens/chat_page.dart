@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_image_picker2/multi_image_picker2.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/models/model_message_chat.dart';
 import 'package:toy_world/screens/full_photo_page.dart';
 import 'package:toy_world/utils/firestore_constants.dart';
@@ -273,7 +272,6 @@ class _ChatPageState extends State<ChatPage> {
                 if (snapshot.hasData) {
                   listMessage = snapshot.data!.docs;
                   if (listMessage.isNotEmpty) {
-                    print(listMessage);
                     return ListView.builder(
                       padding: const EdgeInsets.all(10),
                       itemBuilder: (context, index) =>
@@ -424,7 +422,7 @@ class _ChatPageState extends State<ChatPage> {
                             fontStyle: FontStyle.italic),
                       ),
                       margin:
-                          const EdgeInsets.only(right: 20, top: 5, bottom: 5),
+                          const EdgeInsets.only(right: 10, top: 5, bottom: 5),
                     )
                   : const SizedBox.shrink()
             ],

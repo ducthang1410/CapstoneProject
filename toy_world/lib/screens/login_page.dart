@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:sign_button/sign_button.dart';
@@ -24,6 +25,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     // TODO: implement initState
+    _loadCounter();
     super.initState();
   }
 
@@ -249,6 +251,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   checkLoginSystemAccount({email, password}) async {
+    await Firebase.initializeApp();
     PostLoginSystemAccount postLogin = PostLoginSystemAccount();
     var status = await postLogin.login(email: email, password: password);
     return status;

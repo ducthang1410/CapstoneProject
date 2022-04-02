@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:multi_image_picker2/multi_image_picker2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/apis/gets/get_trading_post_group.dart';
-import 'package:toy_world/components/component.dart';
 import 'package:toy_world/models/model_image_post.dart';
 import 'package:toy_world/models/model_trading_post.dart';
 import 'package:toy_world/models/model_trading_post_group.dart';
@@ -36,13 +35,13 @@ class _TradingPostPageState extends State<TradingPostPage> {
   @override
   void initState() {
     // TODO: implement initState
-    super.initState();
     _loadCounter();
     listScrollController.addListener(scrollListener);
     controller = TextEditingController()
       ..addListener(() {
         setState(() {});
       });
+    super.initState();
   }
 
   @override
@@ -84,9 +83,6 @@ class _TradingPostPageState extends State<TradingPostPage> {
       backgroundColor: Colors.grey[400],
       body: Column(mainAxisSize: MainAxisSize.min, children: [
         // _newPost(),
-        const SizedBox(
-          height: 6,
-        ),
         Expanded(
           child: FutureBuilder(
               future: getData(),
@@ -104,9 +100,11 @@ class _TradingPostPageState extends State<TradingPostPage> {
                               token: widget.token,
                               tradingPostId: posts![index].id,
                               isPostDetail: false,
+                              ownerId: posts![index].ownerId,
                               ownerAvatar: posts![index].ownerAvatar,
                               ownerName: posts![index].ownerName,
                               isLikedPost: posts![index].isLikedPost,
+                              status: posts![index].status,
                               postDate: posts![index].postDate,
                               title: posts![index].title,
                               content: posts![index].content,

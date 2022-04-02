@@ -88,7 +88,7 @@ Widget groupAppBar(BuildContext context) {
   var size = MediaQuery.of(context).size;
   return Center(
     child: Opacity(
-      opacity: 0.7,
+      opacity: 0.8,
       child: Container(
         width: size.width,
         height: size.height * 0.09,
