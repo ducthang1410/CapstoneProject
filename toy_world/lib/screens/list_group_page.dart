@@ -119,15 +119,15 @@ class _ListGroupPageState extends State<ListGroupPage> {
               Expanded(
                 child: Image.asset(
                   "assets/images/toyType3.jpg",
-                  width: size.width * 0.45,
                   fit: BoxFit.cover,
                 ),
               ),
               const SizedBox(
-                height: 10,
+                height: 5,
               ),
               Text(
                 name,
+                maxLines: 2,
                 style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,

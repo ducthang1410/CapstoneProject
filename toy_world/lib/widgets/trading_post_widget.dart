@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toy_world/apis/puts/put_enable_disable_trading_post.dart';
+import 'package:toy_world/apis/puts/put_react_trading_post.dart';
 import 'package:toy_world/components/component.dart';
 import 'package:toy_world/models/model_image_post.dart';
 import 'package:toy_world/screens/trading_chat_page.dart';
@@ -33,28 +35,33 @@ class TradingPostWidget extends StatefulWidget {
   List<ImagePost>? images;
   int? numOfReact;
   int? numOfComment;
+  bool? isReadMore;
+  bool isDisable;
 
-  TradingPostWidget(
-      {required this.role,
-      required this.token,
-      required this.tradingPostId,
-      required this.isPostDetail,
-      required this.ownerId,
-      required this.ownerAvatar,
-      required this.ownerName,
-      required this.isLikedPost,
-      required this.status,
-      required this.postDate,
-      required this.title,
-      required this.toyName,
-      required this.address,
-      required this.phoneNum,
-      required this.exchange,
-      this.value,
-      required this.content,
-      this.images,
-      required this.numOfReact,
-      required this.numOfComment});
+  TradingPostWidget({
+    required this.role,
+    required this.token,
+    required this.tradingPostId,
+    required this.isPostDetail,
+    required this.ownerId,
+    required this.ownerAvatar,
+    required this.ownerName,
+    required this.isLikedPost,
+    required this.status,
+    required this.postDate,
+    required this.title,
+    required this.toyName,
+    required this.address,
+    required this.phoneNum,
+    required this.exchange,
+    this.value,
+    required this.content,
+    this.images,
+    required this.numOfReact,
+    required this.numOfComment,
+    this.isReadMore,
+    required this.isDisable,
+  });
 
   @override
   State<TradingPostWidget> createState() => _TradingPostWidgetState();
@@ -95,7 +102,8 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
         phoneNum: widget.phoneNum,
         images: widget.images,
         numOfReact: widget.numOfReact,
-        numOfComment: widget.numOfComment);
+        numOfComment: widget.numOfComment,
+        isReadMore: widget.isReadMore);
   }
 
   Widget _post(
@@ -112,7 +120,8 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
       content,
       List<ImagePost>? images,
       numOfReact,
-      numOfComment}) {
+      numOfComment,
+      isReadMore}) {
     var size = MediaQuery.of(context).size;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5.0),
@@ -140,7 +149,7 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                 const SizedBox(
                   height: 4.0,
                 ),
-                Text(content),
+                readMoreButton(content, isReadMore),
                 const Divider(),
                 const SizedBox(
                   height: 4.0,
@@ -189,6 +198,19 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                       color: Colors.green,
                     ),
                     phoneNum),
+                const SizedBox(
+                  height: 4.0,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Status: ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    showStatusTradingPost(widget.status),
+                  ],
+                ),
                 images!.isNotEmpty
                     ? const SizedBox.shrink()
                     : const SizedBox(
@@ -197,7 +219,7 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
               ],
             ),
           ),
-          images!.isNotEmpty
+          images.isNotEmpty
               ? Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: GridView(
@@ -218,13 +240,15 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                   ? _buildContact()
                   : const SizedBox.shrink()
               : const SizedBox.shrink(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 0),
-            child: _postStats(
-                isLikedPost: isLikedPost,
-                numOfReact: numOfReact,
-                numOfComment: numOfComment),
-          ),
+          widget.isDisable == false
+              ? Padding(
+                  padding: const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 0),
+                  child: _postStats(
+                      isLikedPost: isLikedPost,
+                      numOfReact: numOfReact,
+                      numOfComment: numOfComment),
+                )
+              : const SizedBox.shrink(),
         ],
       ),
     );
@@ -263,28 +287,47 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
             ],
           ),
         ),
-        PopupMenuButton(
-            icon: const Icon(Icons.more_horiz),
-            onSelected: (int value) {
-              setState(() {
-                _choice = value;
-                selectedPopupMenuButton(_choice);
-              });
-            },
-            itemBuilder: (context) => const [
-                  PopupMenuItem(
-                    child: Text("Feedback"),
-                    value: 1,
-                  ),
-                  PopupMenuItem(
-                    child: Text("Edit"),
-                    value: 2,
-                  ),
-                  PopupMenuItem(
-                    child: Text("Delete"),
-                    value: 3,
-                  )
-                ]),
+        widget.isDisable == false
+            ? PopupMenuButton(
+                icon: const Icon(Icons.more_horiz),
+                onSelected: (int value) {
+                  setState(() {
+                    _choice = value;
+                    selectedPopupMenuButton(_choice);
+                  });
+                },
+                itemBuilder: (context) => const [
+                      PopupMenuItem(
+                        child: Text("Feedback"),
+                        value: 1,
+                      ),
+                      PopupMenuItem(
+                        child: Text("Edit"),
+                        value: 2,
+                      ),
+                      PopupMenuItem(
+                        child: Text("Delete"),
+                        value: 3,
+                      )
+                    ])
+            : ElevatedButton(
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(
+                      const Color(0xffDB36A4),
+                    ),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ))),
+                child: const Text(
+                  "Enable",
+                  style: TextStyle(color: Colors.white, fontSize: 16.0),
+                ),
+                onPressed: () {
+                  enableTradingPost(
+                      token: widget.token, tradingPostId: widget.tradingPostId);
+                },
+              ),
       ],
     );
   }
@@ -400,9 +443,11 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                     color: isLikedPost ? Colors.red : Colors.grey[600],
                   ),
                 ),
-                onTap: () => {}
-                //reactPost(token: widget.token, postId: widget.tradingPostId),
-                ),
+                onTap: () => {
+                      reactTradingPost(
+                          token: widget.token,
+                          tradingPostId: widget.tradingPostId),
+                    }),
             _postButton(
               Icon(
                 FontAwesomeIcons.comment,
@@ -547,16 +592,28 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
     }
   }
 
-  // reactPost({token, postId}) async {
-  //   ReactPost react = ReactPost();
-  //   int status = await react.reactPost(token: token, postId: postId);
-  //   if (status == 200) {
-  //     setState(() {});
-  //   } else {
-  //     loadingFail(status: "Love Failed !!!");
-  //   }
-  //   setState(() {});
-  // }
+  reactTradingPost({token, tradingPostId}) async {
+    ReactTradingPost react = ReactTradingPost();
+    int status = await react.reactTradingPost(
+        token: token, tradingPostId: tradingPostId);
+    if (status == 200) {
+      setState(() {});
+    } else {
+      loadingFail(status: "Love Failed !!!");
+    }
+  }
+
+  enableTradingPost({token, tradingPostId}) async {
+    EnableDisableTradingPost enable = EnableDisableTradingPost();
+    int status = await enable.enableOrDisableTradingPost(
+        token: token, tradingPostId: tradingPostId, choice: 1);
+    if (status == 200) {
+      setState(() {});
+      loadingSuccess(status: "Enable Success");
+    } else {
+      loadingFail(status: "Enable Failed !!!");
+    }
+  }
 
   Widget _buildInfo(Icon icon, String text) {
     return Row(

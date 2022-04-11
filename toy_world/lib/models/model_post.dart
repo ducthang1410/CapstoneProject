@@ -16,6 +16,7 @@ class Post {
     this.images,
     this.numOfReact,
     this.numOfComment,
+    this.isReadMore
   });
 
   int? id;
@@ -28,6 +29,7 @@ class Post {
   List<ImagePost>? images;
   int? numOfReact;
   int? numOfComment;
+  bool? isReadMore = false;
 
   factory Post.fromJson(Map<String, dynamic> json) => Post(
     id: json["id"],

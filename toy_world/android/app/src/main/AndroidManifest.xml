@@ -2,6 +2,7 @@
     package="com.example.toy_world">
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name='android.requestLegacyExternalStorage="true"'/>
    <application
         android:label="toy_world"
         android:icon="@mipmap/ic_launcher">

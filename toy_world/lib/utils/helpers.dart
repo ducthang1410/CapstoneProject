@@ -7,12 +7,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:multi_image_picker2/multi_image_picker2.dart';
 import 'package:toy_world/models/model_image_post.dart';
 
-import 'package:toy_world/screens/contest_page.dart';
 import 'package:toy_world/screens/following_account_page.dart';
 import 'package:toy_world/screens/full_photo_page.dart';
-import 'package:toy_world/screens/list_group_page.dart';
-import 'package:toy_world/screens/home_page.dart';
-import 'package:toy_world/screens/proposal_contest_page.dart';
+
+import 'package:toy_world/screens/management_page.dart';
 import 'package:toy_world/screens/toy_page.dart';
 
 import 'package:toy_world/utils/google_login.dart';
@@ -38,36 +36,24 @@ colorHexa(String hexColor) {
 selectedDrawerItem(BuildContext context, item, role, token) {
   switch (item) {
     case 0:
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => HomePage(
-                role: role,
-                token: token,
-              )));
-      break;
-    case 1:
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => const ProposalPage()));
-      break;
-    case 2:
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => const ContestPage()));
-      break;
-    case 3:
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => ListGroupPage(role: role, token: token)));
-      break;
-    case 4:
       Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => const FollowingPage()));
       break;
-    case 5:
+    case 1:
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ManagementPage(
+            role: role,
+            token: token,
+          )));
+      break;
+    case 2:
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ToyPage(
-                role: role,
-                token: token,
-              )));
+            role: role,
+            token: token,
+          )));
       break;
-    case 6:
+    case 3:
       signOut(context);
       break;
   }
@@ -104,12 +90,17 @@ Future<String> postImage(Asset asset, String directory) async {
   String fileName = DateTime.now().millisecondsSinceEpoch.toString();
   ByteData byteData = await asset.getByteData();
   List<int> imageData = byteData.buffer.asUint8List();
+  print(imageData);
   Reference ref =
       FirebaseStorage.instance.ref().child("$directory/" + fileName);
+  print(ref);
   UploadTask uploadTask = ref.putData(Uint8List.fromList(imageData));
-
+  print(uploadTask);
   TaskSnapshot snapshot = await uploadTask;
+  print(snapshot);
+  print(snapshot.ref.getDownloadURL());
   return snapshot.ref.getDownloadURL();
+
 }
 
 uploadImages(List<Asset> images, String directory) async {
@@ -128,5 +119,44 @@ imageShow(List<ImagePost> images, Size size) {
     return size.width * 0.35;
   } else {
     return size.width * 0.5;
+  }
+}
+
+showStatusTradingPost(int? status) {
+  if (status == 0) {
+    return const Text(
+      "Open",
+      style: TextStyle(
+          color: Colors.green, fontWeight: FontWeight.bold, fontSize: 16),
+    );
+  } else if (status == 1) {
+    return const Text(
+      "Exchanging",
+      style: TextStyle(
+          color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 16),
+    );
+  } else if (status == 2) {
+    return const Text(
+      "Closed",
+      style: TextStyle(
+          color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16),
+    );
+  } else {
+    return const Text(
+      "Unknown",
+      style: TextStyle(fontSize: 16),
+    );
+  }
+}
+
+Color showPrize(String? name) {
+  if (name == "First prize") {
+    return Colors.amber;
+  } else if (name == "Second prize") {
+    return Colors.grey;
+  } else if (name == "Third prize") {
+    return Colors.brown;
+  } else {
+    return Colors.black87;
   }
 }

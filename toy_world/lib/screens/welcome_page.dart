@@ -125,12 +125,8 @@ class _WelcomePageState extends State<WelcomePage>
                     token: widget.token,
                   ),
                 ),
-                const Center(
-                  child: ContestPage(),
-                ),
-                const Center(
-                  child: ContestPage(),
-                ),
+                const Center(),
+                const Center(),
                 const Center(),
               ],
             ))

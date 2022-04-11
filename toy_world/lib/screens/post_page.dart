@@ -17,8 +17,13 @@ class PostPage extends StatefulWidget {
   int role;
   String token;
   int groupID;
+  int limit;
 
-  PostPage({required this.role, required this.token, required this.groupID});
+  PostPage(
+      {required this.role,
+      required this.token,
+      required this.groupID,
+        required this.limit});
 
   @override
   State<PostPage> createState() => _PostPageState();
@@ -34,8 +39,7 @@ class _PostPageState extends State<PostPage> {
       "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Avatar%2FdefaultAvatar.png?alt=media&token=b5fbfe09-9045-4838-bca5-649ff5667cad";
 
   late TextEditingController controller;
-  final ScrollController listScrollController = ScrollController();
-  bool _isVisible = true;
+  // final ScrollController listScrollController = ScrollController();
 
   List<Asset> imagesPicker = <Asset>[];
   String _error = 'No Error Dectected';
@@ -43,13 +47,14 @@ class _PostPageState extends State<PostPage> {
   @override
   void initState() {
     // TODO: implement initState
-    super.initState();
     _loadCounter();
-    listScrollController.addListener(scrollListener);
+    // listScrollController.addListener(scrollListener);
     controller = TextEditingController()
       ..addListener(() {
         setState(() {});
       });
+
+    super.initState();
   }
 
   @override
@@ -61,7 +66,7 @@ class _PostPageState extends State<PostPage> {
   getData() async {
     PostGroupList postGroup = PostGroupList();
     data = await postGroup.getPostGroup(
-        token: widget.token, groupId: widget.groupID, size: _limit);
+        token: widget.token, groupId: widget.groupID, size: widget.limit);
     if (data == null) return List.empty();
     posts = data!.data!.cast<Post>();
     setState(() {});
@@ -75,55 +80,47 @@ class _PostPageState extends State<PostPage> {
     });
   }
 
-  void scrollListener() {
-    if (listScrollController.offset >=
-            listScrollController.position.maxScrollExtent &&
-        !listScrollController.position.outOfRange) {
-      setState(() {
-        _limit += _limitIncrement;
-      });
-    }
-    if (listScrollController.position.userScrollDirection ==
-        ScrollDirection.reverse) {
-      setState(() {
-        _isVisible = false;
-      });
-    } else if (listScrollController.position.userScrollDirection ==
-        ScrollDirection.forward) {
-      setState(() {
-        _isVisible = true;
-      });
-    }
-  }
+  // void scrollListener() {
+  //   if (listScrollController.offset >=
+  //           listScrollController.position.maxScrollExtent &&
+  //       !listScrollController.position.outOfRange) {
+  //     setState(() {
+  //       _limit += _limitIncrement;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey[400],
-      body: Column(mainAxisSize: MainAxisSize.min, children: [
-        Visibility(
-            visible: _isVisible,
-            child: Column(
-              children: [
-                _newPost(),
-                const SizedBox(
-                  height: 6,
-                ),
-              ],
-            )),
-        Expanded(
-          child: FutureBuilder(
-              future: getData(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  if (posts?.length != null) {
-                    return ListView.builder(
-                        controller: listScrollController,
-                        padding: EdgeInsets.zero,
-                        itemCount: posts?.length,
-                        itemBuilder: (context, index) {
-                          images = posts![index].images!.cast<ImagePost>();
-                          return PostWidget(
+      body: SingleChildScrollView(
+        // controller: listScrollController,
+        physics: const NeverScrollableScrollPhysics(),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Column(
+            children: [
+              _newPost(),
+              const SizedBox(
+                height: 6,
+              ),
+            ],
+          ),
+          Flexible(
+            child: FutureBuilder(
+                future: getData(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    if (posts?.length != null && posts!.isNotEmpty) {
+                      return ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: posts?.length,
+                          shrinkWrap: true,
+                          primary: false,
+                          itemBuilder: (context, index) {
+                            images = posts![index].images!.cast<ImagePost>();
+                            return PostWidget(
                               role: widget.role,
                               token: widget.token,
                               postId: posts![index].id,
@@ -135,19 +132,22 @@ class _PostPageState extends State<PostPage> {
                               content: posts![index].content,
                               images: images,
                               numOfReact: posts![index].numOfReact!.toInt(),
-                              numOfComment:
-                                  posts![index].numOfComment!.toInt());
-                        });
-                  } else {
-                    return const Center(child: Text("There is no posts :(((("));
+                              numOfComment: posts![index].numOfComment!.toInt(),
+                              isReadMore: posts?[index].isReadMore ?? false,
+                            );
+                          });
+                    } else {
+                      return const Center(
+                          child: Text("There is no posts available:(((("));
+                    }
                   }
-                }
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }),
-        )
-      ]),
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }),
+          )
+        ]),
+      ),
     );
   }
 
@@ -204,18 +204,18 @@ class _PostPageState extends State<PostPage> {
                           List<String> imageUrls;
                           imageUrls = await uploadImages(imagesPicker, "Post");
                           if (await checkNewPost(
-                                token: widget.token,
-                                groupId: widget.groupID,
-                                content: controller.text,
-                                imagesLink: imageUrls,
-                              ) ==
+                                  token: widget.token,
+                                  groupId: widget.groupID,
+                                  content: controller.text,
+                                  imagesLink: imageUrls) ==
                               200) {
-                            imagesPicker.clear();
-                            controller.clear();
+                            setState(() {
+                              imagesPicker.clear();
+                              controller.clear();
+                            });
                             loadingSuccess(
                                 status:
                                     "Post success!!!\nPlease wait for approval.");
-                            setState(() {});
                           } else {
                             loadingFail(
                                 status:
@@ -265,7 +265,7 @@ class _PostPageState extends State<PostPage> {
                   color: const Color.fromRGBO(255, 255, 244, 0.2),
                   child: IconButton(
                     onPressed: () {
-                      imagesPicker!.removeAt(index);
+                      imagesPicker.removeAt(index);
                       setState(() {});
                     },
                     icon: const Icon(Icons.delete),

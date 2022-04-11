@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:multi_image_picker2/multi_image_picker2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/apis/gets/get_trading_post_group.dart';
 import 'package:toy_world/models/model_image_post.dart';
 import 'package:toy_world/models/model_trading_post.dart';
 import 'package:toy_world/models/model_trading_post_group.dart';
+import 'package:toy_world/widgets/create_trading_post_widget.dart';
 import 'package:toy_world/widgets/trading_post_widget.dart';
 
 class TradingPostPage extends StatefulWidget {
   int role;
   String token;
   int groupID;
+  int limit;
 
   TradingPostPage(
-      {required this.role, required this.token, required this.groupID});
+      {required this.role,
+      required this.token,
+      required this.groupID,
+      required this.limit});
 
   @override
   State<TradingPostPage> createState() => _TradingPostPageState();
@@ -23,79 +29,58 @@ class _TradingPostPageState extends State<TradingPostPage> {
   TradingPostGroup? data;
   List<TradingPost>? posts;
   List<ImagePost>? images;
-  int _limit = 10;
-  final int _limitIncrement = 10;
-  String _avatar =
-      "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Avatar%2FdefaultAvatar.png?alt=media&token=b5fbfe09-9045-4838-bca5-649ff5667cad";
-  late TextEditingController controller;
-  final ScrollController listScrollController = ScrollController();
+
+
   List<Asset> imagesPicker = <Asset>[];
   String _error = 'No Error Dectected';
 
   @override
   void initState() {
     // TODO: implement initState
-    _loadCounter();
-    listScrollController.addListener(scrollListener);
-    controller = TextEditingController()
-      ..addListener(() {
-        setState(() {});
-      });
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
   }
 
   getData() async {
     TradingPostGroupList postGroup = TradingPostGroupList();
     data = await postGroup.getTradingPostGroup(
-        token: widget.token, groupId: widget.groupID, size: _limit);
+        token: widget.token, groupId: widget.groupID, size: widget.limit);
     if (data == null) return List.empty();
     posts = data!.data!.cast<TradingPost>();
     setState(() {});
     return posts;
   }
 
-  _loadCounter() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _avatar = (prefs.getString('avatar') ?? "");
-    });
-  }
-
-  void scrollListener() {
-    if (listScrollController.offset >=
-        listScrollController.position.maxScrollExtent &&
-        !listScrollController.position.outOfRange) {
-      setState(() {
-        _limit += _limitIncrement;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey[400],
-      body: Column(mainAxisSize: MainAxisSize.min, children: [
-        // _newPost(),
-        Expanded(
-          child: FutureBuilder(
-              future: getData(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  if (posts?.length != null) {
-                    return ListView.builder(
-                        controller: listScrollController,
-                        padding: EdgeInsets.zero,
-                        itemCount: posts?.length,
-                        itemBuilder: (context, index) {
-                          images = posts![index].images!.cast<ImagePost>();
-                          return TradingPostWidget(
+      body: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Column(
+            children: [
+              _newTradingPost(),
+              const SizedBox(
+                height: 6,
+              ),
+            ],
+          ),
+          Flexible(
+            child: FutureBuilder(
+                future: getData(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    if (posts?.length != null && posts!.isNotEmpty) {
+                      return ListView.builder(
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          primary: false,
+                          itemCount: posts?.length,
+                          itemBuilder: (context, index) {
+                            images = posts![index].images!.cast<ImagePost>();
+                            return TradingPostWidget(
                               role: widget.role,
                               token: widget.token,
                               tradingPostId: posts![index].id,
@@ -115,107 +100,67 @@ class _TradingPostPageState extends State<TradingPostPage> {
                               value: posts![index].value,
                               images: images,
                               numOfReact: posts![index].noOfReact!.toInt(),
-                              numOfComment: posts![index].noOfComment!.toInt());
-                        });
-                  } else {
-                    return const Center(child: Text("There is no posts :(((("));
+                              numOfComment: posts![index].noOfComment!.toInt(),
+                              isReadMore: posts?[index].isReadMore ?? false,
+                              isDisable: false,
+                            );
+                          });
+                    } else {
+                      return const Center(
+                          child: Text("There is no post available :(((("));
+                    }
                   }
-                }
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }),
-        )
-      ]),
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }),
+          )
+        ]),
+      ),
     );
   }
 
-  // Widget _newPost() {
-  //   return Container(
-  //     padding: const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 8.0),
-  //     color: Colors.white,
-  //     child: SafeArea(
-  //       child: Column(
-  //         children: [
-  //           Row(
-  //             children: [
-  //               CircleAvatar(
-  //                 radius: 20,
-  //                 backgroundColor: Colors.grey[200],
-  //                 backgroundImage: CachedNetworkImageProvider(_avatar),
-  //               ),
-  //               const SizedBox(width: 8.0),
-  //               Expanded(
-  //                 child: TextField(
-  //                   controller: controller,
-  //                   decoration: const InputDecoration.collapsed(
-  //                     hintText: 'What\'s on your mind?',
-  //                   ),
-  //                 ),
-  //               )
-  //             ],
-  //           ),
-  //           const Divider(height: 10.0, thickness: 0.5),
-  //           SizedBox(
-  //             height: 40,
-  //             child: Row(
-  //               mainAxisAlignment: MainAxisAlignment.end,
-  //               children: [
-  //                 IconButton(
-  //                   onPressed: loadAssets,
-  //                   icon: const Icon(
-  //                     Icons.photo_library,
-  //                     color: Color(0xffDB36A4),
-  //                   ),
-  //                 ),
-  //                 const SizedBox(width: 16.0),
-  //                 ElevatedButton(
-  //                     style: ButtonStyle(
-  //                         backgroundColor: MaterialStateProperty.all(
-  //                             const Color(0xffDB36A4)),
-  //                         shape:
-  //                         MaterialStateProperty.all<RoundedRectangleBorder>(
-  //                             RoundedRectangleBorder(
-  //                               borderRadius: BorderRadius.circular(10.0),
-  //                             ))),
-  //                     onPressed: () async {
-  //                       try {
-  //                         List<String> imageUrls;
-  //                         imageUrls = uploadImages(imagesPicker);
-  //                         if (await checkNewPost(
-  //                           token: widget.token,
-  //                           groupId: widget.groupID,
-  //                           content: controller.text,
-  //                           imagesLink: imageUrls,
-  //                         ) ==
-  //                             200) {
-  //                           imagesPicker.clear();
-  //                           controller.clear();
-  //                           setState(() {});
-  //                         } else {
-  //                           loadingFail(
-  //                               status:
-  //                               "Create Post Failed - ${await checkNewPost(token: widget.token, groupId: widget.groupID, content: controller.text)}");
-  //                         }
-  //                       } catch (e) {
-  //                         loadingFail(status: "Create Post Failed !!! \n $e");
-  //                       }
-  //                     },
-  //                     child: const Text(
-  //                       'Post',
-  //                       style: TextStyle(fontSize: 20, color: Colors.white),
-  //                     ))
-  //               ],
-  //             ),
-  //           ),
-  //           imagesPicker.isNotEmpty
-  //               ? buildGridViewImagePicker()
-  //               : const SizedBox.shrink(),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
+  Widget _newTradingPost() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 8.0),
+      color: Colors.grey.shade200,
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Create your post to trading with others",
+              style: TextStyle(fontSize: 18, color: Colors.black),
+            ),
+            const SizedBox(height: 8.0),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(const Color(0xffDB36A4)),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ))),
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => CreateTradingPostWidget(
+                              token: widget.token,
+                              groupID: widget.groupID,
+                              role: widget.role,
+                            )));
+                  },
+                  child: const Text(
+                    'Create',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  )),
+            )
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget buildGridViewImagePicker() {
     return GridView.count(
@@ -241,7 +186,7 @@ class _TradingPostPageState extends State<TradingPostPage> {
                   color: const Color.fromRGBO(255, 255, 244, 0.2),
                   child: IconButton(
                     onPressed: () {
-                      imagesPicker!.removeAt(index);
+                      imagesPicker.removeAt(index);
                       setState(() {});
                     },
                     icon: const Icon(Icons.delete),

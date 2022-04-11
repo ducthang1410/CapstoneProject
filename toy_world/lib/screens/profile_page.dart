@@ -94,13 +94,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _profileImage(Size size) {
     return CircleAvatar(
-        radius: size.height * 0.09,
-        backgroundColor: Colors.white,
-        child: CircleAvatar(
-          radius: size.height * 0.085,
-          backgroundColor: Colors.grey.shade300,
-          backgroundImage: NetworkImage(_avatar),
-        ));
+      radius: size.height * 0.075,
+      backgroundColor: Colors.grey.shade300,
+      backgroundImage: NetworkImage(_avatar),
+    );
   }
 
   Widget _informationContent(BuildContext context) {
@@ -112,7 +109,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         Text(
           _name,
-          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         const SizedBox(
           height: 10,
@@ -123,25 +120,24 @@ class _ProfilePageState extends State<ProfilePage> {
         const SizedBox(
           height: 5,
         ),
-        IntrinsicHeight(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildNumber(size,
-                  value: "${_data?.noOfPost ?? "0"}",
-                  text: "Post",
-                  function: Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => PostAccountPage(
-                            role: widget.role,
-                            token: widget.token,
-                            accountID: _id,
-                          )))),
-              _buildNumber(size,
-                  value: "${_data?.noOfFollowing ?? "0"}", text: "Following"),
-              _buildNumber(size,
-                  value: "${_data?.noOfFollower ?? "0"}", text: "Follower"),
-            ],
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildNumber(size,
+                value: "${_data?.noOfPost ?? "0"}",
+                text: "Post",
+                function:() => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => PostAccountPage(
+                          role: widget.role,
+                          token: widget.token,
+                          accountID: _id,
+                        )))
           ),
+            _buildNumber(size,
+                value: "${_data?.noOfFollowing ?? "0"}", text: "Following"),
+            _buildNumber(size,
+                value: "${_data?.noOfFollower ?? "0"}", text: "Follower"),
+          ],
         ),
         const SizedBox(
           height: 5,
@@ -150,16 +146,16 @@ class _ProfilePageState extends State<ProfilePage> {
           thickness: 0.5,
         ),
         const SizedBox(
-          height: 20,
+          height: 10,
         ),
         Container(
           padding: const EdgeInsets.only(left: 20),
           alignment: Alignment.centerLeft,
           child: const Text("About me",
-              style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold)),
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
         ),
         const SizedBox(
-          height: 20,
+          height: 10,
         ),
         containerProfile(size, title: "Gender", content: _gender),
         containerProfile(size, title: "Email", content: _email),
@@ -168,20 +164,20 @@ class _ProfilePageState extends State<ProfilePage> {
           thickness: 0.5,
         ),
         const SizedBox(
-          height: 20,
+          height: 10,
         ),
         Container(
           padding: const EdgeInsets.only(left: 20),
           alignment: Alignment.centerLeft,
           child: const Text("Biography",
-              style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold)),
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
         ),
         Container(
             margin: const EdgeInsets.all(20),
             alignment: Alignment.centerLeft,
             child: Text(
               _biography,
-              style: const TextStyle(color: Colors.black54, fontSize: 20),
+              style: const TextStyle(color: Colors.black54, fontSize: 16),
             ))
       ],
     );
@@ -200,14 +196,14 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             Text(
               "$value",
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.black87),
             ),
             const SizedBox(
               height: 2,
             ),
             Text(
               "$text",
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
             ),
           ],
         ),
@@ -257,12 +253,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Text(
                       "$title",
                       style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
+                          fontSize: 16, fontWeight: FontWeight.bold),
                     )),
                 Expanded(
                     child: Text(
                   "$content",
-                  style: const TextStyle(color: Colors.black54, fontSize: 20),
+                  style: const TextStyle(color: Colors.black54, fontSize: 16),
                 )),
               ],
             ),

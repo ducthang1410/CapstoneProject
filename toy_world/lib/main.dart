@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
-import 'package:toy_world/screens/home_page.dart';
+import 'package:flutter/services.dart';
 
 import 'package:toy_world/screens/login_page.dart';
 import 'package:toy_world/utils/helpers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
   runApp(MyApp());
   configLoading();
 }
@@ -36,10 +37,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       builder: EasyLoading.init(),
       theme: ThemeData(
-          dividerColor: Colors.grey.shade800, primaryColor: Colors.grey),
+          dividerColor: Colors.grey.shade800, primaryColor: Colors.black87),
       // home: const LoginPage(),
       home: AnimatedSplashScreen(
-        splashIconSize: 180,
+        splashIconSize: 150,
         centered: true,
         duration: 1500,
         splashTransition: SplashTransition.fadeTransition,
@@ -49,8 +50,19 @@ class MyApp extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Expanded(child: Text("Welcome to", style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold, color: Colors.white),)),
-            Expanded(child: Image.asset("assets/icons/Logo_Word_Black_Pink.png", width: 250,))
+            const Expanded(
+                child: Text(
+              "Welcome to",
+              style: TextStyle(
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            )),
+            Expanded(
+                child: Image.asset(
+              "assets/icons/Logo_Word_Black_Pink.png",
+              width: 250,
+            ))
           ],
         ),
         nextScreen: const LoginPage(),

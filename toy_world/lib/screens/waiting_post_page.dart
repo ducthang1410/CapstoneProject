@@ -1,76 +1,132 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
 
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:toy_world/apis/puts/put_react_post.dart';
+import 'package:flutter/material.dart';
+import 'package:toy_world/apis/gets/get_waiting_post.dart';
+import 'package:toy_world/apis/puts/put_approve_waiting_post.dart';
+import 'package:toy_world/apis/puts/put_deny_waiting_post.dart';
 import 'package:toy_world/components/component.dart';
 import 'package:toy_world/models/model_image_post.dart';
-import 'package:toy_world/screens/post_detail_page.dart';
-
+import 'package:toy_world/models/model_waiting_post.dart';
 import 'package:toy_world/utils/helpers.dart';
-import 'package:toy_world/widgets/comment_widget.dart';
 
-class PostWidget extends StatefulWidget {
+class WaitingPostPage extends StatefulWidget {
   int role;
   String token;
-  int? postId;
-  bool? isPostDetail;
-  String? ownerAvatar;
-  String? ownerName;
-  bool? isLikedPost;
-  DateTime? timePublic;
-  String? content;
-  List<ImagePost>? images;
-  int? numOfReact;
-  int? numOfComment;
-  bool? isReadMore;
 
-  PostWidget(
-      {required this.role,
-      required this.token,
-      required this.postId,
-      required this.isPostDetail,
-      required this.ownerAvatar,
-      required this.ownerName,
-      required this.isLikedPost,
-      required this.timePublic,
-      required this.content,
-      this.images,
-      required this.numOfReact,
-      required this.numOfComment,
-      this.isReadMore});
+  WaitingPostPage({
+    required this.role,
+    required this.token,
+  });
 
   @override
-  State<PostWidget> createState() => _PostWidgetState();
+  State<WaitingPostPage> createState() => _WaitingPostPageState();
 }
 
-class _PostWidgetState extends State<PostWidget> {
-  int _choice = 0;
+class _WaitingPostPageState extends State<WaitingPostPage> {
+  WaitingPosts? data;
+  List<WaitingPost>? posts;
+  List<ImagePost>? images;
+  int _limit = 10;
+  final int _limitIncrement = 10;
+  String _avatar =
+      "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Avatar%2FdefaultAvatar.png?alt=media&token=b5fbfe09-9045-4838-bca5-649ff5667cad";
+
+  final ScrollController listScrollController = ScrollController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    listScrollController.addListener(scrollListener);
+
+    super.initState();
+  }
+
+  void scrollListener() {
+    if (listScrollController.offset >=
+            listScrollController.position.maxScrollExtent &&
+        !listScrollController.position.outOfRange) {
+      setState(() {
+        _limit += _limitIncrement;
+      });
+    }
+  }
+
+  getData() async {
+    WaitingPostList postWaiting = WaitingPostList();
+    data = await postWaiting.getWaitingPosts(token: widget.token, size: _limit);
+    if (data == null) return List.empty();
+    posts = data!.data!.cast<WaitingPost>();
+    setState(() {});
+    return posts;
+  }
+
+  approvePost({token, postId}) async {
+    ApproveWaitingPost post = ApproveWaitingPost();
+    int status = await post.approveWaitingPost(token: token, postId: postId);
+    if (status == 200) {
+      setState(() {});
+      loadingSuccess(status: "Approve Success");
+    } else {
+      loadingFail(status: "Approve Failed !!!");
+    }
+  }
+
+  denyPost({token, postId}) async {
+    DenyWaitingPost post = DenyWaitingPost();
+    int status = await post.denyWaitingPost(token: token, postId: postId);
+    if (status == 200) {
+      setState(() {});
+      loadingSuccess(status: "Deny Success");
+    } else {
+      loadingFail(status: "Deny Failed !!!");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return _post(
-        ownerAvatar: widget.ownerAvatar,
-        ownerName: widget.ownerName,
-        isLikedPost: widget.isLikedPost,
-        timePublic: widget.timePublic,
-        content: widget.content,
-        images: widget.images,
-        numOfReact: widget.numOfReact,
-        numOfComment: widget.numOfComment,
-        isReadMore: widget.isReadMore);
+    return Scaffold(
+      backgroundColor: Colors.grey[400],
+      body: FutureBuilder(
+          future: getData(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              if (posts?.length != null && posts!.isNotEmpty) {
+                return ListView.builder(
+                    controller: listScrollController,
+                    padding: EdgeInsets.zero,
+                    itemCount: posts?.length,
+                    itemBuilder: (context, index) {
+                      images = posts![index].images!.cast<ImagePost>();
+                      return _post(
+                        postId: posts?[index].id,
+                        ownerAvatar: posts?[index].ownerAvatar ?? _avatar,
+                        ownerName: posts?[index].ownerName ?? "Name",
+                        content: posts?[index].content ?? "Content",
+                        isReadMore: posts?[index].isReadMore ?? false,
+                        images: images,
+                        timePublic: posts?[index].postDate ?? DateTime.now(),
+                      );
+                    });
+              } else {
+                return const Center(
+                    child: Text("There is no posts available:(((("));
+              }
+            }
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }),
+    );
   }
 
   Widget _post(
-      {ownerAvatar,
+      {postId,
+      ownerAvatar,
       ownerName,
-      isLikedPost,
       timePublic,
       content,
       List<ImagePost>? images,
-      numOfReact,
-      numOfComment,
       isReadMore}) {
     var size = MediaQuery.of(context).size;
     return Container(
@@ -89,7 +145,7 @@ class _PostWidgetState extends State<PostWidget> {
                     ownerName: ownerName,
                     timePublic: timePublic),
                 const SizedBox(
-                  height: 4.0,
+                  height: 10.0,
                 ),
                 readMoreButton(content, isReadMore),
                 images!.isNotEmpty
@@ -116,13 +172,45 @@ class _PostWidgetState extends State<PostWidget> {
                   ),
                 )
               : const SizedBox.shrink(),
+          const Divider(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: _postStats(
-                isLikedPost: isLikedPost,
-                numOfReact: numOfReact,
-                numOfComment: numOfComment),
-          ),
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _postButton(
+                    const Icon(
+                      Icons.cancel,
+                      color: Colors.redAccent,
+                      size: 20,
+                    ),
+                    const Text(
+                      "Deny",
+                      style: TextStyle(
+                          color: Colors.redAccent,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                    ),
+                    onTap: () => denyPost(token: widget.token, postId: postId),
+                  ),
+                  const Divider(),
+                  _postButton(
+                    const Icon(
+                      Icons.check,
+                      color: Colors.green,
+                      size: 20,
+                    ),
+                    const Text(
+                      "Approve",
+                      style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                    ),
+                    onTap: () => approvePost(token: widget.token, postId: postId),
+                  ),
+                ],
+              )),
         ],
       ),
     );
@@ -161,104 +249,6 @@ class _PostWidgetState extends State<PostWidget> {
             ],
           ),
         ),
-        PopupMenuButton(
-            icon: const Icon(Icons.more_horiz),
-            onSelected: (int value) {
-              setState(() {
-                _choice = value;
-                selectedPopupMenuButton(_choice);
-              });
-            },
-            itemBuilder: (context) => const [
-                  PopupMenuItem(
-                    child: Text("Feedback"),
-                    value: 1,
-                  ),
-                  PopupMenuItem(
-                    child: Text("Delete post"),
-                    value: 2,
-                  )
-                ]),
-      ],
-    );
-  }
-
-  Widget _postStats({isLikedPost, numOfReact, numOfComment}) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(4.0),
-              decoration: const BoxDecoration(
-                  color: Colors.red, shape: BoxShape.circle),
-              child: const Icon(
-                FontAwesomeIcons.heart,
-                size: 10.0,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(
-              width: 4.0,
-            ),
-            Expanded(
-                child: Text(
-              "$numOfReact",
-              style: TextStyle(color: Colors.grey[600]),
-            )),
-            Text(
-              "$numOfComment Comments",
-              style: TextStyle(color: Colors.grey[600]),
-            )
-          ],
-        ),
-        const Divider(),
-        Row(
-          children: [
-            _postButton(
-              Icon(
-                FontAwesomeIcons.heart,
-                color: isLikedPost ? Colors.red : Colors.grey[600],
-                size: 20,
-              ),
-              Text(
-                "Love",
-                style: TextStyle(
-                  color: isLikedPost ? Colors.red : Colors.grey[600],
-                ),
-              ),
-              onTap: () =>
-                  reactPost(token: widget.token, postId: widget.postId),
-            ),
-            _postButton(
-              Icon(
-                FontAwesomeIcons.comment,
-                color: Colors.grey[600],
-                size: 20,
-              ),
-              const Text("Comment"),
-              onTap: () => widget.isPostDetail == false
-                  ? Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => PostDetailPage(
-                            role: widget.role,
-                            token: widget.token,
-                            postID: widget.postId,
-                          )))
-                  : () {},
-            )
-          ],
-        ),
-        widget.isPostDetail == true
-            ? Column(
-                children: [
-                  const Divider(),
-                  CommentWidget(
-                      role: widget.role,
-                      token: widget.token,
-                      postID: widget.postId)
-                ],
-              )
-            : const SizedBox(),
       ],
     );
   }
@@ -277,7 +267,7 @@ class _PostWidgetState extends State<PostWidget> {
               children: [
                 icon,
                 const SizedBox(
-                  width: 4.0,
+                  width: 8.0,
                 ),
                 text
               ],
@@ -289,10 +279,10 @@ class _PostWidgetState extends State<PostWidget> {
   }
 
   List<Widget> buildImages() {
-    int numImages = widget.images!.length;
+    int numImages = images!.length;
     int maxImages = 4;
     return List<Widget>.generate(min(numImages, maxImages), (index) {
-      String? imageUrl = widget.images![index].url;
+      String? imageUrl = images![index].url;
 
       // If its the last image
       if (index == maxImages - 1) {
@@ -359,26 +349,5 @@ class _PostWidgetState extends State<PostWidget> {
         );
       }
     });
-  }
-
-  selectedPopupMenuButton(int value, {token}) {
-    switch (value) {
-      case 1:
-        print(value);
-        break;
-      case 2:
-        print(value);
-        break;
-    }
-  }
-
-  reactPost({token, postId}) async {
-    ReactPost react = ReactPost();
-    int status = await react.reactPost(token: token, postId: postId);
-    if (status == 200) {
-      setState(() {});
-    } else {
-      loadingFail(status: "Love Failed !!!");
-    }
   }
 }

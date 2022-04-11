@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:toy_world/screens/list_group_page.dart';
-import 'package:toy_world/screens/home_page.dart';
 import 'package:toy_world/screens/message_list_page.dart';
 import 'package:toy_world/screens/profile_page.dart';
 import 'package:toy_world/utils/helpers.dart';
+import 'package:readmore/readmore.dart';
 
 void loadingLoad({required status}) {
   EasyLoading.show(
@@ -23,7 +22,7 @@ void loadingFail({required status}) {
 void loadingSuccess({required status}) {
   EasyLoading.showSuccess("$status",
       maskType: EasyLoadingMaskType.black,
-      duration: const Duration(seconds: 4));
+      duration: const Duration(seconds: 2));
 }
 
 Widget defaultAppBar(BuildContext context) {
@@ -227,30 +226,6 @@ Widget drawerMenu(BuildContext context, int role, String token, String name,
                     }),
                 Column(
                   children: [
-                    // const Divider(
-                    //   color: Color(0xffDB36A4),
-                    //   thickness: 1,
-                    // ),
-                    // buildMenuItem(
-                    //   text: 'Management',
-                    //   urlImage: "assets/icons/home.png",
-                    //   onClicked: () {
-                    //     Navigator.of(context).pop();
-                    //     selectedDrawerItem(context, 0, role, token);
-                    //   },
-                    // ),
-                    const Divider(
-                      color: Color(0xffDB36A4),
-                      thickness: 1,
-                    ),
-                    buildMenuItem(
-                      text: 'Proposal',
-                      urlImage: "assets/icons/proposal.png",
-                      onClicked: () {
-                        Navigator.of(context).pop();
-                        selectedDrawerItem(context, 1, role, token);
-                      },
-                    ),
                     const Divider(
                       color: Color(0xffDB36A4),
                       thickness: 1,
@@ -260,9 +235,27 @@ Widget drawerMenu(BuildContext context, int role, String token, String name,
                       urlImage: "assets/icons/followers.png",
                       onClicked: () {
                         Navigator.of(context).pop();
-                        selectedDrawerItem(context, 4, role, token);
+                        selectedDrawerItem(context, 0, role, token);
                       },
                     ),
+                    role == 1
+                        ? Column(
+                            children: [
+                              const Divider(
+                                color: Color(0xffDB36A4),
+                                thickness: 1,
+                              ),
+                              buildMenuItem(
+                                text: 'Management',
+                                urlImage: "assets/icons/management.png",
+                                onClicked: () {
+                                  Navigator.of(context).pop();
+                                  selectedDrawerItem(context, 1, role, token);
+                                },
+                              ),
+                            ],
+                          )
+                        : const SizedBox.shrink(),
                     const Divider(
                       color: Color(0xffDB36A4),
                       thickness: 1,
@@ -272,7 +265,7 @@ Widget drawerMenu(BuildContext context, int role, String token, String name,
                       urlImage: "assets/icons/toy.png",
                       onClicked: () {
                         Navigator.of(context).pop();
-                        selectedDrawerItem(context, 5, role, token);
+                        selectedDrawerItem(context, 2, role, token);
                       },
                     ),
                     const Divider(
@@ -284,7 +277,7 @@ Widget drawerMenu(BuildContext context, int role, String token, String name,
                       urlImage: "assets/icons/logout.png",
                       onClicked: () {
                         Navigator.of(context).pop();
-                        selectedDrawerItem(context, 6, role, token);
+                        selectedDrawerItem(context, 3, role, token);
                       },
                     ),
                   ],
@@ -341,4 +334,17 @@ Widget buildMenuItem({
       onTap: onClicked,
     ),
   );
+}
+
+Widget readMoreButton(String text, bool isReadMore, {Color? color}) {
+  return isReadMore == false
+      ? ReadMoreText(
+          text,
+          trimCollapsedText: "Read more",
+          trimExpandedText: "Read less",
+          trimLength: 200,
+          trimMode: TrimMode.Length,
+          style: TextStyle(color: color ?? Colors.black87, fontSize: 16),
+        )
+      : const SizedBox.shrink();
 }

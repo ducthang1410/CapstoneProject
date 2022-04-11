@@ -24,7 +24,8 @@ class TradingPost {
     this.noOfReact,
     this.noOfComment,
     this.isLikedPost,
-    this.status
+    this.status,
+    this.isReadMore
   });
 
   int? id;
@@ -46,6 +47,7 @@ class TradingPost {
   int? noOfComment;
   bool? isLikedPost;
   int? status;
+  bool? isReadMore;
 
   factory TradingPost.fromJson(Map<String, dynamic> json) => TradingPost(
     id: json["id"],

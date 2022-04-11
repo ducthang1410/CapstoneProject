@@ -77,7 +77,7 @@ class _TradingChatPageState extends State<TradingChatPage> {
     int? currentUserId = widget.arguments.currentUserId;
     int? peerId = widget.arguments.peerId;
     int? tradingPostId = widget.arguments.tradingPostId;
-    if (currentUserId! < peerId!) {
+    if (currentUserId < peerId!) {
       groupChatId = '$currentUserId-$peerId-$tradingPostId';
     } else {
       groupChatId = '$peerId-$currentUserId-$tradingPostId';
@@ -331,109 +331,111 @@ class _TradingChatPageState extends State<TradingChatPage> {
 
   void showRating(Size size) => showDialog(
         context: context,
-        builder: (context) => SingleChildScrollView(
-          child: AlertDialog(
-            title: const Text(
-              "Rate Seller",
-              style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
-              textAlign: TextAlign.center,
-            ),
-            content: SizedBox(
-              width: size.width * 0.8,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  buildRating(),
-                  const SizedBox(
-                    height: 20.0,
-                  ),
-                  Flexible(
-                    child: TextField(
-                      maxLines: 5,
-                      onChanged: (value) {
-                        setState(() {
-                          contentRating = value.trim();
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        hintText: "Enter your rating comment",
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.grey, width: 1.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
+        builder: (context) => Center(
+          child: SingleChildScrollView(
+            child: AlertDialog(
+              title: const Text(
+                "Rate Seller",
+                style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
+                textAlign: TextAlign.center,
+              ),
+              content: SizedBox(
+                width: size.width * 0.8,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    buildRating(),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                    Flexible(
+                      child: TextField(
+                        maxLines: 5,
+                        onChanged: (value) {
+                          setState(() {
+                            contentRating = value.trim();
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          hintText: "Enter your rating comment",
+                          enabledBorder: OutlineInputBorder(
                             borderSide:
-                                BorderSide(color: Colors.grey, width: 1.0)),
+                                BorderSide(color: Colors.grey, width: 1.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey, width: 1.0)),
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 15.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: Container(
-                            width: 130,
-                            height: 50,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10.0, vertical: 5.0),
-                            child: ElevatedButton(
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                    Colors.redAccent,
-                                  ),
-                                  shape: MaterialStateProperty.all<
-                                          RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ))),
-                              child: const Text(
-                                "Cancel",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16.0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 15.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: Container(
+                              width: 130,
+                              height: 50,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10.0, vertical: 5.0),
+                              child: ElevatedButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                      Colors.redAccent,
+                                    ),
+                                    shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ))),
+                                child: const Text(
+                                  "Cancel",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16.0),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
                               ),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
                             ),
                           ),
-                        ),
-                        const SizedBox(
-                          width: 20.0,
-                        ),
-                        Flexible(
-                          child: Container(
-                            width: 130,
-                            height: 50,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10.0, vertical: 5.0),
-                            child: ElevatedButton(
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                    Colors.lightGreen,
-                                  ),
-                                  shape: MaterialStateProperty.all<
-                                          RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ))),
-                              child: const Text(
-                                "OK",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16.0),
-                              ),
-                              onPressed: () {
-                                checkRatingSeller();
-                              },
-                            ),
+                          const SizedBox(
+                            width: 20.0,
                           ),
-                        )
-                      ],
-                    ),
-                  )
-                ],
+                          Flexible(
+                            child: Container(
+                              width: 130,
+                              height: 50,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10.0, vertical: 5.0),
+                              child: ElevatedButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                      Colors.lightGreen,
+                                    ),
+                                    shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ))),
+                                child: const Text(
+                                  "OK",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16.0),
+                                ),
+                                onPressed: () {
+                                  checkRatingSeller();
+                                },
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),
