@@ -5,7 +5,7 @@ import 'package:toy_world/utils/url.dart';
 
 class CommentPostList {
   getCommentPost({token, postId}) async {
-    var response = await http.get(Uri.https("$urlMain", "$urlGetCommentByPost/$postId"), headers: {
+    var response = await http.get(Uri.https("$urlMain", "$urlGetCommentByPost/$postId/mobile"), headers: {
       "Accept": "application/json",
       "Access-Control-Allow-Origin": "*",
       'Authorization': 'Bearer $token',

@@ -18,7 +18,7 @@ class _ToyPageState extends State<ToyPage> {
       backgroundColor: Colors.grey[200],
       body: SingleChildScrollView(
         child: Column(
-          children: [sideAppBar(context), _content(context)],
+          children: [sideAppBar(context, widget.role, widget.token), _content(context)],
         ),
       ),
     );

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/apis/deletes/delete_comment.dart';
 import 'package:toy_world/apis/gets/get_comment_post.dart';
 import 'package:toy_world/apis/posts/post_comment_post.dart';
+import 'package:toy_world/apis/posts/post_comment_trading_post.dart';
+import 'package:toy_world/apis/puts/put_react_comment.dart';
 import 'package:toy_world/apis/puts/put_update_comment.dart';
 import 'package:toy_world/components/component.dart';
 import 'package:toy_world/models/model_comment.dart';
@@ -14,22 +17,29 @@ class CommentWidget extends StatefulWidget {
   int role;
   String token;
   int? postID;
+  int? ownerPostId;
+  List<Comment> comments;
+  String type;
 
-  CommentWidget({
-    required this.role,
-    required this.token,
-    required this.postID,
-  });
+  CommentWidget(
+      {required this.role,
+      required this.token,
+      required this.postID,
+      required this.ownerPostId,
+      required this.comments,
+      required this.type});
 
   @override
   State<CommentWidget> createState() => _CommentWidgetState();
 }
 
 class _CommentWidgetState extends State<CommentWidget> {
-  PostDetail? data;
-  List<Comment>? comments;
+  int _currentUserId = 0;
   String _avatar =
       "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Avatar%2FdefaultAvatar.png?alt=media&token=b5fbfe09-9045-4838-bca5-649ff5667cad";
+  String ownerAvatar =
+      "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Avatar%2FdefaultAvatar.png?alt=media&token=b5fbfe09-9045-4838-bca5-649ff5667cad";
+
   late TextEditingController controller;
   int _choiceComment = 0;
 
@@ -50,63 +60,64 @@ class _CommentWidgetState extends State<CommentWidget> {
     super.dispose();
   }
 
-  getData() async {
-    CommentPostList commentPost = CommentPostList();
-    data = await commentPost.getCommentPost(
-        token: widget.token, postId: widget.postID);
-    if (data == null) return List.empty();
-    comments = data!.comments!.cast<Comment>();
-    setState(() {});
-    return comments;
+  _loadCounter() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _currentUserId = (prefs.getInt('accountId') ?? 0);
+      _avatar = (prefs.getString('avatar') ?? "");
+    });
   }
 
-  _loadCounter() async {
-    _avatar = await getDataSession(key: "avatar");
-    setState(() {});
+  reactComment({token, commentId}) async {
+    ReactComment react = ReactComment();
+    int status = await react.reactComment(token: token, commentId: commentId);
+    if (status == 200) {
+      setState(() {});
+    } else {
+      loadingFail(status: "Love Failed !!!");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _writeComment(ownerAvatar: _avatar),
-        FutureBuilder(
-            future: getData(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                if (comments?.length != null) {
-                  return ListView.builder(
-                      padding: EdgeInsets.zero,
-                      shrinkWrap: true,
-                      primary: false,
-                      itemCount: comments?.length,
-                      itemBuilder: (context, index) {
-                        return _comment(
-                            commentID: comments![index].id,
-                            ownerAvatar: comments![index].ownerAvatar,
-                            ownerName: comments![index].ownerName,
-                            content: comments![index].content,
-                            numOfReact: comments![index].numOfReact);
-                      });
-                }
-              }
-              return const SizedBox();
-            }),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Column(
+        children: [
+          _writeComment(),
+          widget.comments.isNotEmpty
+              ? ListView.builder(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: widget.comments.length,
+                  itemBuilder: (context, index) {
+                    return _comment(
+                        commentID: widget.comments[index].id,
+                        ownerId: widget.comments[index].ownerId,
+                        ownerAvatar: widget.comments[index].ownerAvatar,
+                        ownerName: widget.comments[index].ownerName ?? "Name",
+                        commentDate: widget.comments[index].commentDate ??
+                            DateTime.now(),
+                        content: widget.comments[index].content,
+                        numOfReact: widget.comments[index].numOfReact,
+                        isReacted: widget.comments[index].isReacted ?? false);
+                  })
+              : const SizedBox.shrink()
+        ],
+      ),
     );
   }
 
-  Widget _writeComment({
-    ownerAvatar,
-  }) {
+  Widget _writeComment() {
     return Container(
         color: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 5.0),
         child: Row(children: [
           CircleAvatar(
-            radius: 20,
+            radius: 25,
             backgroundColor: Colors.grey[200],
-            backgroundImage: CachedNetworkImageProvider(ownerAvatar),
+            backgroundImage: CachedNetworkImageProvider(_avatar),
           ),
           const SizedBox(
             width: 8.0,
@@ -133,17 +144,32 @@ class _CommentWidgetState extends State<CommentWidget> {
               color: Color(0xffDB36A4),
             ),
             onPressed: () async {
+
               try {
-                if (await checkCreateComment(
-                        token: widget.token,
-                        postId: widget.postID,
-                        content: controller.text) ==
-                    200) {
-                  controller.clear();
-                } else {
-                  loadingFail(
-                      status:
-                          "Comment Failed - ${await checkCreateComment(token: widget.token, postId: widget.postID, content: controller.text)}");
+                if(widget.type == "Post"){
+                  if (await checkCreateCommentPost(
+                      token: widget.token,
+                      postId: widget.postID,
+                      content: controller.text) ==
+                      200) {
+                    controller.clear();
+                  } else {
+                    loadingFail(
+                        status:
+                        "Comment Failed - ${await checkCreateCommentPost(token: widget.token, postId: widget.postID, content: controller.text)}");
+                  }
+                } else if(widget.type == "TradingPost"){
+                  if (await checkCreateCommentTradingPost(
+                      token: widget.token,
+                      tradingPostId: widget.postID,
+                      content: controller.text) ==
+                      200) {
+                    controller.clear();
+                  } else {
+                    loadingFail(
+                        status:
+                        "Comment Failed - ${await checkCreateCommentTradingPost(token: widget.token, tradingPostId: widget.postID, content: controller.text)}");
+                  }
                 }
               } catch (e) {
                 loadingFail(status: "Comment Failed !!! \n $e");
@@ -153,30 +179,41 @@ class _CommentWidgetState extends State<CommentWidget> {
         ]));
   }
 
-  Widget _comment({commentID, ownerAvatar, ownerName, content, numOfReact}) {
-    bool isEdited = false;
+  Widget _comment(
+      {commentID,
+      ownerId,
+      ownerAvatar,
+      ownerName,
+      commentDate,
+      content,
+      numOfReact,
+      isReacted}) {
+    DateTime now = DateTime.now();
+    Duration difference = now.difference(commentDate);
+    String formattedDate = timeControl(difference);
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(vertical: 5.0),
-      child: Row(
+      child: Column(
         children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: Colors.grey[200],
-            backgroundImage: CachedNetworkImageProvider(ownerAvatar),
-          ),
-          const SizedBox(
-            width: 8.0,
-          ),
-          Expanded(
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20.0),
-                  color: Colors.grey.shade200),
-              child: isEdited == false
-                  ? Column(
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 25,
+                backgroundColor: Colors.grey[200],
+                backgroundImage: CachedNetworkImageProvider(ownerAvatar),
+              ),
+              const SizedBox(
+                width: 8.0,
+              ),
+              Expanded(
+                child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0, vertical: 10.0),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20.0),
+                        color: Colors.grey.shade200),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -189,84 +226,94 @@ class _CommentWidgetState extends State<CommentWidget> {
                               color: Colors.black, fontSize: 18.0),
                         )
                       ],
-                    )
-                  : TextFormField(
-                      initialValue: content,
-                      controller: controller,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[300],
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
+                    )),
+              ),
+              _currentUserId == ownerId ||
+                      widget.ownerPostId == _currentUserId ||
+                      widget.role == 1
+                  ? PopupMenuButton(
+                      icon: const Icon(Icons.more_horiz),
+                      onSelected: (int value) {
+                        setState(() {
+                          _choiceComment = value;
+                          selectedPopupMenuButton(
+                            value: _choiceComment,
+                            token: widget.token,
+                            commentID: commentID,
+                          );
+                        });
+                      },
+                      itemBuilder: (context) =>
+                          widget.ownerPostId == _currentUserId ||
+                                  widget.role == 1
+                              ? const [
+                                  PopupMenuItem(
+                                    child: Text("Delete"),
+                                    value: 2,
+                                  )
+                                ]
+                              : const [
+                                  PopupMenuItem(
+                                    child: Text("Edit"),
+                                    value: 1,
+                                  ),
+                                  PopupMenuItem(
+                                    child: Text("Delete"),
+                                    value: 2,
+                                  )
+                                ])
+                  : const SizedBox.shrink()
+            ],
+          ),
+          Container(
+            height: 20,
+            padding: const EdgeInsets.symmetric(horizontal: 70),
+            child: Row(
+              children: [
+                GestureDetector(
+                    onTap: () =>
+                        reactComment(token: widget.token, commentId: commentID),
+                    child: Text(
+                      "Love",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: isReacted ? Colors.red : Colors.grey[600],
                       ),
-                    ),
+                    )),
+                Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Text(
+                    formattedDate,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14.0),
+                  ),
+                ),
+              ],
             ),
           ),
-          isEdited == false
-              ? PopupMenuButton(
-                  icon: const Icon(Icons.more_horiz),
-                  onSelected: (int value) {
-                    if(value == 1){
-                      isEdited = true;
-                    }
-                    setState(() {
-                      _choiceComment = value;
-                      selectedPopupMenuButton(
-                          value: _choiceComment,
-                          token: widget.token,
-                          commentID: commentID,
-                          isEdited: isEdited);
-                    });
-                  },
-                  itemBuilder: (context) => const [
-                        PopupMenuItem(
-                          child: Text("Edit"),
-                          value: 1,
-                        ),
-                        PopupMenuItem(
-                          child: Text("Delete"),
-                          value: 2,
-                        )
-                      ])
-              : IconButton(
-                  icon: const Icon(
-                    FontAwesomeIcons.arrowCircleRight,
-                    color: Color(0xffDB36A4),
-                  ),
-                  onPressed: () async {
-                    isEdited = false;
-                    UpdateComment comment = UpdateComment();
-                    int status = await comment.updateComment(
-                        token: widget.token,
-                        commentId: commentID,
-                        content: controller.text);
-                    if (status == 200) {
-                      setState(() {});
-                    } else {
-                      loadingFail(status: "Edit Failed !!!");
-                    }
-                  },
-                )
         ],
       ),
     );
   }
 
-  checkCreateComment({token, postId, content}) async {
+  checkCreateCommentPost({token, postId, content}) async {
     CommentPost comment = CommentPost();
     var status = await comment.commentPost(
         token: token, postId: postId, content: content);
     return status;
   }
 
-  selectedPopupMenuButton({value, token, commentID, bool? isEdited}) async {
+  checkCreateCommentTradingPost({token, tradingPostId, content}) async {
+    CommentTradingPost comment = CommentTradingPost();
+    var status = await comment.commentTradingPost(
+        token: token, tradingPostId: tradingPostId, content: content);
+    return status;
+  }
+
+  selectedPopupMenuButton({value, token, commentID}) async {
     switch (value) {
       case 1:
-        print(isEdited);
         setState(() {});
         break;
       case 2:

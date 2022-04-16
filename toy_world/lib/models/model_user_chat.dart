@@ -18,18 +18,18 @@ class UserChat {
   List<User>? data;
 
   factory UserChat.fromJson(Map<String, dynamic> json) => UserChat(
-    pageNumber: json["pageNumber"],
-    pageSize: json["pageSize"],
-    count: json["count"],
-    data: List<User>.from(json["data"].map((x) => User.fromJson(x))),
-  );
+        pageNumber: json["pageNumber"],
+        pageSize: json["pageSize"],
+        count: json["count"],
+        data: List<User>.from(json["data"].map((x) => User.fromJson(x))),
+      );
 
   Map<String, dynamic> toJson() => {
-    "pageNumber": pageNumber,
-    "pageSize": pageSize,
-    "count": count,
-    "data": List<dynamic>.from(data!.map((x) => x.toJson())),
-  };
+        "pageNumber": pageNumber,
+        "pageSize": pageSize,
+        "count": count,
+        "data": List<dynamic>.from(data!.map((x) => x.toJson())),
+      };
 }
 
 class User {
@@ -39,6 +39,7 @@ class User {
     this.name,
     this.phone,
     this.status,
+    this.role,
   });
 
   int? id;
@@ -46,20 +47,23 @@ class User {
   String? name;
   String? phone;
   String? status;
+  int? role;
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-    id: json["id"],
-    avatar: json["avatar"],
-    name: json["name"],
-    phone: json["phone"],
-    status: json["status"],
-  );
+        id: json["id"],
+        avatar: json["avatar"],
+        name: json["name"],
+        phone: json["phone"],
+        status: json["status"],
+        role: json["role"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "id": id,
-    "avatar": avatar,
-    "name": name,
-    "phone": phone,
-    "status": status,
-  };
+        "id": id,
+        "avatar": avatar,
+        "name": name,
+        "phone": phone,
+        "status": status,
+        "role": role,
+      };
 }

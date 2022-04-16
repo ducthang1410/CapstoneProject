@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:toy_world/apis/puts/put_accept_deny_bill.dart';
 import 'package:toy_world/components/component.dart';
+import 'package:toy_world/models/model_image_post.dart';
+import 'package:toy_world/screens/expand_photo_page.dart';
 import 'package:toy_world/utils/firestore_constants.dart';
 import 'package:toy_world/utils/firestore_service.dart';
 
@@ -15,8 +17,9 @@ class GetBillWidget extends StatefulWidget {
   String? sellerName;
   String? buyerName;
   int? status;
-  DateTime? createTime;
+  DateTime? updateTime;
   String groupChatId;
+  List<ImagePost> images;
   bool isBillFinished;
 
   GetBillWidget(
@@ -28,8 +31,9 @@ class GetBillWidget extends StatefulWidget {
       required this.sellerName,
       required this.buyerName,
       required this.status,
-      required this.createTime,
+      required this.updateTime,
       required this.groupChatId,
+        required this.images,
       required this.isBillFinished});
 
   @override
@@ -37,6 +41,7 @@ class GetBillWidget extends StatefulWidget {
 }
 
 class _GetBillWidgetState extends State<GetBillWidget> {
+  int role = 2;
   String _token = "";
   @override
   void initState() {
@@ -48,6 +53,7 @@ class _GetBillWidgetState extends State<GetBillWidget> {
   _loadCounter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
+      role = (prefs.getInt('role') ?? 0);
       _token = (prefs.getString('token') ?? "");
     });
   }
@@ -87,7 +93,7 @@ class _GetBillWidgetState extends State<GetBillWidget> {
   @override
   Widget build(BuildContext context) {
     String formatDate =
-        DateFormat('dd MMM yyyy kk:mm').format(widget.createTime!);
+        DateFormat('dd MMM yyyy kk:mm').format(widget.updateTime!);
     return AlertDialog(
       title: const Text("Bill Detail", style: TextStyle(color: Color(0xffDB36A4), fontSize: 26), textAlign: TextAlign.center,),
       content: SingleChildScrollView(
@@ -118,8 +124,34 @@ class _GetBillWidgetState extends State<GetBillWidget> {
                 widget.isExchangeByMoney == true
                     ? _buildItemInfo("Value:", value: widget.exchangeValue)
                     : _buildItemInfo("Buyer's toy:",
-                        value: widget.toyOfBuyerName),
+                        value: widget.toyOfBuyerName ?? ""),
                 _buildItemInfo("Date:", value: formatDate),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                        MaterialStateProperty.all(
+                          const Color(0xffDB36A4),
+                        ),
+                        shape: MaterialStateProperty.all<
+                            RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius:
+                              BorderRadius.circular(10.0),
+                            ))),
+                    child: const Text(
+                      "View Image Of Toy",
+                      style: TextStyle(
+                          color: Colors.white, fontSize: 16.0),
+                    ),
+                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ExpandPhotoPage(
+                          role: role,
+                          token: _token,
+                          images: widget.images,
+                        )))),
+                  ),
                 widget.isBillFinished == false
                     ? Padding(
                         padding: const EdgeInsets.symmetric(vertical: 15.0),

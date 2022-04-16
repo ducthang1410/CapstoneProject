@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/components/component.dart';
 import 'package:toy_world/screens/contest_page.dart';
+import 'package:toy_world/screens/highlight_contest_page.dart';
 import 'package:toy_world/screens/home_page.dart';
 import 'package:toy_world/screens/list_group_page.dart';
 
@@ -20,6 +21,7 @@ class _WelcomePageState extends State<WelcomePage>
   String _avatar =
       "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Avatar%2FdefaultAvatar.png?alt=media&token=b5fbfe09-9045-4838-bca5-649ff5667cad";
   String _name = "";
+  int _currentUserId = 0;
   int _selectedPage = 0;
   late PageController _pageController;
 
@@ -40,6 +42,7 @@ class _WelcomePageState extends State<WelcomePage>
   _loadCounter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
+      _currentUserId = (prefs.getInt('accountId') ?? 0);
       _avatar = (prefs.getString('avatar') ?? "");
       _name = (prefs.getString('name') ?? "");
     });
@@ -49,11 +52,11 @@ class _WelcomePageState extends State<WelcomePage>
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
-      endDrawer: drawerMenu(context, widget.role, widget.token, _name, _avatar),
+      endDrawer: drawerMenu(context, widget.role, widget.token, _name, _avatar, currentUserId: _currentUserId, accountId: _currentUserId),
       body: Builder(builder: (context) {
         return Column(
           children: [
-            defaultAppBar(context),
+            defaultAppBar(context, widget.role, widget.token),
             Container(
                 height: size.height * 0.07,
                 color: Colors.white,
@@ -125,7 +128,12 @@ class _WelcomePageState extends State<WelcomePage>
                     token: widget.token,
                   ),
                 ),
-                const Center(),
+                Center(
+                  child: HighlightContestPage(
+                    role: widget.role,
+                    token: widget.token,
+                  ),
+                ),
                 const Center(),
                 const Center(),
               ],

@@ -3,7 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:multi_image_picker2/multi_image_picker2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/apis/gets/get_trading_post_group.dart';
-import 'package:toy_world/models/model_image_post.dart';
+
 import 'package:toy_world/models/model_trading_post.dart';
 import 'package:toy_world/models/model_trading_post_group.dart';
 import 'package:toy_world/widgets/create_trading_post_widget.dart';
@@ -28,7 +28,6 @@ class TradingPostPage extends StatefulWidget {
 class _TradingPostPageState extends State<TradingPostPage> {
   TradingPostGroup? data;
   List<TradingPost>? posts;
-  List<ImagePost>? images;
 
 
   List<Asset> imagesPicker = <Asset>[];
@@ -79,7 +78,6 @@ class _TradingPostPageState extends State<TradingPostPage> {
                           primary: false,
                           itemCount: posts?.length,
                           itemBuilder: (context, index) {
-                            images = posts![index].images!.cast<ImagePost>();
                             return TradingPostWidget(
                               role: widget.role,
                               token: widget.token,
@@ -98,7 +96,7 @@ class _TradingPostPageState extends State<TradingPostPage> {
                               phoneNum: posts![index].phone,
                               exchange: posts![index].exchange,
                               value: posts![index].value,
-                              images: images,
+                              images: posts?[index].images ?? [],
                               numOfReact: posts![index].noOfReact!.toInt(),
                               numOfComment: posts![index].noOfComment!.toInt(),
                               isReadMore: posts?[index].isReadMore ?? false,

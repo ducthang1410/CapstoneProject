@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -39,11 +40,9 @@ class _ListGroupPageState extends State<ListGroupPage> {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       body: SingleChildScrollView(
-          child: Column(
-            children: [
-              _content(context)
-            ],
-          ),
+        child: Column(
+          children: [_content(context)],
+        ),
       ),
     );
   }
@@ -74,6 +73,7 @@ class _ListGroupPageState extends State<ListGroupPage> {
                       mainAxisSpacing: size.width * 0.03),
                   itemBuilder: (BuildContext context, int index) {
                     return _group(size,
+                        coverImage: data?[index].coverImage ?? "",
                         name: data?[index].name ?? "",
                         groupID: data?[index].id ?? 0);
                   },
@@ -86,11 +86,12 @@ class _ListGroupPageState extends State<ListGroupPage> {
     );
   }
 
-  Widget _group(Size size, {name, groupID}) {
+  Widget _group(Size size, {name, coverImage, groupID}) {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => GroupPage(
+                  coverImage: coverImage,
                   role: widget.role,
                   token: widget.token,
                   groupID: groupID,
@@ -117,9 +118,13 @@ class _ListGroupPageState extends State<ListGroupPage> {
           child: Column(
             children: [
               Expanded(
-                child: Image.asset(
-                  "assets/images/toyType3.jpg",
+                child: CachedNetworkImage(
+                  imageUrl: coverImage,
                   fit: BoxFit.cover,
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/images/img_not_available.jpeg',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               const SizedBox(

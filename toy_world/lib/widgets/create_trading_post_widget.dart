@@ -87,468 +87,467 @@ class _CreateTradingPostWidgetState extends State<CreateTradingPostWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color(0xffDB36A4),
-          title: const Text(
-            "New Trading Post",
-            style: TextStyle(color: Colors.white),
-          ),
-          centerTitle: true,
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xffDB36A4),
+        title: const Text(
+          "New Trading Post",
+          style: TextStyle(color: Colors.white),
         ),
-        body: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 10),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Post content",
-                        style:
-                            TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Post content",
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: TextFormField(
+                    minLines: 1,
+                    maxLines: 3,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        title = value.trim();
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Title",
+                      filled: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 10.0),
+                      fillColor: Colors.grey[200],
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.transparent),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Color(0xffDB36A4)),
+                        borderRadius: BorderRadius.circular(15.0),
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: TextFormField(
-                      minLines: 1,
-                      maxLines: 3,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter some text';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        setState(() {
-                          title = value.trim();
-                        });
-                      },
-                      decoration: InputDecoration(
-                        labelText: "Title",
-                        filled: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 15.0, horizontal: 10.0),
-                        fillColor: Colors.grey[200],
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.transparent),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xffDB36A4)),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: TextFormField(
+                    keyboardType: TextInputType.multiline,
+                    minLines: 3,
+                    maxLines: null,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        content = value.trim();
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Content",
+                      hintText: "Enter content of your trading post",
+                      filled: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 10.0),
+                      fillColor: Colors.grey[200],
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.transparent),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Color(0xffDB36A4)),
+                        borderRadius: BorderRadius.circular(15.0),
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: TextFormField(
-                      keyboardType: TextInputType.multiline,
-                      minLines: 3,
-                      maxLines: null,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter some text';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        setState(() {
-                          content = value.trim();
-                        });
-                      },
-                      decoration: InputDecoration(
-                        labelText: "Content",
-                        hintText: "Enter content of your trading post",
-                        filled: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 15.0, horizontal: 10.0),
-                        fillColor: Colors.grey[200],
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.transparent),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xffDB36A4)),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Trading Info",
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: TextFormField(
+                    maxLines: 2,
+                    minLines: 1,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        toyName = value.trim();
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Toy's name",
+                      hintText: "Your toy name",
+                      filled: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 10.0),
+                      fillColor: Colors.grey[200],
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.transparent),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Color(0xffDB36A4)),
+                        borderRadius: BorderRadius.circular(15.0),
                       ),
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Trading Info",
-                        style:
-                            TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10.0),
+                  child: Align(
+                    child: Text(
+                      "Exchange with: ",
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
+                    alignment: Alignment.centerLeft,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: TextFormField(
-                      maxLines: 2,
-                      minLines: 1,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter some text';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        setState(() {
-                          toyName = value.trim();
-                        });
-                      },
-                      decoration: InputDecoration(
-                        labelText: "Toy's name",
-                        hintText: "Your toy name",
-                        filled: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 15.0, horizontal: 10.0),
-                        fillColor: Colors.grey[200],
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.transparent),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xffDB36A4)),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10.0),
-                    child: Align(
-                      child: Text(
-                        "Exchange with: ",
-                        style:
-                            TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      alignment: Alignment.centerLeft,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                    height: 24.0,
-                                    width: 24.0,
-                                    child: Checkbox(
-                                        value: !isExchangeMoney!,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            isExchangeMoney = !value!;
-                                            exchangeValue = null;
-                                          });
-                                        })),
-                                // You can play with the width to adjust your
-                                // desired spacing
-                                const SizedBox(width: 10.0),
-                                const Text("Toy")
-                              ]),
-                        ),
-                        Flexible(
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                    height: 24.0,
-                                    width: 24.0,
-                                    child: Checkbox(
-                                        value: isExchangeMoney,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            isExchangeMoney = value;
-                                            exchange = "money";
-                                          });
-                                        })),
-                                // You can play with the width to adjust your
-                                // desired spacing
-                                const SizedBox(width: 10.0),
-                                const Text("Money")
-                              ]),
-                        ),
-                      ],
-                    ),
-                  ),
-                  isExchangeMoney == false
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: TextFormField(
-                            maxLines: 1,
-                            onChanged: (value) {
-                              setState(() {
-                                exchange = value.trim();
-                              });
-                            },
-                            decoration: InputDecoration(
-                              labelText: "Toy want to exchange",
-                              filled: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 15.0, horizontal: 10.0),
-                              fillColor: Colors.grey[200],
-                              enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                    const BorderSide(color: Colors.transparent),
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    const BorderSide(color: Color(0xffDB36A4)),
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                            ),
-                          ),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: TextFormField(
-                            maxLines: 1,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: <TextInputFormatter>[
-                              FilteringTextInputFormatter.digitsOnly
-                            ],
-                            onChanged: (value) {
-                              if (double.tryParse(value) != null) {
-                                setState(() {
-                                  exchangeValue = double.parse(value);
-                                });
-                              }
-                            },
-                            decoration: InputDecoration(
-                              labelText: "Value",
-                              hintText: "Input amount of money",
-                              filled: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 15.0, horizontal: 10.0),
-                              fillColor: Colors.grey[200],
-                              enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                    const BorderSide(color: Colors.transparent),
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    const BorderSide(color: Color(0xffDB36A4)),
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                            ),
-                          ),
-                        ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Photo: ",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        Container(
-                          width: 150,
-                          height: 50,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20.0, vertical: 5.0),
-                          child: ElevatedButton(
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      const Color(0xffDB36A4)),
-                                  shape: MaterialStateProperty.all<
-                                          RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ))),
-                              child: const Text(
-                                "Choose",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16.0),
-                              ),
-                              onPressed: loadAssets),
-                        ),
-                      ],
-                    ),
-                  ),
-                  imagesPicker.isNotEmpty
-                      ? buildGridViewImagePicker()
-                      : const SizedBox.shrink(),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Contact Info",
-                        style:
-                            TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: TextFormField(
-                      minLines: 1,
-                      maxLines: 3,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter some text';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        setState(() {
-                          address = value.trim();
-                        });
-                      },
-                      decoration: InputDecoration(
-                        labelText: "Address",
-                        filled: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 15.0, horizontal: 10.0),
-                        fillColor: Colors.grey[200],
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.transparent),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xffDB36A4)),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: TextFormField(
-                      maxLines: 1,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter some text';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        setState(() {
-                          phone = value.trim();
-                        });
-                      },
-                      decoration: InputDecoration(
-                        labelText: "Phone Number",
-                        hintText: "Enter your phone to contact",
-                        filled: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 15.0, horizontal: 10.0),
-                        fillColor: Colors.grey[200],
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.transparent),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Color(0xffDB36A4)),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        width: 130,
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 5.0),
-                        child: ElevatedButton(
-                            style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all(Colors.redAccent),
-                                shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ))),
-                            child: const Text(
-                              "Cancel",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 16.0),
-                            ),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            }),
+                      Flexible(
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                  height: 24.0,
+                                  width: 24.0,
+                                  child: Checkbox(
+                                      value: !isExchangeMoney!,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          isExchangeMoney = !value!;
+                                          FocusManager.instance.primaryFocus?.unfocus();
+                                          exchangeValue = null;
+                                        });
+                                      })),
+                              // You can play with the width to adjust your
+                              // desired spacing
+                              const SizedBox(width: 10.0),
+                              const Text("Toy")
+                            ]),
                       ),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      Container(
-                        width: 130,
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 5.0),
-                        child: ElevatedButton(
-                            style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all(Colors.green),
-                                shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ))),
-                            child: const Text(
-                              "Create",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 16.0),
-                            ),
-                            onPressed: () async {
-                              try {
-                                List<String> imageUrls;
-                                imageUrls = await uploadImages(
-                                    imagesPicker, "TradingPost");
-                                if (_formKey.currentState!.validate()) {
-                                  if (await checkCreateTradingPost(
-                                          imagesLink: imageUrls) ==
-                                      200) {
-                                    setState(() {
-                                      imagesPicker.clear();
-                                    });
-                                    Navigator.of(context).pop();
-                                    loadingSuccess(status: "Create success!!!");
-                                  } else {
-                                    loadingFail(status: "Create Failed");
-                                  }
-                                }
-                              } catch (e) {
-                                loadingFail(
-                                    status: "Create Failed !!! \n $e");
-                              }
-                            }),
+                      Flexible(
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                  height: 24.0,
+                                  width: 24.0,
+                                  child: Checkbox(
+                                      value: isExchangeMoney,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          isExchangeMoney = value;
+                                          FocusManager.instance.primaryFocus?.unfocus();
+                                          exchange = "money";
+                                        });
+                                      })),
+                              // You can play with the width to adjust your
+                              // desired spacing
+                              const SizedBox(width: 10.0),
+                              const Text("Money")
+                            ]),
                       ),
                     ],
-                  )
-                ],
-              ),
+                  ),
+                ),
+                isExchangeMoney == false
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: TextFormField(
+                          maxLines: 1,
+                          onChanged: (value) {
+                            setState(() {
+                              exchange = value.trim();
+                            });
+                          },
+                          decoration: InputDecoration(
+                            labelText: "Toy want to exchange",
+                            filled: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 15.0, horizontal: 10.0),
+                            fillColor: Colors.grey[200],
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  const BorderSide(color: Colors.transparent),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  const BorderSide(color: Color(0xffDB36A4)),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                          ),
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: TextFormField(
+                          maxLines: 1,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          onChanged: (value) {
+                            if (double.tryParse(value) != null) {
+                              setState(() {
+                                exchangeValue = double.parse(value);
+                              });
+                            }
+                          },
+                          decoration: InputDecoration(
+                            labelText: "Value",
+                            hintText: "Input amount of money",
+                            filled: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 15.0, horizontal: 10.0),
+                            fillColor: Colors.grey[200],
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  const BorderSide(color: Colors.transparent),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  const BorderSide(color: Color(0xffDB36A4)),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                          ),
+                        ),
+                      ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Photo: ",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      Container(
+                        width: 150,
+                        height: 50,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20.0, vertical: 5.0),
+                        child: ElevatedButton(
+                            style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    const Color(0xffDB36A4)),
+                                shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ))),
+                            child: const Text(
+                              "Choose",
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 16.0),
+                            ),
+                            onPressed: loadAssets),
+                      ),
+                    ],
+                  ),
+                ),
+                imagesPicker.isNotEmpty
+                    ? buildGridViewImagePicker()
+                    : const SizedBox.shrink(),
+                const Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Contact Info",
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: TextFormField(
+                    minLines: 1,
+                    maxLines: 3,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        address = value.trim();
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Address",
+                      filled: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 10.0),
+                      fillColor: Colors.grey[200],
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.transparent),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Color(0xffDB36A4)),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: TextFormField(
+                    maxLines: 1,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        phone = value.trim();
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Phone Number",
+                      hintText: "Enter your phone to contact",
+                      filled: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 10.0),
+                      fillColor: Colors.grey[200],
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.transparent),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Color(0xffDB36A4)),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 130,
+                      height: 50,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10.0, vertical: 5.0),
+                      child: ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.redAccent),
+                              shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ))),
+                          child: const Text(
+                            "Cancel",
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 16.0),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          }),
+                    ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Container(
+                      width: 130,
+                      height: 50,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10.0, vertical: 5.0),
+                      child: ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.green),
+                              shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ))),
+                          child: const Text(
+                            "Create",
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 16.0),
+                          ),
+                          onPressed: () async {
+                            try {
+                              List<String> imageUrls;
+                              imageUrls = await uploadImages(
+                                  imagesPicker, "TradingPost");
+                              if (_formKey.currentState!.validate()) {
+                                if (await checkCreateTradingPost(
+                                        imagesLink: imageUrls) ==
+                                    200) {
+                                  setState(() {
+                                    imagesPicker.clear();
+                                  });
+                                  Navigator.of(context).pop();
+                                  loadingSuccess(status: "Create success!!!");
+                                } else {
+                                  loadingFail(status: "Create Failed");
+                                }
+                              }
+                            } catch (e) {
+                              loadingFail(
+                                  status: "Create Failed !!! \n $e");
+                            }
+                          }),
+                    ),
+                  ],
+                )
+              ],
             ),
           ),
         ),

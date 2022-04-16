@@ -7,11 +7,15 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:multi_image_picker2/multi_image_picker2.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toy_world/apis/deletes/delete_contest_post.dart';
 import 'package:toy_world/apis/gets/get_contest_detail.dart';
 import 'package:toy_world/apis/gets/get_join_contest.dart';
 import 'package:toy_world/apis/gets/get_post_contest.dart';
 import 'package:toy_world/apis/gets/get_reward_contest.dart';
 import 'package:toy_world/apis/posts/post_contest_post.dart';
+import 'package:toy_world/apis/posts/post_evaluate_contest.dart';
+import 'package:toy_world/apis/posts/post_feedback_post_contest.dart';
 import 'package:toy_world/apis/posts/post_join_contest.dart';
 import 'package:toy_world/apis/posts/post_rate_contest_post.dart';
 import 'package:toy_world/components/component.dart';
@@ -22,6 +26,7 @@ import 'package:toy_world/models/model_image_post.dart';
 import 'package:toy_world/models/model_prize.dart';
 import 'package:toy_world/models/model_reward_contest.dart';
 import 'package:toy_world/screens/manage_contest_page.dart';
+import 'package:toy_world/screens/profile_page.dart';
 import 'package:toy_world/utils/helpers.dart';
 import 'package:intl/intl.dart';
 import 'package:toy_world/widgets/subscriber_contest.dart';
@@ -58,6 +63,7 @@ class _ContestPageState extends State<ContestPage>
   Prize? prizeReward;
   CheckJoinContest? hasJoined;
 
+  int _currentUserId = 0;
   String _avatar =
       "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Avatar%2FdefaultAvatar.png?alt=media&token=b5fbfe09-9045-4838-bca5-649ff5667cad";
   int _limit = 10;
@@ -66,6 +72,7 @@ class _ContestPageState extends State<ContestPage>
   double rating = 0;
   String noteRating = "";
   bool isViewDetail = false;
+  String feedbackContent = "";
   List<String> prizeIcon = [
     "assets/icons/1_prize.png",
     "assets/icons/2_prize.png",
@@ -90,6 +97,7 @@ class _ContestPageState extends State<ContestPage>
     checkHasJoin();
     getRewardContest();
     getContestDetail();
+    _loadCounter();
     listScrollController.addListener(scrollListener);
     controller = TextEditingController()
       ..addListener(() {
@@ -103,6 +111,13 @@ class _ContestPageState extends State<ContestPage>
   void dispose() {
     controller.dispose();
     super.dispose();
+  }
+
+  _loadCounter() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _currentUserId = (prefs.getInt('accountId') ?? 0);
+    });
   }
 
   void scrollListener() {
@@ -160,61 +175,228 @@ class _ContestPageState extends State<ContestPage>
       });
       loadingSuccess(status: "Join in success !!!");
     } else {
-      loadingFail(status: "Join failed :((((");
+      loadingFail(
+          status: "Your account is not available for this contest :((((");
     }
   }
 
-  selectedPopupMenuButton(int value, {token}) {
+  checkFeedbackPost(int postId) async {
+    FeedbackContestPost feedback = FeedbackContestPost();
+    int status = await feedback.feedbackContestPost(
+        token: widget.token, contestPostId: postId, content: feedbackContent);
+    if (status == 200) {
+      setState(() {});
+      loadingSuccess(
+          status: "Send feedback success !!!\nPlease wait for manager reply.");
+      Navigator.of(context).pop();
+    } else {
+      loadingFail(status: "Can not send feedback:((((");
+    }
+  }
+
+  selectedPopupMenuButton(int postId, int value) async {
     switch (value) {
       case 1:
-        print(value);
+        showFeedbackContestPost(postId);
         break;
       case 2:
-        print(value);
+        DeleteContestPost post = DeleteContestPost();
+        int status = await post.deleteContestPost(
+            token: widget.token, contestPostId: postId);
+        if (status == 200) {
+          setState(() {});
+        } else {
+          loadingFail(status: "Delete Failed !!!");
+        }
         break;
     }
   }
 
-  void showRatingComment(Size size, ContestPost? contestPost) => showDialog(
+  void showFeedbackContestPost(int postId) => showDialog(
       context: context,
-      builder: (context) => Container(
-        alignment: Alignment.bottomCenter,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: AlertDialog(
-              insetPadding: const EdgeInsets.symmetric(vertical: 100.0, horizontal: 30.0),
-              contentPadding: EdgeInsets.zero,
-              title: const Text(
-                "Rate Comment",
-                style: TextStyle(color: Color(0xffDB36A4), fontSize: 30, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              content: SizedBox(
-                height: size.height,
-                width: size.width,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: ListView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.zero,
-                      itemCount: contestPost?.rates?.length,
-                      itemBuilder: (context, index) {
-                        rates = contestPost?.rates ?? [];
-                        if (rates!.isNotEmpty) {
-                          return _rateComment(
-                              ownerAvatar: rates?[index].ownerAvatar ?? _avatar,
-                              ownerName: rates?[index].ownerName ?? "Name",
-                              note: rates?[index].note ?? "",
-                              numOfStar: rates?[index].numOfStar ?? 0);
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      }),
+      builder: (contest) => Center(
+            child: SingleChildScrollView(
+              child: AlertDialog(
+                title: const Text(
+                  "Feedback Post",
+                  style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
+                  textAlign: TextAlign.center,
+                ),
+                content: Stack(
+                  overflow: Overflow.visible,
+                  children: [
+                    SizedBox(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextField(
+                            maxLines: 5,
+                            onChanged: (value) {
+                              setState(() {
+                                feedbackContent = value.trim();
+                              });
+                            },
+                            decoration: const InputDecoration(
+                              hintText: "Enter your feedback",
+                              enabledBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Colors.grey, width: 1.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.grey, width: 1.0)),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 15.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  child: Container(
+                                    width: 130,
+                                    height: 50,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0, vertical: 5.0),
+                                    child: ElevatedButton(
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all(
+                                            Colors.red,
+                                          ),
+                                          shape: MaterialStateProperty.all<
+                                                  RoundedRectangleBorder>(
+                                              RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ))),
+                                      child: const Text(
+                                        "Cancel",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16.0),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 20.0,
+                                ),
+                                Flexible(
+                                  child: Container(
+                                    width: 130,
+                                    height: 50,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0, vertical: 5.0),
+                                    child: ElevatedButton(
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all(
+                                            Colors.lightGreen,
+                                          ),
+                                          shape: MaterialStateProperty.all<
+                                                  RoundedRectangleBorder>(
+                                              RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ))),
+                                      child: const Text(
+                                        "OK",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16.0),
+                                      ),
+                                      onPressed: () =>
+                                          checkFeedbackPost(postId),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      right: -40.0,
+                      top: -95.0,
+                      child: InkResponse(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const CircleAvatar(
+                          child: Icon(Icons.close),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-      ));
+          ));
+
+  void showRatingComment(Size size, ContestPost? contestPost) => showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+            insetPadding:
+                const EdgeInsets.symmetric(vertical: 100.0, horizontal: 20.0),
+            contentPadding: EdgeInsets.zero,
+            title: const Text(
+              "Rate Comment",
+              style: TextStyle(
+                  color: Color(0xffDB36A4),
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            content: Stack(
+              overflow: Overflow.visible,
+              children: [
+                Positioned(
+                  right: -20.0,
+                  top: -85.0,
+                  child: InkResponse(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const CircleAvatar(
+                      child: Icon(Icons.close),
+                      backgroundColor: Colors.redAccent,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: size.height,
+                  width: size.width,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: ListView.builder(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        itemCount: contestPost?.rates?.length,
+                        itemBuilder: (context, index) {
+                          rates = contestPost?.rates ?? [];
+                          if (rates!.isNotEmpty) {
+                            return _rateComment(
+                                ownerAvatar:
+                                    rates?[index].ownerAvatar ?? _avatar,
+                                ownerName: rates?[index].ownerName ?? "Name",
+                                note: rates?[index].note ?? "",
+                                numOfStar: rates?[index].numOfStar ?? 0);
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        }),
+                  ),
+                ),
+              ],
+            ),
+          ));
 
   void showRating(Size size, int postId) => showDialog(
         context: context,
@@ -244,7 +426,7 @@ class _ContestPageState extends State<ContestPage>
                         });
                       },
                       decoration: const InputDecoration(
-                        hintText: "Enter your rating comment",
+                        hintText: "Enter your feedback",
                         enabledBorder: OutlineInputBorder(
                           borderSide:
                               BorderSide(color: Colors.grey, width: 1.0),
@@ -268,7 +450,7 @@ class _ContestPageState extends State<ContestPage>
                               child: ElevatedButton(
                                 style: ButtonStyle(
                                     backgroundColor: MaterialStateProperty.all(
-                                      Colors.redAccent,
+                                      Colors.red,
                                     ),
                                     shape: MaterialStateProperty.all<
                                             RoundedRectangleBorder>(
@@ -327,6 +509,134 @@ class _ContestPageState extends State<ContestPage>
         ),
       );
 
+  void showEvaluateContest(Size size) => showDialog(
+    context: context,
+    builder: (context) => Center(
+      child: SingleChildScrollView(
+        child: AlertDialog(
+          title: const Text(
+            "Evaluate Contest",
+            style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
+            textAlign: TextAlign.center,
+          ),
+          content: SizedBox(
+            width: size.width * 0.8,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                buildRating(),
+                const SizedBox(
+                  height: 20.0,
+                ),
+                TextField(
+                  maxLines: 5,
+                  onChanged: (value) {
+                    setState(() {
+                      noteRating = value.trim();
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "Enter your evaluation",
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                      BorderSide(color: Colors.grey, width: 1.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide:
+                        BorderSide(color: Colors.grey, width: 1.0)),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Container(
+                          width: 130,
+                          height: 50,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 5.0),
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                  Colors.red,
+                                ),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ))),
+                            child: const Text(
+                              "Cancel",
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 16.0),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 20.0,
+                      ),
+                      Flexible(
+                        child: Container(
+                          width: 130,
+                          height: 50,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 5.0),
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                  Colors.lightGreen,
+                                ),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ))),
+                            child: const Text(
+                              "OK",
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 16.0),
+                            ),
+                            onPressed: () {
+                              checkEvaluateContest();
+                            },
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  checkEvaluateContest() async {
+    EvaluateContest evaluateContest = EvaluateContest();
+    int status = await evaluateContest.evaluateContest(
+        token: widget.token,
+        contestId: widget.contestId,
+        numOfStar: rating.toInt(),
+        comment: noteRating);
+    if (status == 200) {
+      Navigator.of(context).pop();
+      loadingSuccess(status: "We are appreciate your evaluation !!!\n Thanks for joining our contest");
+    } else if (status == 400) {
+      loadingFail(status: "Only people join contest can evaluate :((((");
+    } else {
+      loadingFail(status: "Evaluation failed :((((");
+    }
+  }
+
   checkRateContestPost(int postId) async {
     RateContestPost ratePost = RateContestPost();
     int status = await ratePost.rateContestPost(
@@ -338,7 +648,10 @@ class _ContestPageState extends State<ContestPage>
     if (status == 200) {
       Navigator.of(context).pop();
       loadingSuccess(status: "Thanks for your rating !!!");
-    } else {
+    } else if (status == 400) {
+      loadingFail(status: "You had rated this post :((((");
+    }
+    else {
       loadingFail(status: "Rating failed :((((");
     }
   }
@@ -408,7 +721,7 @@ class _ContestPageState extends State<ContestPage>
                         fit: BoxFit.cover,
                       ),
                     ),
-                    groupAppBar(context),
+                    groupAppBar(context, widget.role, widget.token),
                   ],
                 ),
               ),
@@ -426,23 +739,39 @@ class _ContestPageState extends State<ContestPage>
                           labelColor: Color(0xffDB36A4),
                           unselectedLabelColor: Colors.black,
                           indicatorColor: Color(0xffDB36A4),
+                          isScrollable: true,
                           tabs: [
                             Tab(
-                              child: Text(
-                                "Contest",
-                                style: TextStyle(fontSize: 16),
+                              child: SizedBox(
+                                width: 110,
+                                child: Center(
+                                  child: Text(
+                                    "Contest",
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ),
                               ),
                             ),
                             Tab(
-                              child: Text(
-                                "Subscriber",
-                                style: TextStyle(fontSize: 16),
+                              child: SizedBox(
+                                width: 110,
+                                child: Center(
+                                  child: Text(
+                                    "Subscriber",
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ),
                               ),
                             ),
                             Tab(
-                              child: Text(
-                                "Management",
-                                style: TextStyle(fontSize: 16),
+                              child: SizedBox(
+                                width: 110,
+                                child: Center(
+                                  child: Text(
+                                    "Management",
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -482,6 +811,7 @@ class _ContestPageState extends State<ContestPage>
           buildContestDetail(hasJoinedContest),
           widget.prizes!.isNotEmpty
               ? Container(
+                  margin: const EdgeInsets.symmetric(vertical: 5.0),
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   color: Colors.white,
                   width: double.infinity,
@@ -525,13 +855,16 @@ class _ContestPageState extends State<ContestPage>
               ? buildRewardContest()
               : const SizedBox.shrink(),
           widget.contestStatus == 3 && hasJoinedContest == true
-              ? Column(
-                  children: [
-                    _newPost(),
-                    const SizedBox(
-                      height: 6,
-                    ),
-                  ],
+              ? Container(
+                  margin: const EdgeInsets.only(top: 5.0),
+                  child: Column(
+                    children: [
+                      _newPost(),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                    ],
+                  ),
                 )
               : const SizedBox.shrink(),
           Flexible(
@@ -550,6 +883,7 @@ class _ContestPageState extends State<ContestPage>
                             return _post(
                                 postId: posts?[index].id,
                                 content: posts?[index].content ?? "",
+                                ownerId: posts?[index].ownerId,
                                 ownerAvatar:
                                     posts?[index].ownerAvatar ?? _avatar,
                                 ownerName: posts?[index].ownerName ?? "",
@@ -777,35 +1111,70 @@ class _ContestPageState extends State<ContestPage>
                       }),
                 ),
                 hasJoinedContest == false && widget.contestStatus == 1
-                    ? const SizedBox(
-                        width: 20,
+                    ? Column(
+                        children: [
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          Container(
+                            width: 150,
+                            height: 50,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10.0, vertical: 5.0),
+                            child: ElevatedButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                        const Color(0xffC31432)),
+                                    shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ))),
+                                child: const Text(
+                                  "Join In",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16.0),
+                                ),
+                                onPressed: () {
+                                  checkJoinIn();
+                                }),
+                          )
+                        ],
                       )
-                    : const SizedBox.shrink(),
-                hasJoinedContest == false && widget.contestStatus == 1
-                    ? Container(
-                        width: 150,
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 5.0),
-                        child: ElevatedButton(
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    const Color(0xffC31432)),
-                                shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ))),
-                            child: const Text(
-                              "Join In",
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 16.0),
-                            ),
-                            onPressed: () {
-                              checkJoinIn();
-                            }),
-                      )
-                    : const SizedBox.shrink(),
+                    : widget.contestStatus == 4
+                        ? Column(
+                            children: [
+                              const SizedBox(
+                                width: 20,
+                              ),
+                              Container(
+                                width: 150,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                    style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                                const Color(0xffC31432)),
+                                        shape: MaterialStateProperty.all<
+                                                RoundedRectangleBorder>(
+                                            RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ))),
+                                    child: const Text(
+                                      "Evaluate",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 16.0),
+                                    ),
+                                    onPressed: () {
+                                      showEvaluateContest(size);
+                                    }),
+                              )
+                            ],
+                          )
+                        : const SizedBox.shrink(),
               ],
             ),
           ],
@@ -868,7 +1237,7 @@ class _ContestPageState extends State<ContestPage>
 
   Widget buildRewardContest() {
     int numReward = rewards?.length ?? 0;
-    return numReward > 0 && numReward < 4
+    return numReward > 0
         ? Container(
             color: const Color(0xff340761),
             margin: const EdgeInsets.symmetric(vertical: 5.0),
@@ -1116,6 +1485,7 @@ class _ContestPageState extends State<ContestPage>
 
   Widget _post(
       {postId,
+      ownerId,
       ownerAvatar,
       ownerName,
       averageStar,
@@ -1137,6 +1507,8 @@ class _ContestPageState extends State<ContestPage>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _postHeader(
+                    postId: postId,
+                    ownerId: ownerId,
                     ownerAvatar: ownerAvatar,
                     ownerName: ownerName,
                     averageStar: averageStar),
@@ -1168,6 +1540,7 @@ class _ContestPageState extends State<ContestPage>
                   ),
                 )
               : const SizedBox.shrink(),
+          const Divider(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: _postStats(
@@ -1217,13 +1590,22 @@ class _ContestPageState extends State<ContestPage>
     );
   }
 
-  Widget _postHeader({ownerAvatar, ownerName, double? averageStar}) {
+  Widget _postHeader(
+      {postId, ownerId, ownerAvatar, ownerName, double? averageStar}) {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 20,
-          backgroundColor: Colors.grey[200],
-          backgroundImage: CachedNetworkImageProvider(ownerAvatar),
+        GestureDetector(
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ProfilePage(
+                    role: widget.role,
+                    token: widget.token,
+                    accountId: ownerId,
+                  ))),
+          child: CircleAvatar(
+            radius: 20,
+            backgroundColor: Colors.grey[200],
+            backgroundImage: CachedNetworkImageProvider(ownerAvatar),
+          ),
         ),
         const SizedBox(
           width: 10.0,
@@ -1260,19 +1642,28 @@ class _ContestPageState extends State<ContestPage>
             onSelected: (int value) {
               setState(() {
                 _choice = value;
-                selectedPopupMenuButton(_choice);
+                selectedPopupMenuButton(postId, _choice);
               });
             },
-            itemBuilder: (context) => const [
-                  PopupMenuItem(
-                    child: Text("Feedback"),
-                    value: 1,
-                  ),
-                  PopupMenuItem(
-                    child: Text("Delete post"),
-                    value: 2,
-                  )
-                ]),
+            itemBuilder: (context) =>
+                (widget.role == 1 || ownerId == _currentUserId) &&
+                        widget.contestStatus != 4
+                    ? const [
+                        PopupMenuItem(
+                          child: Text("Feedback"),
+                          value: 1,
+                        ),
+                        PopupMenuItem(
+                          child: Text("Delete post"),
+                          value: 2,
+                        )
+                      ]
+                    : const [
+                        PopupMenuItem(
+                          child: Text("Feedback"),
+                          value: 1,
+                        ),
+                      ]),
       ],
     );
   }
@@ -1358,13 +1749,14 @@ class _ContestPageState extends State<ContestPage>
               ),
             ),
             onTap: () {
-              onImageClicked(context, imageUrl);
+              onImageClicked(context, imageUrl, widget.role, widget.token);
             },
           );
         } else {
           // Create the facebook like effect for the last image with number of remaining  images
           return GestureDetector(
-            onTap: () => onExpandClicked(),
+            onTap: () => onExpandClicked(
+                context, images ?? [], widget.role, widget.token),
             child: Stack(
               fit: StackFit.expand,
               children: [
@@ -1401,7 +1793,7 @@ class _ContestPageState extends State<ContestPage>
             ),
           ),
           onTap: () {
-            onImageClicked(context, imageUrl);
+            onImageClicked(context, imageUrl, widget.role, widget.token);
           },
         );
       }
@@ -1453,7 +1845,7 @@ class _ContestPageState extends State<ContestPage>
                 ),
                 Text(
                   note,
-                  style: const TextStyle(color: Colors.black, fontSize: 18.0),
+                  style: const TextStyle(color: Colors.black),
                 )
               ],
             ),
@@ -1462,8 +1854,18 @@ class _ContestPageState extends State<ContestPage>
             padding: const EdgeInsets.all(10.0),
             child: Row(
               children: [
-                Text("$numOfStar ", style: const TextStyle(color: Colors.amber, fontSize: 20, fontWeight: FontWeight.bold),),
-                const Icon(Icons.star, color: Colors.amber, size: 20,)
+                Text(
+                  "$numOfStar ",
+                  style: const TextStyle(
+                      color: Colors.amber,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                ),
+                const Icon(
+                  Icons.star,
+                  color: Colors.amber,
+                  size: 20,
+                )
               ],
             ),
           )

@@ -4,13 +4,16 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:multi_image_picker2/multi_image_picker2.dart';
 import 'package:toy_world/apis/gets/get_bill_detail.dart';
+import 'package:toy_world/apis/posts/post_feedback_account.dart';
 import 'package:toy_world/apis/posts/post_rate_seller.dart';
 import 'package:toy_world/apis/puts/put_close_cancel_bill.dart';
 import 'package:toy_world/components/component.dart';
 import 'package:toy_world/models/model_bill.dart';
 import 'package:toy_world/models/model_message_chat.dart';
+import 'package:toy_world/models/model_trading_post_detail.dart';
 
 import 'package:toy_world/screens/full_photo_page.dart';
+import 'package:toy_world/screens/trading_post_detail_page.dart';
 import 'package:toy_world/utils/firestore_constants.dart';
 import 'package:toy_world/utils/firestore_service.dart';
 import 'package:toy_world/utils/helpers.dart';
@@ -40,6 +43,8 @@ class _TradingChatPageState extends State<TradingChatPage> {
   String contentRating = "";
 
   bool isLoading = false;
+  int _choice = 0;
+  String feedbackContent = "";
 
   final TextEditingController textEditingController = TextEditingController();
   final ScrollController listScrollController = ScrollController();
@@ -49,6 +54,24 @@ class _TradingChatPageState extends State<TradingChatPage> {
     readLocal();
     listScrollController.addListener(_scrollListener);
     super.initState();
+  }
+
+  selectedPopupMenuButton(int value, accountFeedbackId, tradingPostId) async {
+    switch (value) {
+      case 1:
+        showFeedbackAccount(accountFeedbackId);
+        break;
+      case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => TradingPostDetailPage(
+                  role: widget.arguments.role,
+                  token: widget.arguments.token,
+                  tradingpostID: widget.arguments.tradingPostId)),
+        );
+        break;
+    }
   }
 
   getData() async {
@@ -442,63 +465,231 @@ class _TradingChatPageState extends State<TradingChatPage> {
         ),
       );
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xffDB36A4),
-        title: Text(
-          widget.arguments.title ?? "Trading",
-          maxLines: 1,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-        ),
-        centerTitle: true,
-      ),
-      body: StreamBuilder<DocumentSnapshot>(
-          stream: getTradingMessageData(groupChatId),
-          builder:
-              (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-            if (snapshot.hasData) {
-              _billId = snapshot.data!['billId'];
-              isBillCreated = snapshot.data!['isBillCreated'];
-              return WillPopScope(
-                child: Column(
+  checkFeedbackAccount(int accountId) async {
+    FeedbackAccount feedback = FeedbackAccount();
+    int status = await feedback.feedbackAccount(
+        token: widget.arguments.token,
+        accountId: accountId,
+        content: feedbackContent);
+    if (status == 200) {
+      setState(() {});
+      loadingSuccess(
+          status: "Send feedback success !!!\nPlease wait for manager reply.");
+      Navigator.of(context).pop();
+    } else {
+      loadingFail(status: "Can not send feedback:((((");
+    }
+  }
+
+  void showFeedbackAccount(int accountId) => showDialog(
+      context: context,
+      builder: (contest) => Center(
+            child: SingleChildScrollView(
+              child: AlertDialog(
+                title: const Text(
+                  "Feedback Account",
+                  style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
+                  textAlign: TextAlign.center,
+                ),
+                content: Stack(
+                  overflow: Overflow.visible,
                   children: [
-                    isBillCreated == false
-                        ? widget.arguments.currentUserId ==
-                                widget.arguments.sellerId
-                            ? buildCreateBill()
-                            : _billId != null
-                                ? buildGetBill()
-                                : const SizedBox.shrink()
-                        : buildFinishBill(),
-                    Expanded(
-                      child: Stack(
-                        children: <Widget>[
-                          Column(
-                            children: <Widget>[
-                              // List of messages
-                              buildListMessage(),
-
-                              // Input content
-                              buildInput(),
-                            ],
+                    SizedBox(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextField(
+                            maxLines: 5,
+                            onChanged: (value) {
+                              setState(() {
+                                feedbackContent = value.trim();
+                              });
+                            },
+                            decoration: const InputDecoration(
+                              hintText: "Enter your feedback",
+                              enabledBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Colors.grey, width: 1.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.grey, width: 1.0)),
+                            ),
                           ),
-
-                          // Loading
-                          buildLoading()
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 15.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  child: Container(
+                                    width: 130,
+                                    height: 50,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0, vertical: 5.0),
+                                    child: ElevatedButton(
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all(
+                                            Colors.red,
+                                          ),
+                                          shape: MaterialStateProperty.all<
+                                                  RoundedRectangleBorder>(
+                                              RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ))),
+                                      child: const Text(
+                                        "Cancel",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16.0),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 20.0,
+                                ),
+                                Flexible(
+                                  child: Container(
+                                    width: 130,
+                                    height: 50,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0, vertical: 5.0),
+                                    child: ElevatedButton(
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all(
+                                            Colors.lightGreen,
+                                          ),
+                                          shape: MaterialStateProperty.all<
+                                                  RoundedRectangleBorder>(
+                                              RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ))),
+                                      child: const Text(
+                                        "OK",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16.0),
+                                      ),
+                                      onPressed: () =>
+                                          checkFeedbackAccount(accountId),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
                         ],
+                      ),
+                    ),
+                    Positioned(
+                      right: -40.0,
+                      top: -95.0,
+                      child: InkResponse(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const CircleAvatar(
+                          child: Icon(Icons.close),
+                          backgroundColor: Colors.redAccent,
+                        ),
                       ),
                     ),
                   ],
                 ),
-                onWillPop: onBackPress,
+              ),
+            ),
+          ));
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color(0xffDB36A4),
+          title: Text(
+            widget.arguments.title ?? "Trading",
+            maxLines: 1,
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+          ),
+          centerTitle: true,
+          actions: [
+            PopupMenuButton(
+                icon: const Icon(Icons.more_horiz),
+                onSelected: (int value) {
+                  setState(() {
+                    _choice = value;
+                    selectedPopupMenuButton(_choice, widget.arguments.peerId,
+                        widget.arguments.tradingPostId);
+                  });
+                },
+                itemBuilder: (context) => const [
+                      PopupMenuItem(
+                        child: Text("Feedback"),
+                        value: 1,
+                      ),
+                      PopupMenuItem(
+                        child: Text("View Trading Post"),
+                        value: 2,
+                      ),
+                    ])
+          ],
+        ),
+        body: StreamBuilder<DocumentSnapshot>(
+            stream: getTradingMessageData(groupChatId),
+            builder:
+                (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+              if (snapshot.hasData) {
+                _billId = snapshot.data!['billId'];
+                isBillCreated = snapshot.data!['isBillCreated'];
+                return WillPopScope(
+                  child: Column(
+                    children: [
+                      isBillCreated == false
+                          ? widget.arguments.currentUserId ==
+                                  widget.arguments.sellerId
+                              ? buildCreateBill()
+                              : _billId != null
+                                  ? buildGetBill()
+                                  : const SizedBox.shrink()
+                          : buildFinishBill(),
+                      Expanded(
+                        child: Stack(
+                          children: <Widget>[
+                            Column(
+                              children: <Widget>[
+                                // List of messages
+                                buildListMessage(),
+
+                                // Input content
+                                buildInput(),
+                              ],
+                            ),
+
+                            // Loading
+                            buildLoading()
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  onWillPop: onBackPress,
+                );
+              }
+              return const Center(
+                child: CircularProgressIndicator(),
               );
-            }
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }),
+            }),
+      ),
     );
   }
 
@@ -564,14 +755,15 @@ class _TradingChatPageState extends State<TradingChatPage> {
                   builder: (BuildContext context) {
                     return GetBillWidget(
                       billId: bill!.id,
-                      toyOfSellerName: bill!.toyOfSellerName,
-                      toyOfBuyerName: bill!.toyOfBuyerName,
+                      toyOfSellerName: bill?.toyOfSellerName ?? "",
+                      toyOfBuyerName: bill?.toyOfBuyerName ?? "",
                       isExchangeByMoney: bill!.isExchangeByMoney,
-                      exchangeValue: bill!.exchangeValue,
-                      sellerName: bill!.sellerName,
-                      buyerName: bill!.buyerName,
+                      exchangeValue: bill?.exchangeValue?.toDouble() ?? 0,
+                      sellerName: bill?.sellerName ?? "",
+                      buyerName: bill?.buyerName ?? "",
                       status: bill!.status,
-                      createTime: bill!.createTime,
+                      updateTime: bill?.updateTime ?? DateTime.now(),
+                      images: bill?.images ?? [],
                       groupChatId: groupChatId,
                       isBillFinished: false,
                     );
@@ -655,14 +847,15 @@ class _TradingChatPageState extends State<TradingChatPage> {
                       builder: (BuildContext context) {
                         return GetBillWidget(
                           billId: bill!.id,
-                          toyOfSellerName: bill!.toyOfSellerName,
-                          toyOfBuyerName: bill!.toyOfBuyerName,
+                          toyOfSellerName: bill?.toyOfSellerName ?? "",
+                          toyOfBuyerName: bill?.toyOfBuyerName ?? "",
                           isExchangeByMoney: bill!.isExchangeByMoney,
-                          exchangeValue: bill!.exchangeValue,
-                          sellerName: bill!.sellerName,
-                          buyerName: bill!.buyerName,
+                          exchangeValue: bill?.exchangeValue?.toDouble() ?? 0.0,
+                          sellerName: bill?.sellerName ?? "",
+                          buyerName: bill?.buyerName ?? "",
                           status: bill!.status,
-                          createTime: bill!.createTime,
+                          updateTime: bill?.updateTime ?? DateTime.now(),
+                          images: bill?.images ?? [],
                           groupChatId: groupChatId,
                           isBillFinished: true,
                         );
@@ -899,7 +1092,7 @@ class _TradingChatPageState extends State<TradingChatPage> {
                                   clipBehavior: Clip.hardEdge,
                                 ),
                                 onPressed: () {
-                                  onImageClicked(context, messageChat.content);
+                                  onImageClicked(context, messageChat.content, widget.arguments.role, widget.arguments.token);
                                 },
                                 style: ButtonStyle(
                                     padding:
@@ -1027,7 +1220,7 @@ class _TradingChatPageState extends State<TradingChatPage> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => FullPhotoPage(
-                                          url: messageChat.content),
+                                          url: messageChat.content, role: widget.arguments.role, token: widget.arguments.token),
                                     ),
                                   );
                                 },
@@ -1080,6 +1273,7 @@ class _TradingChatPageState extends State<TradingChatPage> {
 }
 
 class TradingChatPageArguments {
+  int role;
   String token;
   int currentUserId;
   int? peerId;
@@ -1090,6 +1284,7 @@ class TradingChatPageArguments {
   int? tradingPostId;
 
   TradingChatPageArguments({
+    required this.role,
     required this.token,
     required this.currentUserId,
     required this.peerId,

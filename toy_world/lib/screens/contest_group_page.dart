@@ -301,30 +301,36 @@ class _ContestGroupPageState extends State<ContestGroupPage> {
                         ],
                         crossAxisAlignment: CrossAxisAlignment.start,
                       ),
-                      ElevatedButton(
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                              const Color(0xffDB36A4),
+                      Flexible(
+                        child: SizedBox(
+                          width: 80,
+                          height: 40,
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                  const Color(0xffDB36A4),
+                                ),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ))),
+                            child: const Text(
+                              "View",
+                              style: TextStyle(color: Colors.white, fontSize: 16.0),
                             ),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ))),
-                        child: const Text(
-                          "View more",
-                          style: TextStyle(color: Colors.white, fontSize: 16.0),
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => ContestPage(
+                                        role: widget.role,
+                                        token: widget.token,
+                                        contestId: contestId,
+                                        contestImage: coverImage,
+                                        contestStatus: status,
+                                        prizes: prizes,
+                                      )));
+                            },
+                          ),
                         ),
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ContestPage(
-                                    role: widget.role,
-                                    token: widget.token,
-                                    contestId: contestId,
-                                    contestImage: coverImage,
-                                    contestStatus: status,
-                                    prizes: prizes,
-                                  )));
-                        },
                       ),
                     ],
                   ),

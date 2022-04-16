@@ -19,6 +19,7 @@ class TradingMessageWidget extends StatefulWidget {
 
 class _TradingMessageWidgetState extends State<TradingMessageWidget> {
   int _currentUserId = 0;
+  int _role = 2;
   String _token = "";
   String _avatar =
       "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Avatar%2FdefaultAvatar.png?alt=media&token=b5fbfe09-9045-4838-bca5-649ff5667cad";
@@ -51,6 +52,7 @@ class _TradingMessageWidgetState extends State<TradingMessageWidget> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _currentUserId = (prefs.getInt('accountId') ?? 0);
+      _role = (prefs.getInt('role') ?? 0);
       _token = (prefs.getString('token') ?? "");
       _avatar = (prefs.getString('avatar') ?? "");
     });
@@ -255,6 +257,7 @@ class _TradingMessageWidgetState extends State<TradingMessageWidget> {
                 MaterialPageRoute(
                   builder: (context) => TradingChatPage(
                     arguments: TradingChatPageArguments(
+                        role: _role,
                         token: _token,
                         currentUserId: _currentUserId,
                         peerId: peerId,

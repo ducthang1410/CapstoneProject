@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:multi_image_picker2/multi_image_picker2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toy_world/apis/gets/get_image_post.dart';
+import 'package:toy_world/apis/gets/get_num_of_comment.dart';
 import 'package:toy_world/apis/gets/get_post_group.dart';
 import 'package:toy_world/apis/posts/post_new_post.dart';
 import 'package:toy_world/components/component.dart';
-import 'package:toy_world/models/model_image_post.dart';
 import 'package:toy_world/models/model_post.dart';
 import 'package:toy_world/models/model_post_group.dart';
 import 'package:toy_world/utils/helpers.dart';
@@ -23,7 +24,7 @@ class PostPage extends StatefulWidget {
       {required this.role,
       required this.token,
       required this.groupID,
-        required this.limit});
+      required this.limit});
 
   @override
   State<PostPage> createState() => _PostPageState();
@@ -32,9 +33,12 @@ class PostPage extends StatefulWidget {
 class _PostPageState extends State<PostPage> {
   PostGroup? data;
   List<Post>? posts;
-  List<ImagePost>? images;
-  int _limit = 10;
-  final int _limitIncrement = 10;
+  // int? numOfComment;
+  //
+  // List<ImagePost>? images;
+
+  // int _limit = 10;
+  // final int _limitIncrement = 10;
   String _avatar =
       "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Avatar%2FdefaultAvatar.png?alt=media&token=b5fbfe09-9045-4838-bca5-649ff5667cad";
 
@@ -49,6 +53,7 @@ class _PostPageState extends State<PostPage> {
     // TODO: implement initState
     _loadCounter();
     // listScrollController.addListener(scrollListener);
+    if (!mounted) return;
     controller = TextEditingController()
       ..addListener(() {
         setState(() {});
@@ -73,6 +78,21 @@ class _PostPageState extends State<PostPage> {
     return posts;
   }
 
+  // getNumOfComment(int? postId) async {
+  //   NumOfComment num = NumOfComment();
+  //   numOfComment =
+  //       await num.getNumOfComment(token: widget.token, postId: postId);
+  //   getImagePost(postId);
+  //   if (!mounted) return;
+  //   setState(() {});
+  // }
+  //
+  // getImagePost(int? postId) async {
+  //   ImagePostList imagePostList = ImagePostList();
+  //   images = await imagePostList.getImagePostList(
+  //       token: widget.token, postId: postId);
+  // }
+
   _loadCounter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -93,7 +113,6 @@ class _PostPageState extends State<PostPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey[400],
       body: SingleChildScrollView(
         // controller: listScrollController,
@@ -117,22 +136,32 @@ class _PostPageState extends State<PostPage> {
                           padding: EdgeInsets.zero,
                           itemCount: posts?.length,
                           shrinkWrap: true,
-                          primary: false,
+                          physics: const NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            images = posts![index].images!.cast<ImagePost>();
+                            // getNumOfComment(posts![index].id).then((value) {
+                            //   posts![index].numOfComment = value;
+                            // });
+                            // numOfComment = posts![index].numOfComment;
+                            // getImagePost(posts![index].id).then((value) {
+                            //   posts![index].images = value;
+                            //   images = posts![index].images;
+                            // });
+                            // posts![index].numOfComment = getNumOfComment(posts![index].id);
+                            // posts![index].images = getImagePost(posts![index].id);
                             return PostWidget(
                               role: widget.role,
                               token: widget.token,
                               postId: posts![index].id,
                               isPostDetail: false,
+                              ownerId: posts![index].ownerId,
                               ownerAvatar: posts![index].ownerAvatar,
                               ownerName: posts![index].ownerName,
                               isLikedPost: posts![index].isLikedPost,
                               timePublic: posts![index].publicDate,
                               content: posts![index].content,
-                              images: images,
+                              images: posts?[index].images ?? [],
                               numOfReact: posts![index].numOfReact!.toInt(),
-                              numOfComment: posts![index].numOfComment!.toInt(),
+                              numOfComment: posts![index].numOfComment ?? 0,
                               isReadMore: posts?[index].isReadMore ?? false,
                             );
                           });
@@ -161,7 +190,7 @@ class _PostPageState extends State<PostPage> {
             Row(
               children: [
                 CircleAvatar(
-                  radius: 20,
+                  radius: 25,
                   backgroundColor: Colors.grey[200],
                   backgroundImage: CachedNetworkImageProvider(_avatar),
                 ),

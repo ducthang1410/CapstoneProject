@@ -9,7 +9,7 @@ class ContestGroupList {
       'PageNumber': "1",
       'PageSize': "$size",
     };
-    var response = await http.get(Uri.https("$urlMain", "$urlContestByGroup/$groupId", queryParameters), headers: {
+    var response = await http.get(Uri.https("$urlMain", "$urlContestByGroup/$groupId/mobile", queryParameters), headers: {
       "Accept": "application/json",
       "Access-Control-Allow-Origin": "*",
       'Authorization': 'Bearer $token',

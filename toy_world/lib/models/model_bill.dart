@@ -1,6 +1,8 @@
 
 import 'dart:convert';
 
+import 'package:toy_world/models/model_image_post.dart';
+
 Bill billFromJson(String str) => Bill.fromJson(json.decode(str));
 
 String billToJson(Bill data) => json.encode(data.toJson());
@@ -15,18 +17,20 @@ class Bill {
     this.sellerName,
     this.buyerName,
     this.status,
-    this.createTime,
+    this.updateTime,
+    this.images
   });
 
   int? id;
   String? toyOfSellerName;
   String? toyOfBuyerName;
   bool? isExchangeByMoney;
-  double? exchangeValue;
+  int? exchangeValue;
   String? sellerName;
   String? buyerName;
   int? status;
-  DateTime? createTime;
+  DateTime? updateTime;
+  List<ImagePost>? images;
 
   factory Bill.fromJson(Map<String, dynamic> json) => Bill(
     id: json["id"],
@@ -37,7 +41,8 @@ class Bill {
     sellerName: json["sellerName"],
     buyerName: json["buyerName"],
     status: json["status"],
-    createTime: DateTime.parse(json["createTime"]),
+    updateTime: DateTime.parse(json["updateTime"],),
+    images: List<ImagePost>.from(json["images"].map((x) => ImagePost.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -49,6 +54,7 @@ class Bill {
     "sellerName": sellerName,
     "buyerName": buyerName,
     "status": status,
-    "createTime": createTime!.toIso8601String(),
+    "updateTime": updateTime!.toIso8601String(),
+    "images": List<dynamic>.from(images!.map((x) => x.toJson())),
   };
 }

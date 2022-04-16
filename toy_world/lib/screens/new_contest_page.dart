@@ -82,18 +82,18 @@ class _NewContestPageState extends State<NewContestPage> {
     });
   }
 
-  void _selectDate(BuildContext context, selectedDate, initialDate) async {
-    final picked = await showDatePicker(
-        context: context,
-        initialDate: initialDate,
-        firstDate: initialDate,
-        lastDate: DateTime(DateTime.now().year + 5));
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-      });
-    }
-  }
+  // void _selectDate(BuildContext context, selectedDate, initialDate) async {
+  //   final picked = await showDatePicker(
+  //       context: context,
+  //       initialDate: initialDate,
+  //       firstDate: initialDate,
+  //       lastDate: DateTime(DateTime.now().year + 5));
+  //   if (picked != null && picked != selectedDate) {
+  //     setState(() {
+  //       selectedDate = picked;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +102,7 @@ class _NewContestPageState extends State<NewContestPage> {
       child: Scaffold(
         body: Column(
           children: [
-            sideAppBar(context),
+            sideAppBar(context, widget.role, widget.token),
             Expanded(
               child: SingleChildScrollView(
                 child: Container(
@@ -674,56 +674,56 @@ class _NewContestPageState extends State<NewContestPage> {
     );
   }
 
-  Widget selectDate(String label, selectedDate, initialDate) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 10.0),
-          child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                label,
-                style: const TextStyle(
-                    color: Color(0xff302B63),
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
-              )),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.0),
-                      color: Colors.grey.shade300),
-                  child: Center(
-                    child: Text(
-                      DateFormat('dd/MM/yyyy kk:mm').format(selectedDate),
-                      style: const TextStyle(
-                        color: Colors.black87,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 20.0,
-              ),
-              IconButton(
-                  onPressed: () =>
-                      _selectDate(context, selectedDate, initialDate),
-                  icon: const Icon(Icons.calendar_today_sharp)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget selectDate(String label, selectedDate, initialDate) {
+  //   return Column(
+  //     mainAxisSize: MainAxisSize.min,
+  //     children: [
+  //       Padding(
+  //         padding: const EdgeInsets.only(top: 10.0),
+  //         child: Align(
+  //             alignment: Alignment.centerLeft,
+  //             child: Text(
+  //               label,
+  //               style: const TextStyle(
+  //                   color: Color(0xff302B63),
+  //                   fontSize: 20,
+  //                   fontWeight: FontWeight.bold),
+  //             )),
+  //       ),
+  //       Padding(
+  //         padding: const EdgeInsets.symmetric(vertical: 10.0),
+  //         child: Row(
+  //           children: [
+  //             Expanded(
+  //               child: Container(
+  //                 height: 50,
+  //                 decoration: BoxDecoration(
+  //                     borderRadius: BorderRadius.circular(10.0),
+  //                     color: Colors.grey.shade300),
+  //                 child: Center(
+  //                   child: Text(
+  //                     DateFormat('dd/MM/yyyy kk:mm').format(selectedDate),
+  //                     style: const TextStyle(
+  //                       color: Colors.black87,
+  //                       fontSize: 16,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //             const SizedBox(
+  //               height: 20.0,
+  //             ),
+  //             IconButton(
+  //                 onPressed: () =>
+  //                     _selectDate(context, selectedDate, initialDate),
+  //                 icon: const Icon(Icons.calendar_today_sharp)),
+  //           ],
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget buildGridViewImagePicker() {
     return GridView.count(

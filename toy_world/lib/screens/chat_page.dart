@@ -383,7 +383,7 @@ class _ChatPageState extends State<ChatPage> {
                                   clipBehavior: Clip.hardEdge,
                                 ),
                                 onPressed: () {
-                                  onImageClicked(context, messageChat.content);
+                                  onImageClicked(context, messageChat.content, widget.arguments.role, widget.arguments.token);
                                 },
                                 style: ButtonStyle(
                                     padding:
@@ -546,7 +546,7 @@ class _ChatPageState extends State<ChatPage> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => FullPhotoPage(
-                                          url: messageChat.content),
+                                          url: messageChat.content, role: widget.arguments.role, token: widget.arguments.token),
                                     ),
                                   );
                                 },
@@ -599,13 +599,17 @@ class _ChatPageState extends State<ChatPage> {
 }
 
 class ChatPageArguments {
+  int role;
+  String token;
   final int currentUserId;
   final int peerId;
   final String peerAvatar;
   final String peerName;
 
   ChatPageArguments(
-      {required this.currentUserId,
+      {required this.role,
+        required this.token,
+        required this.currentUserId,
       required this.peerId,
       required this.peerAvatar,
       required this.peerName});

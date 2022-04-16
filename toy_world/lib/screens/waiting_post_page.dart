@@ -178,36 +178,40 @@ class _WaitingPostPageState extends State<WaitingPostPage> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _postButton(
-                    const Icon(
-                      Icons.cancel,
-                      color: Colors.redAccent,
-                      size: 20,
+                  Expanded(
+                    child: _postButton(
+                      const Icon(
+                        Icons.cancel,
+                        color: Colors.redAccent,
+                        size: 20,
+                      ),
+                      const Text(
+                        "Deny",
+                        style: TextStyle(
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
+                      ),
+                      onTap: () => denyPost(token: widget.token, postId: postId),
                     ),
-                    const Text(
-                      "Deny",
-                      style: TextStyle(
-                          color: Colors.redAccent,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16),
-                    ),
-                    onTap: () => denyPost(token: widget.token, postId: postId),
                   ),
                   const Divider(),
-                  _postButton(
-                    const Icon(
-                      Icons.check,
-                      color: Colors.green,
-                      size: 20,
+                  Expanded(
+                    child: _postButton(
+                      const Icon(
+                        Icons.check,
+                        color: Colors.green,
+                        size: 20,
+                      ),
+                      const Text(
+                        "Approve",
+                        style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
+                      ),
+                      onTap: () => approvePost(token: widget.token, postId: postId),
                     ),
-                    const Text(
-                      "Approve",
-                      style: TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16),
-                    ),
-                    onTap: () => approvePost(token: widget.token, postId: postId),
                   ),
                 ],
               )),
@@ -254,24 +258,22 @@ class _WaitingPostPageState extends State<WaitingPostPage> {
   }
 
   Widget _postButton(Icon icon, Text text, {onTap}) {
-    return Expanded(
-      child: Material(
-        color: Colors.white,
-        child: InkWell(
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            height: 25.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                icon,
-                const SizedBox(
-                  width: 8.0,
-                ),
-                text
-              ],
-            ),
+    return Material(
+      color: Colors.white,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          height: 25.0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              icon,
+              const SizedBox(
+                width: 8.0,
+              ),
+              text
+            ],
           ),
         ),
       ),
@@ -301,13 +303,13 @@ class _WaitingPostPageState extends State<WaitingPostPage> {
               ),
             ),
             onTap: () {
-              onImageClicked(context, imageUrl);
+              onImageClicked(context, imageUrl, widget.role, widget.token);
             },
           );
         } else {
           // Create the facebook like effect for the last image with number of remaining  images
           return GestureDetector(
-            onTap: () => onExpandClicked(),
+            onTap: () => onExpandClicked(context, images ?? [], widget.role, widget.token),
             child: Stack(
               fit: StackFit.expand,
               children: [
@@ -344,7 +346,7 @@ class _WaitingPostPageState extends State<WaitingPostPage> {
             ),
           ),
           onTap: () {
-            onImageClicked(context, imageUrl);
+            onImageClicked(context, imageUrl, widget.role, widget.token);
           },
         );
       }

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -10,8 +11,9 @@ class GroupPage extends StatefulWidget {
   int role;
   String token;
   int groupID;
+  String coverImage;
 
-  GroupPage({required this.role, required this.token, required this.groupID});
+  GroupPage({required this.role, required this.token, required this.groupID, required this.coverImage});
 
   @override
   _GroupPageState createState() => _GroupPageState();
@@ -55,12 +57,16 @@ class _GroupPageState extends State<GroupPage> {
             SliverToBoxAdapter(
               child: Stack(
                 children: [
-                  Image.asset(
-                    "assets/images/toyType3.jpg",
+                  CachedNetworkImage(
+                    imageUrl: widget.coverImage,
                     width: size.width,
                     fit: BoxFit.cover,
+                    errorWidget: (context, url, error) => Image.asset(
+                      'assets/images/img_not_available.jpeg',
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  groupAppBar(context),
+                  groupAppBar(context, widget.role, widget.token),
                 ],
               ),
             ),

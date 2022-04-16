@@ -9,7 +9,7 @@ class TradingPostGroupList {
       'PageNumber': "1",
       'PageSize': "$size",
     };
-    var response = await http.get(Uri.https("$urlMain", "$urlTradingPostByGroup/$groupId", queryParameters), headers: {
+    var response = await http.get(Uri.https("$urlMain", "$urlTradingPostByGroup/$groupId/mobile", queryParameters), headers: {
       "Accept": "application/json",
       "Access-Control-Allow-Origin": "*",
       'Authorization': 'Bearer $token',

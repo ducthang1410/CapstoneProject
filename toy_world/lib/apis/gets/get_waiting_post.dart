@@ -9,7 +9,7 @@ class WaitingPostList {
       'PageNumber': "1",
       'PageSize': "$size",
     };
-    var response = await http.get(Uri.https("$urlMain", "$urlGetWaitingPost", queryParameters), headers: {
+    var response = await http.get(Uri.https("$urlMain", "$urlGetWaitingPost/mobile", queryParameters), headers: {
       "Accept": "application/json",
       "Access-Control-Allow-Origin": "*",
       'Authorization': 'Bearer $token',

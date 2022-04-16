@@ -20,7 +20,7 @@ class _ManagementPageState extends State<ManagementPage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        sideAppBar(context),
+        sideAppBar(context, widget.role, widget.token),
         Expanded(
           child: DefaultTabController(
               length: 3,
@@ -29,33 +29,31 @@ class _ManagementPageState extends State<ManagementPage> {
                 children: [
                   SizedBox(
                     height: size.height * 0.07,
-                    child: const Expanded(
-                      child: TabBar(
-                        labelColor: Color(0xffDB36A4),
-                        unselectedLabelColor: Colors.black,
-                        indicatorColor: Color(0xffDB36A4),
-                        isScrollable: true,
-                        tabs: [
-                          Tab(
-                            child: Text(
-                              "Waiting Post",
-                              style: TextStyle(fontSize: 16),
-                            ),
+                    child: const TabBar(
+                      labelColor: Color(0xffDB36A4),
+                      unselectedLabelColor: Colors.black,
+                      indicatorColor: Color(0xffDB36A4),
+                      isScrollable: true,
+                      tabs: [
+                        Tab(
+                          child: Text(
+                            "Waiting Post",
+                            style: TextStyle(fontSize: 16),
                           ),
-                          Tab(
-                            child: Text(
-                              "Disabled Trading Post",
-                              style: TextStyle(fontSize: 16),
-                            ),
+                        ),
+                        Tab(
+                          child: Text(
+                            "Disabled Trading Post",
+                            style: TextStyle(fontSize: 16),
                           ),
-                          Tab(
-                            child: Text(
-                              "Contest",
-                              style: TextStyle(fontSize: 16),
-                            ),
+                        ),
+                        Tab(
+                          child: Text(
+                            "Contest",
+                            style: TextStyle(fontSize: 16),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                   Expanded(

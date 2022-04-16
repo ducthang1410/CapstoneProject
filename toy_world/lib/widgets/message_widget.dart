@@ -10,7 +10,10 @@ import 'package:toy_world/utils/debouncer.dart';
 import 'package:toy_world/utils/utilities.dart';
 
 class MessageWidget extends StatefulWidget {
-  const MessageWidget({Key? key}) : super(key: key);
+  String token;
+  int role;
+
+  MessageWidget({required this.role, required this.token});
 
   @override
   State<MessageWidget> createState() => _MessageWidgetState();
@@ -18,7 +21,9 @@ class MessageWidget extends StatefulWidget {
 
 class _MessageWidgetState extends State<MessageWidget> {
   int _currentUserId = 0;
-  String _token = "";
+
+  String _avatar =
+      "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Avatar%2FdefaultAvatar.png?alt=media&token=b5fbfe09-9045-4838-bca5-649ff5667cad";
   UserChat? data;
   List<User>? users;
 
@@ -50,13 +55,12 @@ class _MessageWidgetState extends State<MessageWidget> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _currentUserId = (prefs.getInt('accountId') ?? 0);
-      _token = (prefs.getString('token') ?? "");
     });
   }
 
   getData() async {
     UsersChat usersChat = UsersChat();
-    data = await usersChat.getUsersChat(token: _token, size: _limit);
+    data = await usersChat.getUsersChat(token: widget.token, size: _limit);
     if (data == null) return List.empty();
     users = data!.data!.cast<User>();
     setState(() {});
@@ -91,8 +95,9 @@ class _MessageWidgetState extends State<MessageWidget> {
                         itemBuilder: (context, index) {
                           return buildItem(context,
                               userChatId: users![index].id,
-                              userChatName: users![index].name,
-                              userChatAvatar: users![index].avatar);
+                              userChatName: users?[index].name ?? "Name",
+                              userChatAvatar: users?[index].avatar ?? _avatar,
+                              userRole: users?[index].role ?? 2);
                         });
                   } else {
                     return const Center(
@@ -170,15 +175,15 @@ class _MessageWidgetState extends State<MessageWidget> {
   }
 
   Widget buildItem(BuildContext context,
-      {userChatId, userChatName, userChatAvatar}) {
+      {userChatId, userChatName, userChatAvatar, userRole}) {
     if (users != null) {
-      if (userChatId == _currentUserId) {
+      if (userChatId == _currentUserId || (userRole == 0 && widget.role == 2)) {
         return const SizedBox.shrink();
       } else {
         return Container(
           decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(width: 1.0, color: Color(0xffE8E8E8)))
-          ),
+              border: Border(
+                  bottom: BorderSide(width: 1.0, color: Color(0xffE8E8E8)))),
           child: TextButton(
             child: Row(
               children: <Widget>[
@@ -253,6 +258,8 @@ class _MessageWidgetState extends State<MessageWidget> {
                 MaterialPageRoute(
                   builder: (context) => ChatPage(
                     arguments: ChatPageArguments(
+                      role: widget.role,
+                      token: widget.token,
                       currentUserId: _currentUserId,
                       peerId: userChatId,
                       peerAvatar: userChatAvatar,

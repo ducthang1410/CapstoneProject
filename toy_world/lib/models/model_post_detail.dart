@@ -20,6 +20,7 @@ class PostDetail {
     this.comments,
     this.numOfReact,
     this.numOfComment,
+    this.isReadMore
   });
 
   int? id;
@@ -33,6 +34,7 @@ class PostDetail {
   List<Comment>? comments;
   int? numOfReact;
   int? numOfComment;
+  bool? isReadMore = false;
 
   factory PostDetail.fromJson(Map<String, dynamic> json) => PostDetail(
     id: json["id"],

@@ -3,18 +3,18 @@ import 'package:toy_world/models/model_account_profile.dart';
 
 import 'package:toy_world/utils/url.dart';
 
-class AccountProfile {
-  getAccountProfile({token, accountId}) async {
+class AccountDetailData {
+  getAccountDetail({token, accountId}) async {
     var response = await http
-        .get(Uri.https("$urlMain", "$urlAccountProfile/$accountId"), headers: {
+        .get(Uri.https("$urlMain", "$urlAccountDetail/$accountId"), headers: {
       "Accept": "application/json",
       "Access-Control-Allow-Origin": "*",
       'Authorization': 'Bearer $token',
     });
 
-    print("Status getApi Account Profile:${response.statusCode}");
+    print("Status getApi Account Detail:${response.statusCode}");
     if (response.statusCode == 200) {
-      return profileFromJson(response.body);
+      return accountDetailFromJson(response.body);
     } else {
       return null;
     }

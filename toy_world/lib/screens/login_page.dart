@@ -57,8 +57,8 @@ class _LoginPageState extends State<LoginPage> {
     var size = MediaQuery.of(context).size;
     return Center(
       child: Container(
-        width: size.width * 0.8,
-        height: size.height * 0.75,
+        width: size.width * 0.85,
+        height: size.height * 0.8,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -83,10 +83,10 @@ class _LoginPageState extends State<LoginPage> {
             ),
             frmLogin(),
             const SizedBox(
-              height: 30,
+              height: 20,
             ),
             const Text(
-              "Or sign in with",
+              "--- Or ---",
               style: TextStyle(
                   color: Colors.grey,
                   fontWeight: FontWeight.w700,
@@ -115,7 +115,7 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
                 padding: const EdgeInsets.only(right: 30, bottom: 20),
                 child: Align(
-                    alignment: Alignment.centerRight, child: creatNewAccount()))
+                    alignment: Alignment.centerRight, child: createNewAccount()))
           ],
         ),
       ),
@@ -191,17 +191,10 @@ class _LoginPageState extends State<LoginPage> {
             height: 20,
           ),
           Container(
-            width: size.width * 0.45,
-            height: size.height * 0.05,
+            width: 140,
+            height: 40,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topLeft,
-                colors: [
-                  Color(0xffDB36A4),
-                  Color(0xffF7FF00),
-                ],
-              ),
+              color: const Color(0xffDB36A4),
               boxShadow: const [
                 BoxShadow(
                   color: Colors.black54,
@@ -218,7 +211,11 @@ class _LoginPageState extends State<LoginPage> {
                     if (await checkLoginSystemAccount(
                             email: _email, password: _password) ==
                         200) {
-                      _loadCounter();
+                      await _loadCounter();
+                      if(_roleValue == 0){
+                        loadingFail(status: "Admin is not available in this app !!!");
+                        return;
+                      }
                       EasyLoading.dismiss();
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
@@ -266,7 +263,11 @@ class _LoginPageState extends State<LoginPage> {
             loadingLoad(status: "Signing In...");
             String? fbToken = await signIn();
             if (await checkLogin(firebaseToken: fbToken) == 200) {
-              _loadCounter();
+              await _loadCounter();
+              if(_roleValue == 0){
+                loadingFail(status: "Admin is not available in this app !!!");
+                return;
+              }
               EasyLoading.dismiss();
               Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
@@ -278,19 +279,18 @@ class _LoginPageState extends State<LoginPage> {
             } else {
               loadingFail(
                   status:
-                      "Login Failed - ${await checkLogin(firebaseToken: fbToken)}");
+                      "Sign in Failed - ${await checkLogin(firebaseToken: fbToken)}");
             }
           } catch (e) {
-            loadingFail(status: "Login Failed !!! \n $e");
+            loadingFail(status: "Sign in Failed !!! \n $e");
           }
         });
   }
 
-  Widget creatNewAccount() {
-    var size = MediaQuery.of(context).size;
+  Widget createNewAccount() {
     return Container(
-      width: size.width * 0.35,
-      height: size.height * 0.05,
+      width: 140,
+      height: 40,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.bottomCenter,

@@ -1,9 +1,9 @@
-
 import 'dart:convert';
 
 import 'package:toy_world/models/model_image_post.dart';
 
-ContestPosts contestPostsFromJson(String str) => ContestPosts.fromJson(json.decode(str));
+ContestPosts contestPostsFromJson(String str) =>
+    ContestPosts.fromJson(json.decode(str));
 
 String contestPostsToJson(ContestPosts data) => json.encode(data.toJson());
 
@@ -40,6 +40,7 @@ class ContestPost {
   ContestPost(
       {this.id,
       this.content,
+      this.ownerId,
       this.ownerAvatar,
       this.ownerName,
       this.averageStar,
@@ -50,6 +51,7 @@ class ContestPost {
 
   int? id;
   String? content;
+  int? ownerId;
   String? ownerAvatar;
   String? ownerName;
   double? averageStar;
@@ -67,7 +69,7 @@ class ContestPost {
         isRated: json["isRated"],
         rates: List<Rate>.from(json["rates"].map((x) => Rate.fromJson(x))),
         images: List<ImagePost>.from(
-           json["images"].map((x) => ImagePost.fromJson(x))),
+            json["images"].map((x) => ImagePost.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {

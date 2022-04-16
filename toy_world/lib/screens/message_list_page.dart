@@ -5,6 +5,11 @@ import 'package:toy_world/widgets/message_widget.dart';
 import 'package:toy_world/widgets/trading_message_widget.dart';
 
 class MessageListPage extends StatefulWidget {
+  String token;
+  int role;
+
+  MessageListPage({required this.role, required this.token});
+
   @override
   State<MessageListPage> createState() => _MessageListPageState();
 }
@@ -48,12 +53,12 @@ class _MessageListPageState extends State<MessageListPage> {
                 ],
               ),
             ),
-            const Expanded(
+            Expanded(
               child: TabBarView(
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  MessageWidget(),
-                  TradingMessageWidget(),
+                  MessageWidget(role: widget.role, token: widget.token,),
+                  const TradingMessageWidget(),
                 ],
               ),
             ),

@@ -9,13 +9,10 @@ class Contest {
     this.id,
     this.title,
     this.description,
-    this.minRegistration,
-    this.maxRegistration,
     this.startDate,
     this.endDate,
     this.startRegistration,
     this.endRegistration,
-    this.proposalId,
     this.prizes,
     this.coverImage,
     this.slogan,
@@ -26,13 +23,10 @@ class Contest {
   int? id;
   String? title;
   String? description;
-  int? minRegistration;
-  int? maxRegistration;
   DateTime? startDate;
   DateTime? endDate;
   DateTime? startRegistration;
   DateTime? endRegistration;
-  int? proposalId;
   List<Prize>? prizes;
   String? coverImage;
   String? slogan;
@@ -47,7 +41,6 @@ class Contest {
     endDate: DateTime.parse(json["endDate"]),
     startRegistration: DateTime.parse(json["startRegistration"]),
     endRegistration: DateTime.parse(json["endRegistration"]),
-    proposalId: json["proposalId"],
     prizes: List<Prize>.from(json["prizes"].map((x) => Prize.fromJson(x))),
     coverImage: json["coverImage"],
     slogan: json["slogan"],
@@ -62,7 +55,6 @@ class Contest {
     "endDate": endDate!.toIso8601String(),
     "startRegistration": startRegistration!.toIso8601String(),
     "endRegistration": endRegistration!.toIso8601String(),
-    "proposalId": proposalId,
     "prizes": List<dynamic>.from(prizes!.map((x) => x)),
     "coverImage": coverImage,
     "slogan": slogan,

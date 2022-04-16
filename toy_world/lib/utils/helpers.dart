@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:multi_image_picker2/multi_image_picker2.dart';
 import 'package:toy_world/models/model_image_post.dart';
+import 'package:toy_world/screens/expand_photo_page.dart';
 
 import 'package:toy_world/screens/following_account_page.dart';
 import 'package:toy_world/screens/full_photo_page.dart';
@@ -33,25 +34,29 @@ colorHexa(String hexColor) {
   return Color(int.parse(hexColor, radix: 16));
 }
 
-selectedDrawerItem(BuildContext context, item, role, token) {
+selectedDrawerItem(BuildContext context, item, role, token, {currentUserId}) {
   switch (item) {
     case 0:
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => const FollowingPage()));
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => FollowingPage(
+                role: role,
+                token: token,
+                currentUserId: currentUserId,
+              )));
       break;
     case 1:
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ManagementPage(
-            role: role,
-            token: token,
-          )));
+                role: role,
+                token: token,
+              )));
       break;
     case 2:
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ToyPage(
-            role: role,
-            token: token,
-          )));
+                role: role,
+                token: token,
+              )));
       break;
     case 3:
       signOut(context);
@@ -71,19 +76,27 @@ timeControl(Duration duration) {
   }
 }
 
-onImageClicked(BuildContext context, String url) {
+onImageClicked(BuildContext context, String url, int role, String token) {
   Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => FullPhotoPage(
         url: url,
+        role: role,
+        token: token,
       ),
     ),
   );
 }
 
-onExpandClicked() {
-  print("Expand Image click");
+onExpandClicked(
+    BuildContext context, List<ImagePost> images, int role, String token) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+        builder: (context) =>
+            ExpandPhotoPage(role: role, token: token, images: images)),
+  );
 }
 
 Future<String> postImage(Asset asset, String directory) async {
@@ -100,7 +113,6 @@ Future<String> postImage(Asset asset, String directory) async {
   print(snapshot);
   print(snapshot.ref.getDownloadURL());
   return snapshot.ref.getDownloadURL();
-
 }
 
 uploadImages(List<Asset> images, String directory) async {
@@ -127,24 +139,24 @@ showStatusTradingPost(int? status) {
     return const Text(
       "Open",
       style: TextStyle(
-          color: Colors.green, fontWeight: FontWeight.bold, fontSize: 16),
+          color: Colors.green, fontWeight: FontWeight.bold, fontSize: 18),
     );
   } else if (status == 1) {
     return const Text(
       "Exchanging",
       style: TextStyle(
-          color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 16),
+          color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 18),
     );
   } else if (status == 2) {
     return const Text(
       "Closed",
       style: TextStyle(
-          color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16),
+          color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 18),
     );
   } else {
     return const Text(
       "Unknown",
-      style: TextStyle(fontSize: 16),
+      style: TextStyle(fontSize: 18),
     );
   }
 }

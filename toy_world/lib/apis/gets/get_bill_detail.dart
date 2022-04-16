@@ -5,7 +5,7 @@ import 'package:toy_world/utils/url.dart';
 
 class BillDetail {
   getBillDetail({token, billId}) async {
-    var response = await http.get(Uri.https("$urlMain", "$urlGetBillDetail/$billId/details"), headers: {
+    var response = await http.get(Uri.https("$urlMain", "$urlGetBillDetail/$billId/details/mobile"), headers: {
       "Accept": "application/json",
       "Access-Control-Allow-Origin": "*",
       'Authorization': 'Bearer $token',

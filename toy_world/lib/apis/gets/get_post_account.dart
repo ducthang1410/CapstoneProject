@@ -9,7 +9,7 @@ class PostAccountList {
       'PageNumber': "1",
       'PageSize': "$size",
     };
-    var response = await http.get(Uri.https("$urlMain", "$urlGetPostByAccount/$accountId", queryParameters), headers: {
+    var response = await http.get(Uri.https("$urlMain", "$urlGetPostByAccount/$accountId/mobile", queryParameters), headers: {
       "Accept": "application/json",
       "Access-Control-Allow-Origin": "*",
       'Authorization': 'Bearer $token',

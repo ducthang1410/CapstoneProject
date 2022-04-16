@@ -325,6 +325,8 @@ class _SubscriberContestWidgetState extends State<SubscriberContestWidget> {
                         MaterialPageRoute(
                           builder: (context) => ChatPage(
                             arguments: ChatPageArguments(
+                              role: widget.role,
+                              token: widget.token,
                               currentUserId: _currentUserId,
                               peerId: id,
                               peerAvatar: avatar,

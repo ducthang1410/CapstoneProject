@@ -25,12 +25,12 @@ void loadingSuccess({required status}) {
       duration: const Duration(seconds: 2));
 }
 
-Widget defaultAppBar(BuildContext context) {
+Widget defaultAppBar(BuildContext context, int role, String token) {
   var size = MediaQuery.of(context).size;
   return Center(
     child: Container(
       width: size.width,
-      height: size.height * 0.09,
+      height: size.height * 0.1,
       color: const Color(0xffDB36A4),
       padding: const EdgeInsets.only(left: 5, right: 10),
       child: Row(
@@ -70,7 +70,7 @@ Widget defaultAppBar(BuildContext context) {
                           color: Colors.white),
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => MessageListPage(),
+                          builder: (context) => MessageListPage(role: role, token: token,),
                         ));
                       },
                     ),
@@ -83,14 +83,14 @@ Widget defaultAppBar(BuildContext context) {
   );
 }
 
-Widget groupAppBar(BuildContext context) {
+Widget groupAppBar(BuildContext context, int role, String token) {
   var size = MediaQuery.of(context).size;
   return Center(
     child: Opacity(
       opacity: 0.8,
       child: Container(
         width: size.width,
-        height: size.height * 0.09,
+        height: size.height * 0.1,
         padding: const EdgeInsets.only(left: 5, right: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -120,7 +120,7 @@ Widget groupAppBar(BuildContext context) {
                           color: Colors.white),
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => MessageListPage(),
+                          builder: (context) => MessageListPage(role: role, token: token),
                         ));
                       },
                     ),
@@ -133,12 +133,12 @@ Widget groupAppBar(BuildContext context) {
   );
 }
 
-Widget sideAppBar(BuildContext context) {
+Widget sideAppBar(BuildContext context, int role, String token) {
   var size = MediaQuery.of(context).size;
   return Center(
     child: Container(
       width: size.width,
-      height: size.height * 0.09,
+      height: size.height * 0.1,
       color: const Color(0xffDB36A4),
       padding: const EdgeInsets.only(left: 5, right: 10),
       child: Row(
@@ -177,7 +177,7 @@ Widget sideAppBar(BuildContext context) {
                           color: Colors.white),
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => MessageListPage(),
+                          builder: (context) => MessageListPage(role: role, token: token,),
                         ));
                       },
                     ),
@@ -191,7 +191,7 @@ Widget sideAppBar(BuildContext context) {
 }
 
 Widget drawerMenu(BuildContext context, int role, String token, String name,
-    String urlImage) {
+    String urlImage, {currentUserId, accountId}) {
   var size = MediaQuery.of(context).size;
   return SizedBox(
       width: size.width * 0.7,
@@ -219,6 +219,7 @@ Widget drawerMenu(BuildContext context, int role, String token, String name,
                       Navigator.of(context).pop();
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => ProfilePage(
+                          accountId: accountId,
                           role: role,
                           token: token,
                         ),
@@ -235,7 +236,7 @@ Widget drawerMenu(BuildContext context, int role, String token, String name,
                       urlImage: "assets/icons/followers.png",
                       onClicked: () {
                         Navigator.of(context).pop();
-                        selectedDrawerItem(context, 0, role, token);
+                        selectedDrawerItem(context, 0, role, token, currentUserId: currentUserId);
                       },
                     ),
                     role == 1
@@ -301,7 +302,7 @@ Widget buildHeader({
         child: Column(
           children: [
             CircleAvatar(
-                radius: 40,
+                radius: 50,
                 backgroundImage: NetworkImage(urlImage),
                 backgroundColor: Colors.grey.shade300),
             const SizedBox(height: 20),

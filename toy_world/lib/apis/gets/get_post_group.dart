@@ -9,13 +9,15 @@ class PostGroupList {
       'PageNumber': "1",
       'PageSize': "$size",
     };
-    var response = await http.get(Uri.https("$urlMain", "$urlPostByGroup/$groupId", queryParameters), headers: {
+    var response = await http.get(Uri.https("$urlMain", "$urlPostByGroup/$groupId/mobile", queryParameters), headers: {
       "Accept": "application/json",
       "Access-Control-Allow-Origin": "*",
       'Authorization': 'Bearer $token',
     });
 
     print("Status getApi Post Of Group:${response.statusCode}");
+
+
     if (response.statusCode == 200) {
       return postGroupFromJson(response.body);
     } else {
