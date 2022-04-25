@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toy_world/apis/gets/get_trading_post_detail.dart';
+import 'package:toy_world/models/model_image_post.dart';
 import 'package:toy_world/models/model_trading_message.dart';
+import 'package:toy_world/models/model_trading_post_detail.dart';
 import 'package:toy_world/screens/trading_chat_page.dart';
 import 'package:toy_world/utils/debouncer.dart';
 import 'package:toy_world/utils/firestore_constants.dart';
@@ -34,6 +37,8 @@ class _TradingMessageWidgetState extends State<TradingMessageWidget> {
   StreamController<bool> btnClearController = StreamController<bool>();
   TextEditingController searchBarTec = TextEditingController();
 
+  TradingPostDetail? data;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -46,6 +51,15 @@ class _TradingMessageWidgetState extends State<TradingMessageWidget> {
   void dispose() {
     super.dispose();
     btnClearController.close();
+  }
+
+  getData(int tradingPostId) async {
+    TradingPostDetailData detail = TradingPostDetailData();
+    data = await detail.getTradingPostDetail(
+        token: _token, tradingPostId: tradingPostId);
+    if (data == null) return List.empty();
+    setState(() {});
+    return data;
   }
 
   _loadCounter() async {
@@ -227,7 +241,8 @@ class _TradingMessageWidgetState extends State<TradingMessageWidget> {
                       children: <Widget>[
                         Container(
                           child: Text(
-                            tradingMessage.title,
+                            tradingMessage.buyerName + " * " + tradingMessage.title,
+                            overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style: const TextStyle(
                                 color: Color(0xff203152), fontSize: 16),
@@ -242,10 +257,11 @@ class _TradingMessageWidgetState extends State<TradingMessageWidget> {
                 ),
               ],
             ),
-            onPressed: () {
+            onPressed: () async {
               if (Utilities.isKeyboardShowing()) {
                 Utilities.closeKeyboard(context);
               }
+              await getData(tradingMessage.tradingPostId);
               int peerId;
               if (tradingMessage.sellerId == _currentUserId) {
                 peerId = tradingMessage.buyerId;
@@ -265,6 +281,9 @@ class _TradingMessageWidgetState extends State<TradingMessageWidget> {
                         buyerId: tradingMessage.buyerId,
                         title: tradingMessage.title,
                         toyName: tradingMessage.toyName,
+                        exchangeWith: data?.trading ?? "",
+                        value: data?.value,
+                        buyerName: tradingMessage.buyerName,
                         tradingPostId: tradingMessage.tradingPostId),
                   ),
                 ),
@@ -274,7 +293,7 @@ class _TradingMessageWidgetState extends State<TradingMessageWidget> {
           margin: const EdgeInsets.only(bottom: 5, left: 10, right: 10),
         );
       } else {
-        return SizedBox.shrink();
+        return const SizedBox.shrink();
       }
     } else {
       return const SizedBox.shrink();

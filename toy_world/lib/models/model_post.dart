@@ -12,7 +12,7 @@ class Post {
     this.ownerName,
     this.isLikedPost,
     this.content,
-    this.publicDate,
+    this.postDate,
     this.images,
     this.numOfReact,
     this.numOfComment,
@@ -25,7 +25,7 @@ class Post {
   String? ownerName;
   bool? isLikedPost;
   String? content;
-  DateTime? publicDate;
+  DateTime? postDate;
   List<ImagePost>? images;
   int? numOfReact;
   int? numOfComment;
@@ -38,7 +38,7 @@ class Post {
     ownerName: json["ownerName"],
     isLikedPost: json["isLikedPost"],
     content: json["content"],
-    publicDate: DateTime.parse(json["publicDate"]),
+    postDate: DateTime.parse(json["postDate"]),
     images: List<ImagePost>.from(json["images"].map((x) => ImagePost.fromJson(x))),
     numOfReact: json["numOfReact"],
     numOfComment: json["numOfComment"],
@@ -51,7 +51,7 @@ class Post {
     "ownerName": ownerName,
     "isLikedPost": isLikedPost,
     "content": content,
-    "publicDate": publicDate!.toIso8601String(),
+    "publicDate": postDate!.toIso8601String(),
     "images": List<dynamic>.from(images!.map((x) => x.toJson())),
     "numOfReact": numOfReact,
     "numOfComment": numOfComment,

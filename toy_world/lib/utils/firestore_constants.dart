@@ -14,5 +14,6 @@ class FirestoreConstants {
   static const toyName = "toyName";
   static const sellerId = "sellerId";
   static const buyerId = "buyerId";
+  static const buyerName = "buyerName";
   static const billId = "billId";
 }

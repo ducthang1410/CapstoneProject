@@ -69,7 +69,7 @@ class TradingPostDetail {
     content: json["content"],
     address: json["address"],
     trading: json["trading"],
-    value: json["value"].toDouble(),
+    value: json["value"],
     phone: json["phone"],
     postDate: DateTime.parse(json["postDate"]),
     status: json["status"],

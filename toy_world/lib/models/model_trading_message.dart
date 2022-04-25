@@ -11,6 +11,7 @@ class TradingMessage {
   String? contentPost;
   String toyName;
   int? billId;
+  String buyerName;
 
   TradingMessage(
       {required this.sellerId,
@@ -21,7 +22,8 @@ class TradingMessage {
       required this.title,
       required this.toyName,
       this.contentPost,
-      this.billId});
+      this.billId,
+      required this.buyerName});
 
   Map<String, dynamic> toJson() {
     return {
@@ -34,6 +36,7 @@ class TradingMessage {
       FirestoreConstants.contentPost: contentPost,
       FirestoreConstants.toyName: toyName,
       FirestoreConstants.billId: billId,
+      FirestoreConstants.buyerName: buyerName
     };
   }
 
@@ -46,6 +49,7 @@ class TradingMessage {
     String title = doc.get(FirestoreConstants.title);
     String contentPost = doc.get(FirestoreConstants.contentPost);
     String toyName = doc.get(FirestoreConstants.toyName);
+    String buyerName = doc.get(FirestoreConstants.buyerName);
     return TradingMessage(
         sellerId: sellerId,
         buyerId: buyerId,
@@ -55,6 +59,6 @@ class TradingMessage {
         title: title,
         contentPost: contentPost,
         toyName: toyName,
-    );
+        buyerName: buyerName);
   }
 }

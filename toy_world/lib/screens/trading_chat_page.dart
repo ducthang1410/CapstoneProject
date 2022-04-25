@@ -68,7 +68,7 @@ class _TradingChatPageState extends State<TradingChatPage> {
               builder: (context) => TradingPostDetailPage(
                   role: widget.arguments.role,
                   token: widget.arguments.token,
-                  tradingpostID: widget.arguments.tradingPostId)),
+                  tradingPostID: widget.arguments.tradingPostId)),
         );
         break;
     }
@@ -494,6 +494,19 @@ class _TradingChatPageState extends State<TradingChatPage> {
                 content: Stack(
                   overflow: Overflow.visible,
                   children: [
+                    Positioned(
+                      right: -40.0,
+                      top: -95.0,
+                      child: InkResponse(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const CircleAvatar(
+                          child: Icon(Icons.close),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      ),
+                    ),
                     SizedBox(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -590,19 +603,6 @@ class _TradingChatPageState extends State<TradingChatPage> {
                         ],
                       ),
                     ),
-                    Positioned(
-                      right: -40.0,
-                      top: -95.0,
-                      child: InkResponse(
-                        onTap: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const CircleAvatar(
-                          child: Icon(Icons.close),
-                          backgroundColor: Colors.redAccent,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -617,7 +617,8 @@ class _TradingChatPageState extends State<TradingChatPage> {
         appBar: AppBar(
           backgroundColor: const Color(0xffDB36A4),
           title: Text(
-            widget.arguments.title ?? "Trading",
+            widget.arguments.buyerName + " * " + widget.arguments.title,
+            overflow: TextOverflow.ellipsis,
             maxLines: 1,
             style: const TextStyle(color: Colors.white, fontSize: 16),
           ),
@@ -715,6 +716,8 @@ class _TradingChatPageState extends State<TradingChatPage> {
                       buyerId: widget.arguments.buyerId,
                       tradingPostId: widget.arguments.tradingPostId,
                       toyOfSellerName: widget.arguments.toyName,
+                      exchangeWith: widget.arguments.exchangeWith,
+                      value: widget.arguments.value,
                       groupChatId: groupChatId,
                     );
                   });
@@ -1279,8 +1282,11 @@ class TradingChatPageArguments {
   int? peerId;
   int? sellerId;
   int? buyerId;
-  String? title;
+  String title;
   String? toyName;
+  String? exchangeWith;
+  double? value;
+  String buyerName;
   int? tradingPostId;
 
   TradingChatPageArguments({
@@ -1292,6 +1298,9 @@ class TradingChatPageArguments {
     required this.buyerId,
     required this.title,
     required this.toyName,
+    required this.exchangeWith,
+    this.value,
+    required this.buyerName,
     required this.tradingPostId,
   });
 }

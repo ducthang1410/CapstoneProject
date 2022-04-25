@@ -14,6 +14,7 @@ class AccountDetail {
     this.isFollowed,
     this.biography,
     this.name,
+    this.wishLists,
   });
 
   String? avatar;
@@ -23,6 +24,7 @@ class AccountDetail {
   bool? isFollowed;
   String? biography;
   String? name;
+  List<WishList>? wishLists;
 
   factory AccountDetail.fromJson(Map<String, dynamic> json) => AccountDetail(
     avatar: json["avatar"],
@@ -32,6 +34,7 @@ class AccountDetail {
     isFollowed: json["isFollowed"],
     biography: json["biography"],
     name: json["name"],
+    wishLists: List<WishList>.from(json["wishLists"].map((x) => WishList.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -41,6 +44,27 @@ class AccountDetail {
     "noOfFollower": noOfFollower,
     "isFollowed": isFollowed,
     "biography": biography,
+    "name": name,
+    "wishLists": List<dynamic>.from(wishLists!.map((x) => x.toJson())),
+  };
+}
+
+class WishList {
+  WishList({
+    this.id,
+    this.name,
+  });
+
+  int? id;
+  String? name;
+
+  factory WishList.fromJson(Map<String, dynamic> json) => WishList(
+    id: json["id"],
+    name: json["name"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
     "name": name,
   };
 }

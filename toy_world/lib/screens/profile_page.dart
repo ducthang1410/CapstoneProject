@@ -10,6 +10,7 @@ import 'package:toy_world/models/model_account_profile.dart';
 import 'package:toy_world/screens/follower_account_page.dart';
 import 'package:toy_world/screens/following_account_page.dart';
 import 'package:toy_world/screens/post_of_account_page.dart';
+import 'package:toy_world/widgets/wish_list_widget.dart';
 
 class ProfilePage extends StatefulWidget {
   int role;
@@ -87,17 +88,16 @@ class _ProfilePageState extends State<ProfilePage> {
           sideAppBar(context, widget.role, widget.token),
           Expanded(
             child: FutureBuilder(
-              future: getAccountDetail(),
-              builder: (context, snapshot) {
-                return ListView(
-                  padding: EdgeInsets.zero,
-                  children: [
-                    _avatarContent(context),
-                    _informationContent(context),
-                  ],
-                );
-              }
-            ),
+                future: getAccountDetail(),
+                builder: (context, snapshot) {
+                  return ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      _avatarContent(context),
+                      _informationContent(context),
+                    ],
+                  );
+                }),
           )
         ],
       ),
@@ -167,9 +167,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               borderRadius: BorderRadius.circular(10.0),
                             ))),
                         child: Text(
-                          isFollow == false
-                              ? "Follow"
-                              : "Unfollow",
+                          isFollow == false ? "Follow" : "Unfollow",
                           style: const TextStyle(
                               color: Colors.white, fontSize: 16.0),
                         ),
@@ -179,7 +177,42 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ],
               )
-            : const SizedBox.shrink(),
+            : Column(
+                children: [
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    width: 130,
+                    height: 50,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10.0, vertical: 5.0),
+                    child: ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                                const Color(0xffDB36A4)),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ))),
+                        child: const Text(
+                          "Wishlist",
+                          style: TextStyle(color: Colors.white, fontSize: 16.0),
+                        ),
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return WishListWidget(
+                                  role: widget.role,
+                                  token: widget.token,
+                                  wishLists: _accountDetail?.wishLists ?? [],
+                                );
+                              });
+                        }),
+                  ),
+                ],
+              ),
         const SizedBox(
           height: 10,
         ),

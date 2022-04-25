@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:toy_world/apis/gets/get_popular_post.dart';
+import 'package:toy_world/apis/gets/get_favorite_trading_post.dart';
 import 'package:toy_world/models/model_post.dart';
-import 'package:toy_world/models/model_post_group.dart';
+import 'package:toy_world/models/model_trading_post.dart';
+import 'package:toy_world/models/model_trading_post_group.dart';
 import 'package:toy_world/widgets/post_widget.dart';
+import 'package:toy_world/widgets/trading_post_widget.dart';
 
 class HomePage extends StatefulWidget {
   int role;
@@ -15,8 +17,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  PostGroup? data;
-  List<Post>? posts;
+  TradingPostGroup? data;
+  List<TradingPost>? posts;
 
   int _limit = 10;
   final int _limitIncrement = 10;
@@ -45,10 +47,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   getData() async {
-    PopularPostList popularPosts = PopularPostList();
-    data = await popularPosts.getPopularPost(token: widget.token, size: _limit);
+    TradingPostFavoriteList favoriteList = TradingPostFavoriteList();
+    data = await favoriteList.getTradingPostFavorite(
+        token: widget.token, size: _limit);
     if (data == null) return List.empty();
-    posts = data!.data!.cast<Post>();
+    posts = data!.data!.cast<TradingPost>();
     setState(() {});
     return posts;
   }
@@ -67,22 +70,29 @@ class _HomePageState extends State<HomePage> {
                       itemCount: posts?.length,
                       controller: listScrollController,
                       itemBuilder: (context, index) {
-                        return PostWidget(
+                        return TradingPostWidget(
                           role: widget.role,
                           token: widget.token,
-                          postId: posts![index].id,
+                          tradingPostId: posts![index].id,
                           isPostDetail: false,
                           ownerId: posts![index].ownerId,
-                          ownerAvatar: posts?[index].ownerAvatar ?? _avatar,
-                          ownerName: posts?[index].ownerName ?? "Name",
-                          isLikedPost: posts?[index].isLikedPost ?? false,
-                          timePublic:
-                              posts?[index].publicDate ?? DateTime.now(),
-                          content: posts?[index].content ?? "",
+                          ownerAvatar: posts![index].ownerAvatar,
+                          ownerName: posts![index].ownerName,
+                          isLikedPost: posts![index].isLikedPost,
+                          status: posts![index].status,
+                          postDate: posts![index].postDate,
+                          title: posts![index].title,
+                          content: posts![index].content,
+                          toyName: posts![index].toyName,
+                          address: posts![index].address,
+                          phoneNum: posts![index].phone,
+                          exchange: posts![index].exchange,
+                          value: posts![index].value,
                           images: posts?[index].images ?? [],
-                          numOfReact: posts?[index].numOfReact ?? 0,
-                          numOfComment: posts?[index].numOfComment ?? 0,
+                          numOfReact: posts![index].noOfReact!.toInt(),
+                          numOfComment: posts![index].noOfComment!.toInt(),
                           isReadMore: posts?[index].isReadMore ?? false,
+                          isDisable: false,
                         );
                       });
                 } else {

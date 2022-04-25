@@ -230,7 +230,7 @@ class _PostWidgetState extends State<PostWidget> {
 
   Widget _post(
       {postId,
-        ownerId,
+      ownerId,
       ownerAvatar,
       ownerName,
       isLikedPost,
@@ -413,7 +413,9 @@ class _PostWidgetState extends State<PostWidget> {
               Text(
                 "Love",
                 style: TextStyle(
+                  fontSize: 16,
                   color: isLikedPost ? Colors.red : Colors.grey[600],
+                  fontWeight: isLikedPost ? FontWeight.bold : null,
                 ),
               ),
               onTap: () =>
@@ -425,7 +427,7 @@ class _PostWidgetState extends State<PostWidget> {
                 color: Colors.grey[600],
                 size: 20,
               ),
-              const Text("Comment"),
+              const Text("Comment", style: TextStyle(fontSize: 16),),
               onTap: () => widget.isPostDetail == false
                   ? Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => PostDetailPage(

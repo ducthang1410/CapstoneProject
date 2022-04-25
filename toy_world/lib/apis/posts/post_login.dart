@@ -32,8 +32,9 @@ class PostLogin {
       prefs.setInt("role", data.role ?? 0);
       prefs.setBool("status", data.status ?? false);
       prefs.setString("token", "${data.token}");
+      prefs.setBool("isHasWishlist", data.isHasWishlist ?? false);
       print(
-          'ID: ${data.accountId} - Name: ${data.name} - Role: ${data.role} - Status: ${data.status} - Token: ${data.token}');
+          'ID: ${data.accountId} - Name: ${data.name} - Role: ${data.role} - HasWishlist: ${data.isHasWishlist} - Token: ${data.token}');
     }
 
     return response.statusCode;
@@ -67,8 +68,9 @@ class PostLoginSystemAccount {
       prefs.setInt("role", data.role ?? 0);
       prefs.setBool("status", data.status ?? false);
       prefs.setString("token", "${data.token}");
+      prefs.setBool("isHasWishlist", data.isHasWishlist ?? false);
       print(
-          'ID: ${data.accountId} - Name: ${data.name} - Role: ${data.role} - Status: ${data.status} - Token: ${data.token}');
+          'ID: ${data.accountId} - Name: ${data.name} - Role: ${data.role} - HasWishlist: ${data.isHasWishlist} - Token: ${data.token}');
     }
 
     return response.statusCode;

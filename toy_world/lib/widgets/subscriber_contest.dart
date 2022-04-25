@@ -262,7 +262,7 @@ class _SubscriberContestWidgetState extends State<SubscriberContestWidget> {
             children: [
               Container(
                 width: 125,
-                height: 60,
+                height: 50,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
                 child: ElevatedButton(
@@ -296,7 +296,7 @@ class _SubscriberContestWidgetState extends State<SubscriberContestWidget> {
               ),
               Container(
                 width: 125,
-                height: 60,
+                height: 50,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
                 child: ElevatedButton(

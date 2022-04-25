@@ -39,54 +39,57 @@ class _PostDetailPageState extends State<PostDetailPage> {
     if (data == null) return List.empty();
     comments = data!.comments!.cast<Comment>();
     setState(() {});
-    return comments;
+    return data;
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          sideAppBar(context, widget.role, widget.token),
-          FutureBuilder(
-            future: getData(),
-            builder: (context, snapshot) {
-              return data != null
-                  ? Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        PostWidget(
-                          role: widget.role,
-                          token: widget.token,
-                          postId: data!.id,
-                          isPostDetail: true,
-                          ownerId: data!.ownerId,
-                          ownerAvatar: data?.ownerAvatar ?? _avatar,
-                          ownerName: data?.ownerName ?? "Name",
-                          isLikedPost: data?.isLikedPost ?? false,
-                          timePublic: data?.publicDate ?? DateTime.now(),
-                          content: data?.content ?? "",
-                          images: data?.images ?? [],
-                          numOfReact: data?.numOfReact ?? 0,
-                          numOfComment: data?.numOfComment ?? 0,
-                          isReadMore: data?.isReadMore ?? false,
-                        ),
-                        CommentWidget(
-                          role: widget.role,
-                          token: widget.token,
-                          postID: widget.postID,
-                          ownerPostId: data!.ownerId,
-                          comments: comments ?? [],
-                          type: "Post",
-                        ),
-                      ],
-                    )
-                  : const Center(
-                      child: CircularProgressIndicator(),
-                    );
-            }
-          ),
-        ],
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            sideAppBar(context, widget.role, widget.token),
+            FutureBuilder(
+              future: getData(),
+              builder: (context, snapshot) {
+                return data != null
+                    ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          PostWidget(
+                            role: widget.role,
+                            token: widget.token,
+                            postId: data!.id,
+                            isPostDetail: true,
+                            ownerId: data!.ownerId,
+                            ownerAvatar: data?.ownerAvatar ?? _avatar,
+                            ownerName: data?.ownerName ?? "Name",
+                            isLikedPost: data?.isLikedPost ?? false,
+                            timePublic: data?.postDate ?? DateTime.now(),
+                            content: data?.content ?? "",
+                            images: data?.images ?? [],
+                            numOfReact: data?.numOfReact ?? 0,
+                            numOfComment: data?.numOfComment ?? 0,
+                            isReadMore: data?.isReadMore ?? false,
+                          ),
+                          CommentWidget(
+                            role: widget.role,
+                            token: widget.token,
+                            postID: widget.postID,
+                            ownerPostId: data!.ownerId,
+                            comments: comments ?? [],
+                            type: "Post",
+                          ),
+                        ],
+                      )
+                    : const Center(
+                        child: CircularProgressIndicator(),
+                      );
+              }
+            ),
+          ],
+        ),
       ),
     );
   }

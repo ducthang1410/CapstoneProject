@@ -21,6 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   String _token = "";
   String _email = "";
   String _password = "";
+  bool _isHasWishlist = false;
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _roleValue = (prefs.getInt('role') ?? 0);
       _token = (prefs.getString('token') ?? "");
+      _isHasWishlist = (prefs.getBool("isHasWishlist") ?? false);
     });
   }
 
@@ -115,7 +117,8 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
                 padding: const EdgeInsets.only(right: 30, bottom: 20),
                 child: Align(
-                    alignment: Alignment.centerRight, child: createNewAccount()))
+                    alignment: Alignment.centerRight,
+                    child: createNewAccount()))
           ],
         ),
       ),
@@ -212,8 +215,9 @@ class _LoginPageState extends State<LoginPage> {
                             email: _email, password: _password) ==
                         200) {
                       await _loadCounter();
-                      if(_roleValue == 0){
-                        loadingFail(status: "Admin is not available in this app !!!");
+                      if (_roleValue == 0) {
+                        loadingFail(
+                            status: "Admin is not available in this app !!!");
                         return;
                       }
                       EasyLoading.dismiss();
@@ -222,6 +226,7 @@ class _LoginPageState extends State<LoginPage> {
                               builder: (context) => WelcomePage(
                                     role: _roleValue,
                                     token: _token,
+                                    isHasWishlist: _isHasWishlist,
                                   )),
                           (route) => false);
                     } else {
@@ -264,7 +269,7 @@ class _LoginPageState extends State<LoginPage> {
             String? fbToken = await signIn();
             if (await checkLogin(firebaseToken: fbToken) == 200) {
               await _loadCounter();
-              if(_roleValue == 0){
+              if (_roleValue == 0) {
                 loadingFail(status: "Admin is not available in this app !!!");
                 return;
               }
@@ -274,6 +279,7 @@ class _LoginPageState extends State<LoginPage> {
                       builder: (context) => WelcomePage(
                             role: _roleValue,
                             token: _token,
+                            isHasWishlist: _isHasWishlist,
                           )),
                   (route) => false);
             } else {

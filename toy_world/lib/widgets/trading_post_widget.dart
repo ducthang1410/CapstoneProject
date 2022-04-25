@@ -73,8 +73,9 @@ class TradingPostWidget extends StatefulWidget {
 class _TradingPostWidgetState extends State<TradingPostWidget> {
   int _choice = 0;
   int _currentUserId = 0;
+  String _name = "";
   String feedbackContent = "";
-  final oCcy = NumberFormat("#,##0.00", "vi-VN");
+  final oCcy = NumberFormat("#,##0", "vi-VN");
 
   @override
   void initState() {
@@ -87,6 +88,7 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _currentUserId = (prefs.getInt('accountId') ?? 0);
+      _name = (prefs.getString("name") ?? "");
     });
   }
 
@@ -477,10 +479,6 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                           value: 1,
                         ),
                         PopupMenuItem(
-                          child: Text("Edit Post"),
-                          value: 2,
-                        ),
-                        PopupMenuItem(
                           child: Text("Delete Post"),
                           value: 3,
                         )
@@ -543,7 +541,8 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                   widget.toyName,
                   _currentUserId,
                   widget.ownerId,
-                  widget.content);
+                  widget.content,
+                  _name);
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -557,7 +556,10 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                       buyerId: _currentUserId,
                       tradingPostId: widget.tradingPostId,
                       toyName: widget.toyName,
-                      title: widget.title,
+                      exchangeWith: widget.exchange,
+                      value: widget.value,
+                      buyerName: _name,
+                      title: widget.title ?? "",
                     ),
                   ),
                 ),
@@ -633,7 +635,9 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                 Text(
                   "Love",
                   style: TextStyle(
+                    fontSize: 16,
                     color: isLikedPost ? Colors.red : Colors.grey[600],
+                    fontWeight: isLikedPost ? FontWeight.bold : null,
                   ),
                 ),
                 onTap: () => {
@@ -647,13 +651,13 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                 color: Colors.grey[600],
                 size: 20,
               ),
-              const Text("Comment"),
+              const Text("Comment" , style: TextStyle(fontSize: 16),),
               onTap: () => widget.isPostDetail == false
                   ? Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => TradingPostDetailPage(
                             role: widget.role,
                             token: widget.token,
-                            tradingpostID: widget.tradingPostId,
+                            tradingPostID: widget.tradingPostId,
                           )))
                   : () {},
             )

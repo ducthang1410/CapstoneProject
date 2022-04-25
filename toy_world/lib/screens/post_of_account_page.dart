@@ -83,7 +83,7 @@ class _PostAccountPageState extends State<PostAccountPage> {
                               ownerAvatar: posts?[index].ownerAvatar ?? _avatar,
                               ownerName: posts?[index].ownerName ?? "Name",
                               isLikedPost: posts?[index].isLikedPost ?? false,
-                              timePublic: posts?[index].publicDate ?? DateTime.now(),
+                              timePublic: posts?[index].postDate ?? DateTime.now(),
                               content: posts?[index].content ?? "",
                               images: posts?[index].images ?? [],
                               numOfReact: posts?[index].numOfReact ?? 0,

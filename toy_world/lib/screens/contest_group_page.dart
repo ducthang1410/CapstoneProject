@@ -217,7 +217,17 @@ class _ContestGroupPageState extends State<ContestGroupPage> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
                 alignment: Alignment.centerLeft,
-                child: readMoreButton(description, isReadMore)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Description: ", style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.bold,
+                    ),),
+                    readMoreButton(description, isReadMore),
+                  ],
+                )),
             Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),

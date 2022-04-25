@@ -27,6 +27,7 @@ import 'package:toy_world/models/model_prize.dart';
 import 'package:toy_world/models/model_reward_contest.dart';
 import 'package:toy_world/screens/manage_contest_page.dart';
 import 'package:toy_world/screens/profile_page.dart';
+import 'package:toy_world/screens/waiting_submission.dart';
 import 'package:toy_world/utils/helpers.dart';
 import 'package:intl/intl.dart';
 import 'package:toy_world/widgets/subscriber_contest.dart';
@@ -510,115 +511,115 @@ class _ContestPageState extends State<ContestPage>
       );
 
   void showEvaluateContest(Size size) => showDialog(
-    context: context,
-    builder: (context) => Center(
-      child: SingleChildScrollView(
-        child: AlertDialog(
-          title: const Text(
-            "Evaluate Contest",
-            style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
-            textAlign: TextAlign.center,
-          ),
-          content: SizedBox(
-            width: size.width * 0.8,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                buildRating(),
-                const SizedBox(
-                  height: 20.0,
-                ),
-                TextField(
-                  maxLines: 5,
-                  onChanged: (value) {
-                    setState(() {
-                      noteRating = value.trim();
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    hintText: "Enter your evaluation",
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                      BorderSide(color: Colors.grey, width: 1.0),
+        context: context,
+        builder: (context) => Center(
+          child: SingleChildScrollView(
+            child: AlertDialog(
+              title: const Text(
+                "Evaluate Contest",
+                style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
+                textAlign: TextAlign.center,
+              ),
+              content: SizedBox(
+                width: size.width * 0.8,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    buildRating(),
+                    const SizedBox(
+                      height: 20.0,
                     ),
-                    focusedBorder: OutlineInputBorder(
-                        borderSide:
-                        BorderSide(color: Colors.grey, width: 1.0)),
-                  ),
+                    TextField(
+                      maxLines: 5,
+                      onChanged: (value) {
+                        setState(() {
+                          noteRating = value.trim();
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        hintText: "Enter your evaluation",
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Colors.grey, width: 1.0),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.grey, width: 1.0)),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 15.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: Container(
+                              width: 130,
+                              height: 50,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10.0, vertical: 5.0),
+                              child: ElevatedButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                      Colors.red,
+                                    ),
+                                    shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ))),
+                                child: const Text(
+                                  "Cancel",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16.0),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 20.0,
+                          ),
+                          Flexible(
+                            child: Container(
+                              width: 130,
+                              height: 50,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10.0, vertical: 5.0),
+                              child: ElevatedButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                      Colors.lightGreen,
+                                    ),
+                                    shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ))),
+                                child: const Text(
+                                  "OK",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16.0),
+                                ),
+                                onPressed: () {
+                                  checkEvaluateContest();
+                                },
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 15.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: Container(
-                          width: 130,
-                          height: 50,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10.0, vertical: 5.0),
-                          child: ElevatedButton(
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                  Colors.red,
-                                ),
-                                shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ))),
-                            child: const Text(
-                              "Cancel",
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 16.0),
-                            ),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 20.0,
-                      ),
-                      Flexible(
-                        child: Container(
-                          width: 130,
-                          height: 50,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10.0, vertical: 5.0),
-                          child: ElevatedButton(
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                  Colors.lightGreen,
-                                ),
-                                shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ))),
-                            child: const Text(
-                              "OK",
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 16.0),
-                            ),
-                            onPressed: () {
-                              checkEvaluateContest();
-                            },
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                )
-              ],
+              ),
             ),
           ),
         ),
-      ),
-    ),
-  );
+      );
 
   checkEvaluateContest() async {
     EvaluateContest evaluateContest = EvaluateContest();
@@ -629,7 +630,9 @@ class _ContestPageState extends State<ContestPage>
         comment: noteRating);
     if (status == 200) {
       Navigator.of(context).pop();
-      loadingSuccess(status: "We are appreciate your evaluation !!!\n Thanks for joining our contest");
+      loadingSuccess(
+          status:
+              "We are appreciate your evaluation !!!\n Thanks for joining our contest");
     } else if (status == 400) {
       loadingFail(status: "Only people join contest can evaluate :((((");
     } else {
@@ -650,8 +653,7 @@ class _ContestPageState extends State<ContestPage>
       loadingSuccess(status: "Thanks for your rating !!!");
     } else if (status == 400) {
       loadingFail(status: "You had rated this post :((((");
-    }
-    else {
+    } else {
       loadingFail(status: "Rating failed :((((");
     }
   }
@@ -729,7 +731,7 @@ class _ContestPageState extends State<ContestPage>
           },
           body: widget.role == 1
               ? DefaultTabController(
-                  length: 3,
+                  length: 4,
                   initialIndex: 0,
                   child: Column(
                     children: [
@@ -768,6 +770,17 @@ class _ContestPageState extends State<ContestPage>
                                 width: 110,
                                 child: Center(
                                   child: Text(
+                                    "Submission",
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Tab(
+                              child: SizedBox(
+                                width: 110,
+                                child: Center(
+                                  child: Text(
                                     "Management",
                                     style: TextStyle(fontSize: 16),
                                   ),
@@ -783,6 +796,10 @@ class _ContestPageState extends State<ContestPage>
                           children: [
                             buildContest(hasJoinedContest),
                             SubscriberContestWidget(
+                                role: widget.role,
+                                token: widget.token,
+                                contestId: widget.contestId),
+                            WaitingSubmissionPage(
                                 role: widget.role,
                                 token: widget.token,
                                 contestId: widget.contestId),
@@ -1682,6 +1699,7 @@ class _ContestPageState extends State<ContestPage>
               isRated ? "Rated" : "Rate",
               style: TextStyle(
                   color: isRated ? Colors.amber : Colors.grey[600],
+                  fontWeight: isRated ? FontWeight.bold : null,
                   fontSize: 16),
             ),
             onTap: () =>

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/apis/posts/post_bill.dart';
 import 'package:toy_world/components/component.dart';
@@ -11,28 +11,29 @@ class CreateBillWidget extends StatefulWidget {
   int? buyerId;
   int? tradingPostId;
   String? toyOfSellerName;
+  String? exchangeWith;
+  double? value;
   String groupChatId;
 
-  CreateBillWidget({
-    required this.buyerId,
-    required this.tradingPostId,
-    required this.toyOfSellerName,
-    required this.groupChatId,
-  });
+  CreateBillWidget(
+      {required this.buyerId,
+      required this.tradingPostId,
+      required this.toyOfSellerName,
+      required this.groupChatId,
+      this.exchangeWith,
+      this.value});
 
   @override
   State<CreateBillWidget> createState() => _CreateBillWidgetState();
 }
 
 class _CreateBillWidgetState extends State<CreateBillWidget> {
-  final _formKey = GlobalKey<FormState>();
-
-  String? toyOfSellerName;
   String? toyOfBuyerName;
   bool? isExchangeMoney = false;
   double? exchangeValue;
   String _token = "";
   BillCreated? billCreated;
+  final oCcy = NumberFormat("#,##0", "vi-VN");
 
   @override
   void initState() {
@@ -49,9 +50,12 @@ class _CreateBillWidgetState extends State<CreateBillWidget> {
   }
 
   checkCreateBill() async {
-    if (isExchangeMoney == true) {
+    if (widget.exchangeWith == "Money" || widget.exchangeWith == "money") {
+      isExchangeMoney = true;
       toyOfBuyerName = null;
+      exchangeValue = widget.value;
     } else {
+      toyOfBuyerName = widget.exchangeWith;
       exchangeValue = null;
     }
     CreateNewBill newBill = CreateNewBill();
@@ -59,7 +63,7 @@ class _CreateBillWidgetState extends State<CreateBillWidget> {
         token: _token,
         buyerId: widget.buyerId,
         tradingPostId: widget.tradingPostId,
-        toyOfSellerName: toyOfSellerName,
+        toyOfSellerName: widget.toyOfSellerName,
         toyOfBuyerName: toyOfBuyerName,
         isExchangeByMoney: isExchangeMoney,
         exchangeValue: exchangeValue);
@@ -67,7 +71,6 @@ class _CreateBillWidgetState extends State<CreateBillWidget> {
 
   @override
   Widget build(BuildContext context) {
-    toyOfSellerName = widget.toyOfSellerName;
     var size = MediaQuery.of(context).size;
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -97,172 +100,15 @@ class _CreateBillWidgetState extends State<CreateBillWidget> {
               SizedBox(
                 width: size.width * 0.7,
                 child: Form(
-                  key: _formKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: TextFormField(
-                          maxLines: 1,
-                          initialValue: widget.toyOfSellerName,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter some text';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              toyOfSellerName = value.trim();
-                            });
-                          },
-                          decoration: InputDecoration(
-                            labelText: "Toy's name",
-                            filled: true,
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 15.0, horizontal: 10.0),
-                            fillColor: Colors.grey[200],
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  const BorderSide(color: Colors.transparent),
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  const BorderSide(color: Color(0xffDB36A4)),
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const Align(
-                        child: Text("Exchange with: "),
-                        alignment: Alignment.centerLeft,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                        height: 24.0,
-                                        width: 24.0,
-                                        child: Checkbox(
-                                            value: !isExchangeMoney!,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                isExchangeMoney = !value!;
-                                              });
-                                            })),
-                                    // You can play with the width to adjust your
-                                    // desired spacing
-                                    const SizedBox(width: 10.0),
-                                    const Text("Toy")
-                                  ]),
-                            ),
-                            Flexible(
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                        height: 24.0,
-                                        width: 24.0,
-                                        child: Checkbox(
-                                            value: isExchangeMoney,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                isExchangeMoney = value;
-                                              });
-                                            })),
-                                    // You can play with the width to adjust your
-                                    // desired spacing
-                                    const SizedBox(width: 10.0),
-                                    const Text("Money")
-                                  ]),
-                            ),
-                          ],
-                        ),
-                      ),
-                      isExchangeMoney == false
-                          ? Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 10.0),
-                              child: TextFormField(
-                                maxLines: 1,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter some text';
-                                  }
-                                  return null;
-                                },
-                                onChanged: (value) {
-                                  setState(() {
-                                    toyOfBuyerName = value.trim();
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  labelText: "Toy want to exchange",
-                                  filled: true,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 15.0, horizontal: 10.0),
-                                  fillColor: Colors.grey[200],
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: const BorderSide(
-                                        color: Colors.transparent),
-                                    borderRadius: BorderRadius.circular(15.0),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: const BorderSide(
-                                        color: Color(0xffDB36A4)),
-                                    borderRadius: BorderRadius.circular(15.0),
-                                  ),
-                                ),
-                              ),
-                            )
-                          : Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 10.0),
-                              child: TextFormField(
-                                maxLines: 1,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.digitsOnly
-                                ],
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter some text';
-                                  }
-                                  return null;
-                                },
-                                onChanged: (value) {
-                                  if (double.tryParse(value) != null) {
-                                    setState(() {
-                                      exchangeValue = double.parse(value);
-                                    });
-                                  }
-                                },
-                                decoration: InputDecoration(
-                                  labelText: "Value",
-                                  filled: true,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 15.0, horizontal: 10.0),
-                                  fillColor: Colors.grey[200],
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: const BorderSide(
-                                        color: Colors.transparent),
-                                    borderRadius: BorderRadius.circular(15.0),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: const BorderSide(
-                                        color: Color(0xffDB36A4)),
-                                    borderRadius: BorderRadius.circular(15.0),
-                                  ),
-                                ),
-                              ),
-                            ),
+                      _buildItemInfo("Seller's toy:", value: widget.toyOfSellerName),
+                      _buildItemInfo("Exchange with:", value: widget.exchangeWith),
+                      widget.exchangeWith == "Money" || widget.exchangeWith == "money"
+                      ? _buildItemInfo("Value:", value: oCcy.format(widget.value).toString() + " VND")
+                      : const SizedBox.shrink(),
+                      const SizedBox(height: 10,),
                       Container(
                         width: 100,
                         height: 50,
@@ -274,30 +120,30 @@ class _CreateBillWidgetState extends State<CreateBillWidget> {
                                 const Color(0xffDB36A4),
                               ),
                               shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(RoundedRectangleBorder(
+                                      RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10.0),
                               ))),
                           child: const Text(
                             "Send",
-                            style: TextStyle(color: Colors.white, fontSize: 16.0),
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 16.0),
                           ),
                           onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              await checkCreateBill();
-                              if (billCreated != null) {
-                                await updateDataFirestore(
-                                    FirestoreConstants
-                                        .pathTradingMessageCollection,
-                                    widget.groupChatId,
-                                    {
-                                      FirestoreConstants.billId:
-                                          billCreated?.billId
-                                    });
-                                Navigator.of(context).pop();
-                                loadingSuccess(status: "Create bill success!!!");
-                              } else {
-                                loadingFail(status: "Create Bill Failed");
-                              }
+                            await checkCreateBill();
+                            if (billCreated != null) {
+                              await updateDataFirestore(
+                                  FirestoreConstants
+                                      .pathTradingMessageCollection,
+                                  widget.groupChatId,
+                                  {
+                                    FirestoreConstants.billId:
+                                        billCreated?.billId
+                                  });
+                              Navigator.of(context).pop();
+                              loadingSuccess(status: "Create bill success!!!");
+                            } else {
+                              loadingFail(status: "Create Bill Failed");
                             }
                           },
                         ),
@@ -309,6 +155,27 @@ class _CreateBillWidgetState extends State<CreateBillWidget> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildItemInfo(String label, {value}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          Expanded(child: Text("$value")),
+        ],
       ),
     );
   }

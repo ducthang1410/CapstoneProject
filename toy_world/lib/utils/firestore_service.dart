@@ -121,7 +121,7 @@ void sendTradingMessage(
 }
 
 createTradingConversation(
-    title, tradingPostId, toyName, buyerId, sellerId, content) {
+    title, tradingPostId, toyName, buyerId, sellerId, content, buyerName) {
   Timestamp myTimeStamp = Timestamp.fromDate(DateTime.now());
   String groupChatId;
   if (buyerId < sellerId) {
@@ -144,6 +144,7 @@ createTradingConversation(
     title: title,
     contentPost: content,
     toyName: toyName,
+    buyerName: buyerName
   );
 
   FirebaseFirestore.instance.runTransaction((transaction) async {

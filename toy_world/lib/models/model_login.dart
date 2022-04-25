@@ -5,18 +5,18 @@ ModelLogin loginFromJson(String str) => ModelLogin.fromJson(json.decode(str));
 String loginToJson(ModelLogin data) => json.encode(data.toJson());
 
 class ModelLogin {
-  ModelLogin({
-    this.accountId,
-    this.avatar,
-    this.name,
-    this.biography,
-    this.email,
-    this.phoneNumber,
-    this.gender,
-    this.role,
-    this.status,
-    this.token,
-  });
+  ModelLogin(
+      {this.accountId,
+      this.avatar,
+      this.name,
+      this.biography,
+      this.email,
+      this.phoneNumber,
+      this.gender,
+      this.role,
+      this.status,
+      this.token,
+      this.isHasWishlist});
 
   int? accountId;
   String? avatar;
@@ -28,19 +28,20 @@ class ModelLogin {
   int? role;
   bool? status;
   String? token;
+  bool? isHasWishlist;
 
   factory ModelLogin.fromJson(Map<String, dynamic> json) => ModelLogin(
-        accountId: json["accountId"],
-        avatar: json["avatar"],
-        name: json["name"],
-        biography: json["biography"],
-        email: json["email"],
-        phoneNumber: json["phoneNumber"],
-        gender: json["gender"],
-        role: json["role"],
-        status: json["status"],
-        token: json["token"],
-      );
+      accountId: json["accountId"],
+      avatar: json["avatar"],
+      name: json["name"],
+      biography: json["biography"],
+      email: json["email"],
+      phoneNumber: json["phoneNumber"],
+      gender: json["gender"],
+      role: json["role"],
+      status: json["status"],
+      token: json["token"],
+      isHasWishlist: json["isHasWishlist"]);
 
   Map<String, dynamic> toJson() => {
         "accountId": accountId,
@@ -53,5 +54,6 @@ class ModelLogin {
         "role": role,
         "status": status,
         "token": token,
+        "isHasWishlist": isHasWishlist
       };
 }

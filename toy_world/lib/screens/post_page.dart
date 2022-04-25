@@ -157,7 +157,7 @@ class _PostPageState extends State<PostPage> {
                               ownerAvatar: posts![index].ownerAvatar,
                               ownerName: posts![index].ownerName,
                               isLikedPost: posts![index].isLikedPost,
-                              timePublic: posts![index].publicDate,
+                              timePublic: posts![index].postDate,
                               content: posts![index].content,
                               images: posts?[index].images ?? [],
                               numOfReact: posts![index].numOfReact!.toInt(),
@@ -244,7 +244,7 @@ class _PostPageState extends State<PostPage> {
                             });
                             loadingSuccess(
                                 status:
-                                    "Post success!!!\nPlease wait for approval.");
+                                    "Post success!!!");
                           } else {
                             loadingFail(
                                 status:

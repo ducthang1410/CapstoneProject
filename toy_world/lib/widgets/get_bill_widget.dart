@@ -33,7 +33,7 @@ class GetBillWidget extends StatefulWidget {
       required this.status,
       required this.updateTime,
       required this.groupChatId,
-        required this.images,
+      required this.images,
       required this.isBillFinished});
 
   @override
@@ -95,7 +95,11 @@ class _GetBillWidgetState extends State<GetBillWidget> {
     String formatDate =
         DateFormat('dd MMM yyyy kk:mm').format(widget.updateTime!);
     return AlertDialog(
-      title: const Text("Bill Detail", style: TextStyle(color: Color(0xffDB36A4), fontSize: 26), textAlign: TextAlign.center,),
+      title: const Text(
+        "Bill Detail",
+        style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
+        textAlign: TextAlign.center,
+      ),
       content: SingleChildScrollView(
         child: Stack(
           overflow: Overflow.visible,
@@ -129,29 +133,27 @@ class _GetBillWidgetState extends State<GetBillWidget> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor:
-                        MaterialStateProperty.all(
-                          const Color(0xffDB36A4),
-                        ),
-                        shape: MaterialStateProperty.all<
-                            RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(10.0),
-                            ))),
-                    child: const Text(
-                      "View Image Of Toy",
-                      style: TextStyle(
-                          color: Colors.white, fontSize: 16.0),
-                    ),
-                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ExpandPhotoPage(
-                          role: role,
-                          token: _token,
-                          images: widget.images,
-                        )))),
-                  ),
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            const Color(0xffDB36A4),
+                          ),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ))),
+                      child: const Text(
+                        "View Image Of Toy",
+                        style: TextStyle(color: Colors.white, fontSize: 16.0),
+                      ),
+                      onPressed: () =>
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ExpandPhotoPage(
+                                    role: role,
+                                    token: _token,
+                                    images: widget.images,
+                                  )))),
+                ),
                 widget.isBillFinished == false
                     ? Padding(
                         padding: const EdgeInsets.symmetric(vertical: 15.0),
@@ -239,7 +241,10 @@ class _GetBillWidgetState extends State<GetBillWidget> {
         children: [
           SizedBox(
             width: size.width * 0.3,
-            child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold),),
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
           const SizedBox(
             width: 10,

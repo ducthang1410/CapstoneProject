@@ -5,12 +5,15 @@ import 'package:toy_world/screens/contest_page.dart';
 import 'package:toy_world/screens/highlight_contest_page.dart';
 import 'package:toy_world/screens/home_page.dart';
 import 'package:toy_world/screens/list_group_page.dart';
+import 'package:toy_world/widgets/wish_list_widget.dart';
 
 class WelcomePage extends StatefulWidget {
   int role;
   String token;
+  bool isHasWishlist;
 
-  WelcomePage({required this.role, required this.token});
+  WelcomePage(
+      {required this.role, required this.token, required this.isHasWishlist});
 
   @override
   State<WelcomePage> createState() => _WelcomePageState();
@@ -29,6 +32,7 @@ class _WelcomePageState extends State<WelcomePage>
   void initState() {
     // TODO: implement initState
     super.initState();
+    Future.delayed(Duration.zero, () => showWishlist());
     _loadCounter();
     _pageController = PageController();
   }
@@ -48,11 +52,24 @@ class _WelcomePageState extends State<WelcomePage>
     });
   }
 
+  showWishlist() {
+    if (widget.isHasWishlist == false) {
+      return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return WishListWidget(role: widget.role, token: widget.token);
+          });
+    } else {
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
-      endDrawer: drawerMenu(context, widget.role, widget.token, _name, _avatar, currentUserId: _currentUserId, accountId: _currentUserId),
+      endDrawer: drawerMenu(context, widget.role, widget.token, _name, _avatar,
+          currentUserId: _currentUserId, accountId: _currentUserId),
       body: Builder(builder: (context) {
         return Column(
           children: [
