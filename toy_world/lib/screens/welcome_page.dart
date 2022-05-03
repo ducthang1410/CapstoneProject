@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/components/component.dart';
-import 'package:toy_world/screens/contest_page.dart';
+import 'package:toy_world/screens/account_notification_page.dart';
 import 'package:toy_world/screens/highlight_contest_page.dart';
 import 'package:toy_world/screens/home_page.dart';
 import 'package:toy_world/screens/list_group_page.dart';
@@ -57,7 +57,11 @@ class _WelcomePageState extends State<WelcomePage>
       return showDialog(
           context: context,
           builder: (BuildContext context) {
-            return WishListWidget(role: widget.role, token: widget.token);
+            return WishListWidget(
+              role: widget.role,
+              token: widget.token,
+              hasWishlist: false,
+            );
           });
     } else {
       return;
@@ -151,7 +155,13 @@ class _WelcomePageState extends State<WelcomePage>
                     token: widget.token,
                   ),
                 ),
-                const Center(),
+                Center(
+                  child: AccountNotificationPage(
+                    role: widget.role,
+                    token: widget.token,
+                    accountId: _currentUserId,
+                  ),
+                ),
                 const Center(),
               ],
             ))

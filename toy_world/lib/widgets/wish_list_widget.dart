@@ -9,9 +9,10 @@ import 'package:toy_world/models/model_group.dart';
 class WishListWidget extends StatefulWidget {
   int role;
   String token;
+  bool? hasWishlist;
   List<WishList>? wishLists;
 
-  WishListWidget({required this.role, required this.token, this.wishLists});
+  WishListWidget({required this.role, required this.token, this.hasWishlist, this.wishLists});
 
   @override
   State<WishListWidget> createState() => _WishListWidgetState();
@@ -40,6 +41,9 @@ class _WishListWidgetState extends State<WishListWidget> {
   }
 
   loadWishList() {
+    if(widget.hasWishlist == false){
+      return;
+    }
     if (widget.wishLists != null || widget.wishLists!.isNotEmpty) {
       for (var wishList in widget.wishLists!) {
         int groupId = wishList.id!;
@@ -66,6 +70,7 @@ class _WishListWidgetState extends State<WishListWidget> {
   }
 
   checkSaveWishList() async {
+    loadingLoad(status: "Loading...");
     PostWishlist wishlists = PostWishlist();
     DeleteWishlist deleteWishlist = DeleteWishlist();
     for (var value in _initialCategories) {

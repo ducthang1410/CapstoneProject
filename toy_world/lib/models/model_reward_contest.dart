@@ -51,7 +51,7 @@ class RewardPost {
   String? ownerAvatar;
   String? ownerName;
   List<ImagePost>? images;
-  int? sumOfStart;
+  double? sumOfStart;
 
   factory RewardPost.fromJson(Map<String, dynamic> json) => RewardPost(
     id: json["id"],
@@ -59,7 +59,7 @@ class RewardPost {
     ownerAvatar: json["ownerAvatar"],
     ownerName: json["ownerName"],
     images: List<ImagePost>.from(json["images"].map((x) => ImagePost.fromJson(x))),
-    sumOfStart: json["sumOfStart"],
+    sumOfStart: json["sumOfStart"].toDouble(),
   );
 
   Map<String, dynamic> toJson() => {

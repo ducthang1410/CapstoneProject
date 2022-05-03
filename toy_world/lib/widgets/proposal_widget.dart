@@ -1,100 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:toy_world/apis/gets/get_all_proposal.dart';
 import 'package:toy_world/models/model_proposal.dart';
-import 'package:toy_world/screens/profile_page.dart';
 import 'package:toy_world/screens/proposal_detail_page.dart';
 
-class ProposalListPage extends StatefulWidget {
+class ProposalWidget extends StatefulWidget {
   int role;
   String token;
+  Proposal proposal;
 
-  ProposalListPage({required this.role, required this.token});
+  ProposalWidget({required this.role, required this.token, required this.proposal});
 
   @override
-  State<ProposalListPage> createState() => _ProposalListPageState();
+  State<ProposalWidget> createState() => _ProposalWidgetState();
 }
 
-class _ProposalListPageState extends State<ProposalListPage> {
-  Proposals? data;
-  List<Proposal>? proposals;
+class _ProposalWidgetState extends State<ProposalWidget> {
   String _avatar =
       "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Avatar%2FdefaultAvatar.png?alt=media&token=b5fbfe09-9045-4838-bca5-649ff5667cad";
 
-  int _limit = 10;
-  final int _limitIncrement = 10;
-  final ScrollController listScrollController = ScrollController();
-  @override
-  void initState() {
-    // TODO: implement initState
-    listScrollController.addListener(scrollListener);
-    if (!mounted) return;
-    super.initState();
-  }
-
-  void scrollListener() {
-    if (listScrollController.offset >=
-            listScrollController.position.maxScrollExtent &&
-        !listScrollController.position.outOfRange) {
-      setState(() {
-        _limit += _limitIncrement;
-      });
-    }
-  }
-
-  getData() async {
-    AllProposalList proposalList = AllProposalList();
-    data = await proposalList.getAllProposal(token: widget.token, size: _limit);
-    if (data == null) return List.empty();
-    proposals = data!.data!.cast<Proposal>();
-    setState(() {});
-    return proposals;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[200],
-      body: FutureBuilder(
-          future: getData(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              if (proposals?.length != null && proposals!.isNotEmpty) {
-                return Center(
-                  child: ListView.builder(
-                      controller: listScrollController,
-                      padding: EdgeInsets.zero,
-                      itemCount: proposals?.length,
-                      itemBuilder: (context, index) {
-                        return _proposal(
-                            title: proposals?[index].title ?? "Title",
-                            ownerId: proposals?[index].ownerId,
-                            ownerName: proposals?[index].ownerName ?? "Name",
-                            ownerAvatar:
-                                proposals?[index].ownerAvatar ?? _avatar,
-                            proposal: proposals?[index]);
-                      }),
-                );
-              } else {
-                return const Center(
-                    child: Text("There is no proposal available:(((("));
-              }
-            }
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }),
-    );
-  }
-
-  Widget _proposal(
-      {ownerId, ownerName, ownerAvatar, title, Proposal? proposal}) {
     return GestureDetector(
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ProposalDetailPage(
-                role: widget.role,
-                token: widget.token,
-                proposal: proposal,
-              ))),
+            role: widget.role,
+            token: widget.token,
+            proposal: widget.proposal,
+          ))),
       child: Container(
         // margin: const EdgeInsets.symmetric(vertical: 5.0),
         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 15.0),
@@ -109,7 +40,7 @@ class _ProposalListPageState extends State<ProposalListPage> {
           children: [
             Material(
               child: Image.network(
-                ownerAvatar,
+                widget.proposal.ownerAvatar ?? _avatar,
                 fit: BoxFit.cover,
                 width: 60,
                 height: 60,
@@ -124,7 +55,7 @@ class _ProposalListPageState extends State<ProposalListPage> {
                         color: const Color(0xffDB36A4),
                         value: loadingProgress.expectedTotalBytes != null
                             ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
+                            loadingProgress.expectedTotalBytes!
                             : null,
                       ),
                     ),
@@ -149,7 +80,7 @@ class _ProposalListPageState extends State<ProposalListPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    ownerName,
+                    widget.proposal.ownerName ?? "Name",
                     style: const TextStyle(
                         fontWeight: FontWeight.w600, fontSize: 18.0),
                   ),
@@ -166,7 +97,7 @@ class _ProposalListPageState extends State<ProposalListPage> {
                       ),
                       Expanded(
                         child: Text(
-                          title,
+                          widget.proposal.title ?? "Title",
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontSize: 16.0),

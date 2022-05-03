@@ -89,7 +89,7 @@ class _WaitingSubmissionPageState extends State<WaitingSubmissionPage> {
                     });
               } else {
                 return const Center(
-                    child: Text("There is no posts available:(((("));
+                    child: Text("There is no posts"));
               }
             }
             return const Center(
@@ -176,6 +176,7 @@ class _WaitingSubmissionPageState extends State<WaitingSubmissionPage> {
                             fontSize: 16),
                       ),
                       onTap: () async {
+                        loadingLoad(status: "Loading...");
                         ApproveDenyWaitingSubmission submission =
                             ApproveDenyWaitingSubmission();
                         int status =
@@ -208,6 +209,7 @@ class _WaitingSubmissionPageState extends State<WaitingSubmissionPage> {
                             fontSize: 16),
                       ),
                       onTap: () async {
+                        loadingLoad(status: "Loading...");
                         ApproveDenyWaitingSubmission submission =
                             ApproveDenyWaitingSubmission();
                         int status =

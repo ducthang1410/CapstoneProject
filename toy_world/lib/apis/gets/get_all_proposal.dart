@@ -10,7 +10,7 @@ class AllProposalList {
       'PageSize': "$size",
     };
 
-    var response = await http.get(Uri.https("$urlMain", "$urlGetAllProposal"), headers: {
+    var response = await http.get(Uri.https("$urlMain", "$urlGetAllProposal", queryParameters), headers: {
       "Accept": "application/json",
       "Access-Control-Allow-Origin": "*",
       'Authorization': 'Bearer $token',

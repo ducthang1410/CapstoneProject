@@ -106,7 +106,7 @@ class _CreateBillWidgetState extends State<CreateBillWidget> {
                       _buildItemInfo("Seller's toy:", value: widget.toyOfSellerName),
                       _buildItemInfo("Exchange with:", value: widget.exchangeWith),
                       widget.exchangeWith == "Money" || widget.exchangeWith == "money"
-                      ? _buildItemInfo("Value:", value: oCcy.format(widget.value).toString() + " VND")
+                      ? _buildItemInfo("Value:", value: oCcy.format(widget.value ?? 0).toString() + " VND")
                       : const SizedBox.shrink(),
                       const SizedBox(height: 10,),
                       Container(

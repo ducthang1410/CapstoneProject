@@ -26,7 +26,13 @@ String urlGetHighlightContest = "api/contest/highlight";
 String urlGetFollowingAccount = "api/accounts/following";
 String urlGetFollowerAccount = "api/accounts/follower";
 String urlGetAllProposal = "api/proposals";
+String urlGetUserProposal = "api/proposals";
+String urlGetAccountNotification = "api/Notification";
+String urlGetContestPrize = "api/contest";
+String urlGetFeedbackByContent = "api/feedbacks/content";
+String urlGetBillByStatus = "api/bills/status";
 
+String urlNewAccount = "api/accounts/AccountSystem";
 String urlFollowUnfollowAccount = "api/accounts/follow_or_unfollow";
 String urlCommentPost = "api/comments/news/post";
 String urlCommentTradingPost = "api/comments/news/trading_post";
@@ -44,6 +50,7 @@ String urlFeedbackPost = "api/posts";
 String urlFeedbackTradingPost = "api/trading_posts";
 String urlFeedbackAccount = "api/accounts";
 String urlPostWishlist = "api/accounts/wishlist";
+String urlNewProposal = "api/proposals";
 
 String urlGetPostByAccount = "api/posts/account";
 String urlGetUserChat = "api/accounts";
@@ -56,6 +63,11 @@ String urlPutAcceptDenyBill = "api/bills";
 String urlPutCloseCancelBill = "api/bills";
 String urlPutApproveDenySubmission = "api/submissions";
 String urlPutEnableDisableTradingPost = "api/trading_posts";
+String urlChangePassword = "api/accounts/change_password";
+String urlNewPassword = "api/accounts/new_password";
+String urlEditProfile = "api/accounts";
+String urlReadNotification = "api/Notification/readed";
+String urlReplyFeedback = "api/feedbacks";
 
 String urlDeletePost = "api/posts";
 String urlDeleteContestPost = "api/contest/postofcontest";

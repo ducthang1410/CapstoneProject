@@ -101,7 +101,6 @@ class _HighlightContestPageState extends State<HighlightContestPage> {
                               DateTime.now().toString(),
                           endDate: contests?[index].endDate ??
                               DateTime.now().toString(),
-                          prizes: contests?[index].prizes ?? [],
                           isReadMore:
                           contests?[index].isReadMore ?? false,
                           status: contests?[index].status ?? 0);
@@ -126,7 +125,6 @@ class _HighlightContestPageState extends State<HighlightContestPage> {
       endRegistration,
       startDate,
       endDate,
-      List<Prize>? prizes,
       coverImage,
       slogan,
       isReadMore,
@@ -275,79 +273,77 @@ class _HighlightContestPageState extends State<HighlightContestPage> {
                         ],
                         crossAxisAlignment: CrossAxisAlignment.start,
                       ),
-                      Flexible(
-                        child: SizedBox(
-                          width: 80,
-                          height: 40,
-                          child: ElevatedButton(
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                  const Color(0xffDB36A4),
-                                ),
-                                shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ))),
-                            child: const Text(
-                              "View",
-                              style: TextStyle(color: Colors.white, fontSize: 16.0),
-                            ),
-                            onPressed: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => ContestPage(
-                                        role: widget.role,
-                                        token: widget.token,
-                                        contestId: contestId,
-                                        contestImage: coverImage,
-                                        contestStatus: status,
-                                        prizes: prizes,
-                                      )));
-                            },
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                   const SizedBox(
                     height: 10.0,
                   ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: SizedBox(
+                      width: 130,
+                      height: 40,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                              const Color(0xffDB36A4),
+                            ),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ))),
+                        child: const Text(
+                          "View Detail",
+                          style: TextStyle(color: Colors.white, fontSize: 16.0),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ContestPage(
+                                role: widget.role,
+                                token: widget.token,
+                                contestId: contestId,
+                              )));
+                        },
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-            prizes!.isNotEmpty
-                ? Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    width: double.infinity,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          "Prize",
-                          style: TextStyle(
-                              color: Color(0xffDB36A4),
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(
-                          height: 10.0,
-                        ),
-                        Flexible(
-                          child: ListView.builder(
-                              primary: false,
-                              padding: EdgeInsets.zero,
-                              itemCount: prizes.length,
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                return buildPrize(
-                                    prizeIcon: prizeIcon[index],
-                                    name: prizes[index].name,
-                                    value: prizes[index].value);
-                              }),
-                        )
-                      ],
-                    ),
-                  )
-                : const SizedBox.shrink(),
+            // prizes!.isNotEmpty
+            //     ? Container(
+            //         padding: const EdgeInsets.symmetric(vertical: 10.0),
+            //         width: double.infinity,
+            //         child: Column(
+            //           mainAxisSize: MainAxisSize.min,
+            //           children: [
+            //             const Text(
+            //               "Prize",
+            //               style: TextStyle(
+            //                   color: Color(0xffDB36A4),
+            //                   fontSize: 30,
+            //                   fontWeight: FontWeight.bold),
+            //             ),
+            //             const SizedBox(
+            //               height: 10.0,
+            //             ),
+            //             Flexible(
+            //               child: ListView.builder(
+            //                   primary: false,
+            //                   padding: EdgeInsets.zero,
+            //                   itemCount: prizes.length,
+            //                   shrinkWrap: true,
+            //                   itemBuilder: (context, index) {
+            //                     return buildPrize(
+            //                         prizeIcon: prizeIcon[index],
+            //                         name: prizes[index].name,
+            //                         value: prizes[index].value);
+            //                   }),
+            //             )
+            //           ],
+            //         ),
+            //       )
+            //     : const SizedBox.shrink(),
           ],
         ),
       ),

@@ -39,100 +39,118 @@ class _ManageContestPageState extends State<ManageContestPage> {
     "assets/icons/others.png",
   ];
 
-  showConfirmDialog(Size size) => showDialog(context: context, builder: (context) => Center(
-    child: AlertDialog(title: const Text(
-      "Confirm To Delete Contest",
-      style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
-      textAlign: TextAlign.center,
-    ),
-      content: SizedBox(
-        height: size.height * 0.2,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("Are you sure to delete this contest? "),
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15.0),
-                child: Row(
+  showConfirmDialog(Size size) {
+    BuildContext dialogContext;
+    showDialog(
+        context: context,
+        builder: (context) {
+          dialogContext = context;
+          return Center(
+            child: AlertDialog(
+              title: const Text(
+                "Delete Contest",
+                style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
+                textAlign: TextAlign.center,
+              ),
+              content: SizedBox(
+                height: 150,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Flexible(
-                      child: Container(
-                        width: 130,
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 5.0),
-                        child: ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
-                                Colors.redAccent,
-                              ),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ))),
-                          child: const Text(
-                            "Cancel",
-                            style: TextStyle(
-                                color: Colors.white, fontSize: 16.0),
-                          ),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ),
-                    ),
+                    const Text("Are you sure to delete this contest? "),
                     const SizedBox(
-                      width: 20.0,
+                      height: 10,
                     ),
                     Flexible(
-                      child: Container(
-                        width: 130,
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 5.0),
-                        child: ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
-                                Colors.lightGreen,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Container(
+                                width: 130,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        Colors.redAccent,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ))),
+                                  child: const Text(
+                                    "Cancel",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(dialogContext);
+                                  },
+                                ),
                               ),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ))),
-                          child: const Text(
-                            "Confirm",
-                            style: TextStyle(
-                                color: Colors.white, fontSize: 16.0),
-                          ),
-                          onPressed: () async {
-                            DeleteContest contest = DeleteContest();
-                            int status = await contest.deleteContest(
-                                token: widget.token, contestId: widget.contestId);
-                            if (status == 200) {
-                              setState(() {});
-                              loadingSuccess(status: "Delete success");
-                              Navigator.of(context).pop();
-                            } else {
-                              loadingFail(status: "Delete Failed !!!");
-                            }
-                          },
+                            ),
+                            const SizedBox(
+                              width: 20.0,
+                            ),
+                            Flexible(
+                              child: Container(
+                                width: 130,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        Colors.lightGreen,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ))),
+                                  child: const Text(
+                                    "Confirm",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  ),
+                                  onPressed: () async {
+                                    DeleteContest contest = DeleteContest();
+                                    int status = await contest.deleteContest(
+                                        token: widget.token,
+                                        contestId: widget.contestId);
+                                    if (status == 200) {
+                                      setState(() {});
+                                      loadingSuccess(status: "Delete success");
+                                      Navigator.pop(dialogContext);
+                                      Navigator.of(context).pop();
+                                    } else {
+                                      loadingFail(status: "Delete Failed !!!");
+                                    }
+                                  },
+                                ),
+                              ),
+                            )
+                          ],
                         ),
                       ),
                     )
                   ],
                 ),
               ),
-            )
-          ],
-        ),
-      ),
-    ),
-  ));
+            ),
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,8 +171,7 @@ class _ManageContestPageState extends State<ManageContestPage> {
             endDate: widget.contestDetail?.endDate ?? DateTime.now(),
             isReadMore: widget.contestDetail?.isReadMore ?? false,
           ),
-          widget.prizes!.isNotEmpty
-          ? Container(
+          Container(
             padding: const EdgeInsets.symmetric(vertical: 10.0),
             color: Colors.white,
             width: double.infinity,
@@ -171,29 +188,86 @@ class _ManageContestPageState extends State<ManageContestPage> {
                 const SizedBox(
                   height: 10.0,
                 ),
-                Flexible(
-                  child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: EdgeInsets.zero,
-                      itemCount: widget.prizes?.length,
-                      itemBuilder: (context, index) {
-                        images = widget.prizes?[index].images ?? [];
-                        return prize(
-                            prizeImage: images!.isNotEmpty
-                                ? images?.first.url
-                                : "",
-                            prizeIcon: prizeIcon[index],
-                            name: widget.prizes?[index].name ??
-                                "Name Prize",
-                            value:
-                            widget.prizes?[index].value ?? "Value");
-                      }),
+                widget.prizes!.isNotEmpty
+                    ? Flexible(
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.zero,
+                            itemCount: widget.prizes?.length,
+                            itemBuilder: (context, index) {
+                              images = widget.prizes?[index].images ?? [];
+                              return prize(
+                                  prizeImage: images!.isNotEmpty
+                                      ? images?.first.url
+                                      : "",
+                                  prizeIcon: prizeIcon[index],
+                                  name: widget.prizes?[index].name ??
+                                      "Name Prize",
+                                  value:
+                                      widget.prizes?[index].value ?? "Value");
+                            }),
+                      )
+                    : const SizedBox.shrink(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 150,
+                        height: 60,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 5.0),
+                        child: ElevatedButton(
+                            style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    const Color(0xffDB36A4)),
+                                shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ))),
+                            child: Text(
+                              widget.prizes!.isNotEmpty
+                                  ? "Edit Prize"
+                                  : "Add Prize",
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 16.0),
+                            ),
+                            onPressed: () {}),
+                      ),
+                      const SizedBox(
+                        width: 20,
+                      ),
+                      Container(
+                        width: 150,
+                        height: 60,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 5.0),
+                        child: ElevatedButton(
+                            style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all(Colors.amber),
+                                shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ))),
+                            child: const Text(
+                              "Award",
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 16.0),
+                            ),
+                            onPressed: () {}),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           )
-              : const SizedBox.shrink(),
         ],
       ),
     );
@@ -404,7 +478,6 @@ class _ManageContestPageState extends State<ManageContestPage> {
                       ),
                       onPressed: () async {
                         await showConfirmDialog(size);
-                        Navigator.of(context).pop();
                       }),
                 ),
                 const SizedBox(
@@ -451,17 +524,17 @@ class _ManageContestPageState extends State<ManageContestPage> {
         children: [
           prizeImage != ""
               ? CachedNetworkImage(
-            imageUrl: prizeImage,
-            width: 50,
-            errorWidget: (context, url, error) => Image.asset(
-              'assets/images/img_not_available.jpeg',
-              fit: BoxFit.cover,
-            ),
-          )
+                  imageUrl: prizeImage,
+                  width: 50,
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/images/img_not_available.jpeg',
+                    fit: BoxFit.cover,
+                  ),
+                )
               : Image.asset(
-            prizeIcon,
-            width: 50,
-          ),
+                  prizeIcon,
+                  width: 50,
+                ),
           const SizedBox(
             width: 20.0,
           ),

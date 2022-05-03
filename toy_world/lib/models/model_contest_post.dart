@@ -63,6 +63,7 @@ class ContestPost {
   factory ContestPost.fromJson(Map<String, dynamic> json) => ContestPost(
         id: json["id"],
         content: json["content"],
+        ownerId: json["ownerId"],
         ownerAvatar: json["ownerAvatar"],
         ownerName: json["ownerName"],
         averageStar: json["averageStar"].toDouble(),

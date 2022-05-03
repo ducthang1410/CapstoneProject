@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:sign_button/sign_button.dart';
 import 'package:toy_world/apis/posts/post_login.dart';
 import 'package:toy_world/components/component.dart';
+import 'package:toy_world/screens/new_system_account.dart';
 import 'package:toy_world/screens/welcome_page.dart';
 import 'package:toy_world/utils/google_login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +18,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
   bool _isObscure = true;
   int _roleValue = 0;
   String _token = "";
@@ -59,8 +62,10 @@ class _LoginPageState extends State<LoginPage> {
     var size = MediaQuery.of(context).size;
     return Center(
       child: Container(
+        // width: 350,
+        // height: 550,
         width: size.width * 0.85,
-        height: size.height * 0.8,
+        height: 600,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -78,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             Image.asset(
               "assets/icons/Logo_Word_Black.png",
-              width: size.width * 0.6,
+              width: 230,
             ),
             const SizedBox(
               height: 20,
@@ -128,120 +133,138 @@ class _LoginPageState extends State<LoginPage> {
   Widget frmLogin() {
     var size = MediaQuery.of(context).size;
     return SizedBox(
-      width: size.width * 0.7,
-      child: Column(
-        children: [
-          TextFormField(
-            maxLines: 1,
-            onChanged: (value) {
-              _email = value.trim();
-              setState(() {});
-            },
-            decoration: InputDecoration(
-              labelText: "Email",
-              filled: true,
-              fillColor: Colors.grey[300],
-              prefixIcon: const Icon(Icons.mail, color: Color(0xffDB36A4)),
-              enabledBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.transparent),
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Color(0xffDB36A4)),
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          TextFormField(
-            maxLines: 1,
-            onChanged: (value) {
-              _password = value.trim();
-              setState(() {});
-            },
-            obscureText: _isObscure,
-            decoration: InputDecoration(
-              labelText: "Password",
-              filled: true,
-              fillColor: Colors.grey[300],
-              prefixIcon: const Icon(
-                Icons.lock,
-                color: Color(0xffDB36A4),
-              ),
-              suffixIcon: IconButton(
-                  icon: Icon(
-                    _isObscure ? Icons.visibility : Icons.visibility_off,
-                    color: Colors.grey,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isObscure = !_isObscure;
-                    });
-                  }),
-              enabledBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.transparent),
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Color(0xffDB36A4)),
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          Container(
-            width: 140,
-            height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xffDB36A4),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black54,
-                  blurRadius: 4,
-                  offset: Offset(0, 0), // Shadow position
+      width: size.width * 0.75,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            TextFormField(
+              maxLines: 1,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter email';
+                }
+                return null;
+              },
+              onChanged: (value) {
+                _email = value.trim();
+                setState(() {});
+              },
+              decoration: InputDecoration(
+                labelText: "Email",
+                filled: true,
+                fillColor: Colors.grey[300],
+                prefixIcon: const Icon(Icons.mail, color: Color(0xffDB36A4)),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.transparent),
+                  borderRadius: BorderRadius.circular(15.0),
                 ),
-              ],
-              borderRadius: BorderRadius.circular(15),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Color(0xffDB36A4)),
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+              ),
             ),
-            child: FlatButton(
-                onPressed: () async {
-                  try {
-                    loadingLoad(status: "Signing In...");
-                    if (await checkLoginSystemAccount(
-                            email: _email, password: _password) ==
-                        200) {
-                      await _loadCounter();
-                      if (_roleValue == 0) {
-                        loadingFail(
-                            status: "Admin is not available in this app !!!");
-                        return;
+            const SizedBox(
+              height: 20,
+            ),
+            TextFormField(
+              maxLines: 1,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter password';
+                }
+                return null;
+              },
+              onChanged: (value) {
+                _password = value.trim();
+                setState(() {});
+              },
+              obscureText: _isObscure,
+              decoration: InputDecoration(
+                labelText: "Password",
+                filled: true,
+                fillColor: Colors.grey[300],
+                prefixIcon: const Icon(
+                  Icons.lock,
+                  color: Color(0xffDB36A4),
+                ),
+                suffixIcon: IconButton(
+                    icon: Icon(
+                      _isObscure ? Icons.visibility : Icons.visibility_off,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isObscure = !_isObscure;
+                      });
+                    }),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.transparent),
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Color(0xffDB36A4)),
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Container(
+              width: 140,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xffDB36A4),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black54,
+                    blurRadius: 4,
+                    offset: Offset(0, 0), // Shadow position
+                  ),
+                ],
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: FlatButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      try {
+                        loadingLoad(status: "Signing In...");
+                        if (await checkLoginSystemAccount(
+                                email: _email, password: _password) ==
+                            200) {
+                          await _loadCounter();
+                          if (_roleValue == 0) {
+                            loadingFail(
+                                status:
+                                    "Admin is not available in this app !!!");
+                            return;
+                          }
+                          EasyLoading.dismiss();
+                          Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                  builder: (context) => WelcomePage(
+                                        role: _roleValue,
+                                        token: _token,
+                                        isHasWishlist: _isHasWishlist,
+                                      )),
+                              (route) => false);
+                        } else {
+                          loadingFail(status: "Email or Password is not correct");
+                        }
+                      } catch (e) {
+                        loadingFail(status: "Sign in Failed !!! \n $e");
                       }
-                      EasyLoading.dismiss();
-                      Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                              builder: (context) => WelcomePage(
-                                    role: _roleValue,
-                                    token: _token,
-                                    isHasWishlist: _isHasWishlist,
-                                  )),
-                          (route) => false);
-                    } else {
-                      loadingFail(status: "Sign in Failed");
                     }
-                  } catch (e) {
-                    loadingFail(status: "Sign in Failed !!! \n $e");
-                  }
-                },
-                child: const Text(
-                  "Sign In",
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                )),
-          )
-        ],
+                  },
+                  child: const Text(
+                    "Sign In",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  )),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -254,6 +277,7 @@ class _LoginPageState extends State<LoginPage> {
 
   checkLoginSystemAccount({email, password}) async {
     await Firebase.initializeApp();
+    // await FirebaseAuth.instance.signInAnonymously();
     PostLoginSystemAccount postLogin = PostLoginSystemAccount();
     var status = await postLogin.login(email: email, password: password);
     return status;
@@ -316,7 +340,13 @@ class _LoginPageState extends State<LoginPage> {
         borderRadius: BorderRadius.circular(15),
       ),
       child: FlatButton(
-          onPressed: () {},
+          onPressed: () {
+            EasyLoading.dismiss();
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (context) => const CreateNewAccountPage()),
+                (route) => false);
+          },
           child: const Text(
             "Create new",
             style: TextStyle(fontSize: 18, color: Colors.white),

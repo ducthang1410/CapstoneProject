@@ -28,7 +28,7 @@ class NewTradingPost {
         "toyName": "$toyName",
         "content": "$content",
         "address": "$address",
-        "exchange": "$exchange",
+        "exchange": exchange,
         "value":  value,
         "phone": "$phone",
         "imagesLink": imgLink,

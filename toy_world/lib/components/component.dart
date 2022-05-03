@@ -30,7 +30,7 @@ Widget defaultAppBar(BuildContext context, int role, String token) {
   return Center(
     child: Container(
       width: size.width,
-      height: size.height * 0.1,
+      height: 80,
       color: const Color(0xffDB36A4),
       padding: const EdgeInsets.only(left: 5, right: 10),
       child: Row(
@@ -40,11 +40,11 @@ Widget defaultAppBar(BuildContext context, int role, String token) {
             alignment: Alignment.center,
             child: Image.asset(
               "assets/icons/Logo_Word_Black_Pink.png",
-              height: size.height * 0.08,
+              height: 60,
             ),
           ),
           SizedBox(
-              width: size.width * 0.3,
+              width: 120,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -53,7 +53,7 @@ Widget defaultAppBar(BuildContext context, int role, String token) {
                         color: Colors.grey.withOpacity(0.5),
                         shape: BoxShape.circle),
                     child: IconButton(
-                      iconSize: size.height * 0.035,
+                      iconSize: 30,
                       alignment: Alignment.center,
                       icon: const Icon(Icons.search, color: Colors.white),
                       onPressed: () {},
@@ -65,7 +65,7 @@ Widget defaultAppBar(BuildContext context, int role, String token) {
                         shape: BoxShape.circle),
                     child: IconButton(
                       alignment: Alignment.center,
-                      iconSize: size.height * 0.035,
+                      iconSize: 30,
                       icon: const Icon(FontAwesomeIcons.commentDots,
                           color: Colors.white),
                       onPressed: () {
@@ -90,32 +90,32 @@ Widget groupAppBar(BuildContext context, int role, String token) {
       opacity: 0.8,
       child: Container(
         width: size.width,
-        height: size.height * 0.1,
+        height: 80,
         padding: const EdgeInsets.only(left: 5, right: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-                iconSize: size.height * 0.04,
+                iconSize: 30,
                 icon: const Icon(
                   Icons.arrow_back,
                   color: Colors.white,
                 ),
                 onPressed: () => Navigator.of(context).pop()),
             SizedBox(
-                width: size.width * 0.3,
+                width: 120,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
-                      iconSize: size.height * 0.04,
+                      iconSize: 30,
                       alignment: Alignment.center,
                       icon: const Icon(Icons.search, color: Colors.white),
                       onPressed: () {},
                     ),
                     IconButton(
                       alignment: Alignment.center,
-                      iconSize: size.height * 0.04,
+                      iconSize: 30,
                       icon: const Icon(FontAwesomeIcons.commentDots,
                           color: Colors.white),
                       onPressed: () {
@@ -138,7 +138,7 @@ Widget sideAppBar(BuildContext context, int role, String token) {
   return Center(
     child: Container(
       width: size.width,
-      height: size.height * 0.1,
+      height: 80,
       color: const Color(0xffDB36A4),
       padding: const EdgeInsets.only(left: 5, right: 10),
       child: Row(
@@ -148,10 +148,11 @@ Widget sideAppBar(BuildContext context, int role, String token) {
               icon: const Icon(
                 Icons.arrow_back,
                 color: Colors.white,
+                size: 30,
               ),
               onPressed: () => Navigator.of(context).pop()),
           SizedBox(
-              width: size.width * 0.3,
+              width: 120,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -160,7 +161,7 @@ Widget sideAppBar(BuildContext context, int role, String token) {
                         color: Colors.grey.withOpacity(0.5),
                         shape: BoxShape.circle),
                     child: IconButton(
-                      iconSize: size.height * 0.035,
+                      iconSize: 30,
                       alignment: Alignment.center,
                       icon: const Icon(Icons.search, color: Colors.white),
                       onPressed: () {},
@@ -172,7 +173,7 @@ Widget sideAppBar(BuildContext context, int role, String token) {
                         shape: BoxShape.circle),
                     child: IconButton(
                       alignment: Alignment.center,
-                      iconSize: size.height * 0.035,
+                      iconSize: 30,
                       icon: const Icon(FontAwesomeIcons.commentDots,
                           color: Colors.white),
                       onPressed: () {
@@ -194,7 +195,7 @@ Widget drawerMenu(BuildContext context, int role, String token, String name,
     String urlImage, {currentUserId, accountId}) {
   var size = MediaQuery.of(context).size;
   return SizedBox(
-      width: size.width * 0.7,
+      width: 300,
       height: size.height,
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
@@ -239,6 +240,18 @@ Widget drawerMenu(BuildContext context, int role, String token, String name,
                         selectedDrawerItem(context, 0, role, token, currentUserId: currentUserId);
                       },
                     ),
+                    const Divider(
+                      color: Color(0xffDB36A4),
+                      thickness: 1,
+                    ),
+                    buildMenuItem(
+                      text: 'Proposal',
+                      urlImage: "assets/icons/proposal.png",
+                      onClicked: () {
+                        Navigator.of(context).pop();
+                        selectedDrawerItem(context, 1, role, token, currentUserId: currentUserId);
+                      },
+                    ),
                     role == 1
                         ? Column(
                             children: [
@@ -251,7 +264,7 @@ Widget drawerMenu(BuildContext context, int role, String token, String name,
                                 urlImage: "assets/icons/management.png",
                                 onClicked: () {
                                   Navigator.of(context).pop();
-                                  selectedDrawerItem(context, 1, role, token);
+                                  selectedDrawerItem(context, 2, role, token);
                                 },
                               ),
                             ],
@@ -266,7 +279,7 @@ Widget drawerMenu(BuildContext context, int role, String token, String name,
                       urlImage: "assets/icons/toy.png",
                       onClicked: () {
                         Navigator.of(context).pop();
-                        selectedDrawerItem(context, 2, role, token);
+                        selectedDrawerItem(context, 3, role, token);
                       },
                     ),
                     const Divider(
@@ -278,7 +291,7 @@ Widget drawerMenu(BuildContext context, int role, String token, String name,
                       urlImage: "assets/icons/logout.png",
                       onClicked: () {
                         Navigator.of(context).pop();
-                        selectedDrawerItem(context, 3, role, token);
+                        selectedDrawerItem(context, 4, role, token);
                       },
                     ),
                   ],
@@ -308,6 +321,9 @@ Widget buildHeader({
             const SizedBox(height: 20),
             Text(
               name,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
             ),
           ],

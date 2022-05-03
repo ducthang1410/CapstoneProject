@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/apis/deletes/delete_comment.dart';
-import 'package:toy_world/apis/gets/get_comment_post.dart';
 import 'package:toy_world/apis/posts/post_comment_post.dart';
 import 'package:toy_world/apis/posts/post_comment_trading_post.dart';
 import 'package:toy_world/apis/puts/put_react_comment.dart';
-import 'package:toy_world/apis/puts/put_update_comment.dart';
 import 'package:toy_world/components/component.dart';
 import 'package:toy_world/models/model_comment.dart';
-import 'package:toy_world/models/model_post_detail.dart';
 import 'package:toy_world/utils/helpers.dart';
 
 class CommentWidget extends StatefulWidget {
@@ -69,9 +66,11 @@ class _CommentWidgetState extends State<CommentWidget> {
   }
 
   reactComment({token, commentId}) async {
+    loadingLoad(status: "Loading...");
     ReactComment react = ReactComment();
     int status = await react.reactComment(token: token, commentId: commentId);
     if (status == 200) {
+      EasyLoading.dismiss();
       setState(() {});
     } else {
       loadingFail(status: "Love Failed !!!");
@@ -81,7 +80,7 @@ class _CommentWidgetState extends State<CommentWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 20),
       child: Column(
         children: [
           _writeComment(),
@@ -125,6 +124,8 @@ class _CommentWidgetState extends State<CommentWidget> {
           Expanded(
             child: TextFormField(
               controller: controller,
+              minLines: 1,
+              maxLines: 3,
               decoration: InputDecoration(
                 hintText: "Write a comment ...",
                 filled: true,
@@ -143,38 +144,41 @@ class _CommentWidgetState extends State<CommentWidget> {
               Icons.send,
               color: Color(0xffDB36A4),
             ),
-            onPressed: () async {
-
-              try {
-                if(widget.type == "Post"){
-                  if (await checkCreateCommentPost(
-                      token: widget.token,
-                      postId: widget.postID,
-                      content: controller.text) ==
-                      200) {
-                    controller.clear();
-                  } else {
-                    loadingFail(
-                        status:
-                        "Comment Failed - ${await checkCreateCommentPost(token: widget.token, postId: widget.postID, content: controller.text)}");
+            onPressed: controller.text != ""
+                ? () async {
+                    try {
+                      loadingLoad(status: "Loading...");
+                      if (widget.type == "Post") {
+                        if (await checkCreateCommentPost(
+                                token: widget.token,
+                                postId: widget.postID,
+                                content: controller.text) ==
+                            200) {
+                          EasyLoading.dismiss();
+                          controller.clear();
+                        } else {
+                          loadingFail(
+                              status:
+                                  "Comment Failed - ${await checkCreateCommentPost(token: widget.token, postId: widget.postID, content: controller.text)}");
+                        }
+                      } else if (widget.type == "TradingPost") {
+                        if (await checkCreateCommentTradingPost(
+                                token: widget.token,
+                                tradingPostId: widget.postID,
+                                content: controller.text) ==
+                            200) {
+                          controller.clear();
+                        } else {
+                          loadingFail(
+                              status:
+                                  "Comment Failed - ${await checkCreateCommentTradingPost(token: widget.token, tradingPostId: widget.postID, content: controller.text)}");
+                        }
+                      }
+                    } catch (e) {
+                      loadingFail(status: "Comment Failed !!! \n $e");
+                    }
                   }
-                } else if(widget.type == "TradingPost"){
-                  if (await checkCreateCommentTradingPost(
-                      token: widget.token,
-                      tradingPostId: widget.postID,
-                      content: controller.text) ==
-                      200) {
-                    controller.clear();
-                  } else {
-                    loadingFail(
-                        status:
-                        "Comment Failed - ${await checkCreateCommentTradingPost(token: widget.token, tradingPostId: widget.postID, content: controller.text)}");
-                  }
-                }
-              } catch (e) {
-                loadingFail(status: "Comment Failed !!! \n $e");
-              }
-            },
+                : null,
           )
         ]));
   }
@@ -254,10 +258,6 @@ class _CommentWidgetState extends State<CommentWidget> {
                                 ]
                               : const [
                                   PopupMenuItem(
-                                    child: Text("Edit"),
-                                    value: 1,
-                                  ),
-                                  PopupMenuItem(
                                     child: Text("Delete"),
                                     value: 2,
                                   )
@@ -317,10 +317,12 @@ class _CommentWidgetState extends State<CommentWidget> {
         setState(() {});
         break;
       case 2:
+        loadingLoad(status: "Loading...");
         DeleteComment comment = DeleteComment();
         int status =
             await comment.deleteComment(token: token, commentId: commentID);
         if (status == 200) {
+          EasyLoading.dismiss();
           setState(() {});
         } else {
           loadingFail(status: "Delete Failed !!!");

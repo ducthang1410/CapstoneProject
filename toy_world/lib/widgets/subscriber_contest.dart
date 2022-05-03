@@ -49,134 +49,149 @@ class _SubscriberContestWidgetState extends State<SubscriberContestWidget> {
     return subscribers;
   }
 
-  showConfirmDialog(int id, Size size) => showDialog(context: context, builder: (context) => Center(
-    child: AlertDialog(title: const Text(
-      "Confirm Ban Account",
-      style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
-      textAlign: TextAlign.center,
-    ),
-      content: SizedBox(
-        height: size.height * 0.25,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("Are you sure to ban this account? This account can not join in after banned."),
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15.0),
-                child: Row(
+  showConfirmDialog(int id, Size size) {
+    BuildContext dialogContext;
+    showDialog(
+        context: context,
+        builder: (context) {
+          dialogContext = context;
+          return Center(
+            child: AlertDialog(
+              title: const Text(
+                "Confirm Ban Account",
+                style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
+                textAlign: TextAlign.center,
+              ),
+              content: SizedBox(
+                height: size.height * 0.25,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    const Text(
+                        "Are you sure to ban this account? This account can not join in after banned."),
                     Flexible(
-                      child: Container(
-                        width: 130,
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 5.0),
-                        child: ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
-                                Colors.redAccent,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Container(
+                                width: 130,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        Colors.redAccent,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ))),
+                                  child: const Text(
+                                    "Cancel",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(dialogContext);
+                                  },
+                                ),
                               ),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ))),
-                          child: const Text(
-                            "Cancel",
-                            style: TextStyle(
-                                color: Colors.white, fontSize: 16.0),
-                          ),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 20.0,
-                    ),
-                    Flexible(
-                      child: Container(
-                        width: 130,
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 5.0),
-                        child: ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
-                                Colors.lightGreen,
+                            ),
+                            const SizedBox(
+                              width: 20.0,
+                            ),
+                            Flexible(
+                              child: Container(
+                                width: 130,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        Colors.lightGreen,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ))),
+                                  child: const Text(
+                                    "Confirm",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  ),
+                                  onPressed: () async {
+                                    DeleteSubscriber subscriber =
+                                        DeleteSubscriber();
+                                    int status =
+                                        await subscriber.deleteSubscriber(
+                                            token: widget.token,
+                                            contestId: widget.contestId,
+                                            accountId: id);
+                                    if (status == 200) {
+                                      setState(() {});
+                                      loadingSuccess(status: "Ban success");
+                                      Navigator.pop(dialogContext);
+                                    } else {
+                                      loadingFail(status: "Ban Failed !!!");
+                                    }
+                                  },
+                                ),
                               ),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ))),
-                          child: const Text(
-                            "Confirm",
-                            style: TextStyle(
-                                color: Colors.white, fontSize: 16.0),
-                          ),
-                          onPressed: () async {
-                            DeleteSubscriber subscriber = DeleteSubscriber();
-                            int status =
-                            await subscriber.deleteSubscriber(token: widget.token, contestId: widget.contestId, accountId: id);
-                            if (status == 200) {
-                              setState(() {});
-                              loadingSuccess(status: "Ban success");
-                              Navigator.of(context).pop();
-                            } else {
-                              loadingFail(status: "Ban Failed !!!");
-                            }
-                          },
+                            )
+                          ],
                         ),
                       ),
                     )
                   ],
                 ),
               ),
-            )
-          ],
-        ),
-      ),
-    ),
-  ));
+            ),
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      child: SingleChildScrollView(
-        physics: const NeverScrollableScrollPhysics(),
-        child: FutureBuilder(
-            future: getSubscribersContest(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                if (subscribers?.length != null && subscribers!.isNotEmpty) {
-                  return ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: EdgeInsets.zero,
-                      itemCount: subscribers?.length,
-                      itemBuilder: (context, index) {
-                        return buildSubscriber(
-                            id: subscribers?[index].id ?? 0,
-                            avatar: subscribers?[index].avatar ?? _avatar,
-                            name: subscribers?[index].name ?? "Name",
-                            phone: subscribers?[index].phone ?? "");
-                      });
-                } else {
-                  return const Center(
-                      child: Text("There hasn't had any subscriber yet !!!"));
-                }
+      child: FutureBuilder(
+          future: getSubscribersContest(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              if (subscribers?.length != null && subscribers!.isNotEmpty) {
+                return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.zero,
+                    itemCount: subscribers?.length,
+                    itemBuilder: (context, index) {
+                      return buildSubscriber(
+                          id: subscribers?[index].id,
+                          avatar: subscribers?[index].avatar ?? _avatar,
+                          name: subscribers?[index].name ?? "Name",
+                          phone: subscribers?[index].phone ?? "");
+                    });
+              } else {
+                return const Center(
+                    child: Text("There hasn't had any subscriber yet !!!"));
               }
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }),
-      ),
+            }
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }),
     );
   }
 
@@ -280,7 +295,9 @@ class _SubscriberContestWidgetState extends State<SubscriberContestWidget> {
                           Icons.clear,
                           color: Colors.white,
                         ),
-                        SizedBox(width: 10.0,),
+                        SizedBox(
+                          width: 10.0,
+                        ),
                         Text(
                           "Ban",
                           style: TextStyle(color: Colors.white, fontSize: 16.0),
@@ -315,8 +332,13 @@ class _SubscriberContestWidgetState extends State<SubscriberContestWidget> {
                           FontAwesomeIcons.commentDots,
                           color: Colors.black87,
                         ),
-                        SizedBox(width: 10.0,),
-                        Text("Chat", style: TextStyle(fontSize: 16, color: Colors.black87),)
+                        SizedBox(
+                          width: 10.0,
+                        ),
+                        Text(
+                          "Chat",
+                          style: TextStyle(fontSize: 16, color: Colors.black87),
+                        )
                       ],
                     ),
                     onPressed: () {
@@ -343,5 +365,4 @@ class _SubscriberContestWidgetState extends State<SubscriberContestWidget> {
       ),
     );
   }
-
 }

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/apis/gets/get_account_info.dart';
 import 'package:toy_world/apis/gets/get_account_profile.dart';
@@ -10,6 +11,7 @@ import 'package:toy_world/models/model_account_profile.dart';
 import 'package:toy_world/screens/follower_account_page.dart';
 import 'package:toy_world/screens/following_account_page.dart';
 import 'package:toy_world/screens/post_of_account_page.dart';
+import 'package:toy_world/screens/setting_page.dart';
 import 'package:toy_world/widgets/wish_list_widget.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -30,13 +32,13 @@ class _ProfilePageState extends State<ProfilePage> {
   String _avatar =
       "https://firebasestorage.googleapis.com/v0/b/toy-world-system.appspot.com/o/Avatar%2FdefaultAvatar.png?alt=media&token=b5fbfe09-9045-4838-bca5-649ff5667cad";
   int _currentUserId = 0;
+  bool _isHasPassword = false;
   bool? isFollow = false;
 
   @override
   void initState() {
     // TODO: implement initState
     _loadCounter();
-    getAccountDetail();
     getAccountInfo();
     super.initState();
   }
@@ -44,6 +46,7 @@ class _ProfilePageState extends State<ProfilePage> {
   _loadCounter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
+      _isHasPassword = (prefs.getBool('isHasPassword') ?? false);
       _currentUserId = (prefs.getInt('accountId') ?? 0);
     });
   }
@@ -52,15 +55,18 @@ class _ProfilePageState extends State<ProfilePage> {
     AccountDetailData accountDetailData = AccountDetailData();
     _accountDetail = await accountDetailData.getAccountDetail(
         token: widget.token, accountId: widget.accountId);
+
     if (!mounted) return;
     setState(() {});
     return _accountDetail;
   }
 
   getAccountInfo() async {
+    loadingLoad(status: "Loading...");
     AccountInfoData accountInfoData = AccountInfoData();
     _accountInfo = await accountInfoData.getAccountInfo(
         token: widget.token, accountId: widget.accountId);
+    EasyLoading.dismiss();
     if (!mounted) return;
     setState(() {});
     return _accountInfo;
@@ -83,9 +89,40 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[200],
+      appBar: AppBar(
+        backgroundColor: const Color(0xffDB36A4),
+        elevation: 1,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.settings,
+              color: Colors.white,
+              size: 30,
+            ),
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (BuildContext context) => SettingPage(
+                        role: widget.role,
+                        token: widget.token,
+                        accountId: widget.accountId,
+                        isHasPassword: _isHasPassword,
+                      )));
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: [
-          sideAppBar(context, widget.role, widget.token),
           Expanded(
             child: FutureBuilder(
                 future: getAccountDetail(),
@@ -106,8 +143,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _avatarContent(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    final double coverHeight = size.height * 0.2;
-    final top = coverHeight - size.height * 0.09;
+    double coverHeight = 180.0;
+    final top = coverHeight - 80;
     return Stack(
       clipBehavior: Clip.none,
       alignment: Alignment.center,
@@ -115,7 +152,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Container(
           width: size.width,
           height: coverHeight,
-          margin: EdgeInsets.only(bottom: size.height * 0.09),
+          margin: const EdgeInsets.only(bottom: 80),
           child: Image.asset(
             "assets/images/toyType4.jpg",
             fit: BoxFit.cover,
@@ -128,7 +165,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _profileImage(Size size) {
     return CircleAvatar(
-      radius: size.height * 0.09,
+      radius: 80,
       backgroundColor: Colors.grey.shade300,
       backgroundImage:
           CachedNetworkImageProvider(_accountDetail?.avatar ?? _avatar),
@@ -145,6 +182,8 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         Text(
           _accountDetail?.name ?? "Name",
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         widget.accountId != _currentUserId
@@ -295,6 +334,7 @@ class _ProfilePageState extends State<ProfilePage> {
             alignment: Alignment.centerLeft,
             child: Text(
               _accountDetail?.biography ?? "",
+              maxLines: 10,
               style: const TextStyle(color: Colors.black54, fontSize: 16),
             ))
       ],
@@ -346,7 +386,7 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 Container(
                     margin: const EdgeInsets.only(left: 20),
-                    width: size.width * 0.2,
+                    width: 90,
                     child: Text(
                       "$title",
                       style: const TextStyle(
@@ -355,6 +395,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Expanded(
                     child: Text(
                   "$content",
+                  maxLines: 2,
                   style: const TextStyle(color: Colors.black54, fontSize: 16),
                 )),
               ],

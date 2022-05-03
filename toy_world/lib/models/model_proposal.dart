@@ -8,6 +8,10 @@ Proposals proposalsFromJson(String str) => Proposals.fromJson(json.decode(str));
 
 String proposalsToJson(Proposals data) => json.encode(data.toJson());
 
+List<Proposal> proposalFromJson(String str) => List<Proposal>.from(json.decode(str).map((x) => Proposal.fromJson(x)));
+
+String proposalToJson(List<Proposal> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+
 class Proposals {
   Proposals({
     this.pageNumber,

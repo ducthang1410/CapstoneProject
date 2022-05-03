@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'dart:math';
 import 'package:intl/intl.dart';
 
@@ -92,7 +93,12 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
     });
   }
 
-  checkFeedbackTradingPost(int? tradingPostId) async {
+  checkFeedbackTradingPost(int? tradingPostId, dialogContext) async {
+    loadingLoad(status: "Loading...");
+    if (feedbackContent == "") {
+      loadingFail(status: "Please give reason for feedback this post");
+      return;
+    }
     FeedbackTradingPost feedback = FeedbackTradingPost();
     int status = await feedback.feedbackTradingPost(
         token: widget.token,
@@ -102,15 +108,19 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
       setState(() {});
       loadingSuccess(
           status: "Send feedback success !!!\nPlease wait for manager reply.");
-      Navigator.of(context).pop();
+      Navigator.pop(dialogContext);
     } else {
       loadingFail(status: "Can not send feedback:((((");
     }
   }
 
-  void showFeedbackPost(int? postId) => showDialog(
-      context: context,
-      builder: (contest) => Center(
+  void showFeedbackPost(int? postId) {
+    BuildContext dialogContext;
+    showDialog(
+        context: context,
+        builder: (context) {
+          dialogContext = context;
+          return Center(
             child: SingleChildScrollView(
               child: AlertDialog(
                 title: const Text(
@@ -118,123 +128,224 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                   style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
                   textAlign: TextAlign.center,
                 ),
-                content: Stack(
-                  overflow: Overflow.visible,
-                  children: [
-                    SizedBox(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TextField(
-                            maxLines: 5,
-                            onChanged: (value) {
-                              setState(() {
-                                feedbackContent = value.trim();
-                              });
-                            },
-                            decoration: const InputDecoration(
-                              hintText: "Enter your feedback",
-                              enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 1.0),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.grey, width: 1.0)),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 15.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Flexible(
-                                  child: Container(
-                                    width: 130,
-                                    height: 50,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10.0, vertical: 5.0),
-                                    child: ElevatedButton(
-                                      style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all(
-                                            Colors.red,
-                                          ),
-                                          shape: MaterialStateProperty.all<
-                                                  RoundedRectangleBorder>(
-                                              RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                          ))),
-                                      child: const Text(
-                                        "Cancel",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16.0),
-                                      ),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 20.0,
-                                ),
-                                Flexible(
-                                  child: Container(
-                                    width: 130,
-                                    height: 50,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10.0, vertical: 5.0),
-                                    child: ElevatedButton(
-                                      style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all(
-                                            Colors.lightGreen,
-                                          ),
-                                          shape: MaterialStateProperty.all<
-                                                  RoundedRectangleBorder>(
-                                              RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                          ))),
-                                      child: const Text(
-                                        "OK",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16.0),
-                                      ),
-                                      onPressed: () =>
-                                          checkFeedbackTradingPost(postId),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    Positioned(
-                      right: -40.0,
-                      top: -95.0,
-                      child: InkResponse(
-                        onTap: () {
-                          Navigator.of(context).pop();
+                content: SizedBox(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        maxLines: 5,
+                        onChanged: (value) {
+                          setState(() {
+                            feedbackContent = value.trim();
+                          });
                         },
-                        child: const CircleAvatar(
-                          child: Icon(Icons.close),
-                          backgroundColor: Colors.redAccent,
+                        decoration: const InputDecoration(
+                          hintText: "Enter your feedback",
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.grey, width: 1.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey, width: 1.0)),
                         ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Container(
+                                width: 130,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        Colors.red,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ))),
+                                  child: const Text(
+                                    "Cancel",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(dialogContext);
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 20.0,
+                            ),
+                            Flexible(
+                              child: Container(
+                                width: 130,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        Colors.lightGreen,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ))),
+                                  child: const Text(
+                                    "OK",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  ),
+                                  onPressed: () => checkFeedbackTradingPost(
+                                      postId, dialogContext),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  showConfirmDialog(int? postId) {
+    BuildContext dialogContext;
+    showDialog(
+        context: context,
+        builder: (context) {
+          dialogContext = context;
+          return Center(
+            child: AlertDialog(
+              title: const Text(
+                "Delete Post",
+                style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
+                textAlign: TextAlign.center,
+              ),
+              content: SizedBox(
+                height: 150,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Are you sure to delete this post? "),
+                    const SizedBox(
+                      height: 10,
                     ),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Container(
+                                width: 130,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        Colors.redAccent,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ))),
+                                  child: const Text(
+                                    "Cancel",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(dialogContext);
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 20.0,
+                            ),
+                            Flexible(
+                              child: Container(
+                                width: 130,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        Colors.lightGreen,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ))),
+                                  child: const Text(
+                                    "Confirm",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  ),
+                                  onPressed: () async {
+                                    loadingLoad(status: "Loading...");
+                                    EnableDisableTradingPost enable =
+                                        EnableDisableTradingPost();
+                                    int status =
+                                        await enable.enableOrDisableTradingPost(
+                                            token: widget.token,
+                                            tradingPostId: widget.tradingPostId,
+                                            choice: 0);
+                                    if (status == 200) {
+                                      loadingSuccess(status: "Success");
+                                      widget.isPostDetail == true
+                                          ? Navigator.of(context).pop()
+                                          : null;
+                                      Navigator.pop(dialogContext);
+                                      setState(() {});
+                                    } else {
+                                      loadingFail(status: "Failed !!!");
+                                    }
+                                  },
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ),
             ),
-          ));
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -330,8 +441,8 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          exchange,
-                          maxLines: 1,
+                          exchange != "" ? exchange : "Money",
+                          maxLines: 3,
                           style: const TextStyle(fontSize: 16),
                         ),
                       ],
@@ -403,7 +514,7 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                 )
               : const SizedBox.shrink(),
           _currentUserId != widget.ownerId
-              ? widget.status == 0
+              ? widget.status == 0 && widget.isDisable == false
                   ? _buildContact()
                   : const SizedBox.shrink()
               : const SizedBox.shrink(),
@@ -556,7 +667,7 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                       buyerId: _currentUserId,
                       tradingPostId: widget.tradingPostId,
                       toyName: widget.toyName,
-                      exchangeWith: widget.exchange,
+                      exchangeWith: widget.exchange != null || widget.exchange == "" ? "Money" : widget.exchange,
                       value: widget.value,
                       buyerName: _name,
                       title: widget.title ?? "",
@@ -651,7 +762,10 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
                 color: Colors.grey[600],
                 size: 20,
               ),
-              const Text("Comment" , style: TextStyle(fontSize: 16),),
+              const Text(
+                "Comment",
+                style: TextStyle(fontSize: 16),
+              ),
               onTap: () => widget.isPostDetail == false
                   ? Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => TradingPostDetailPage(
@@ -776,28 +890,18 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
         print(value);
         break;
       case 3:
-        EnableDisableTradingPost enable = EnableDisableTradingPost();
-        int status = await enable.enableOrDisableTradingPost(
-            token: widget.token,
-            tradingPostId: widget.tradingPostId,
-            choice: 0);
-        if (status == 200) {
-          loadingSuccess(status: "Success");
-
-          widget.isPostDetail == true ? Navigator.of(context).pop() : null;
-          setState(() {});
-        } else {
-          loadingFail(status: "Failed !!!");
-        }
+        showConfirmDialog(widget.tradingPostId);
         break;
     }
   }
 
   reactTradingPost({token, tradingPostId}) async {
+    loadingLoad(status: "Loading...");
     ReactTradingPost react = ReactTradingPost();
     int status = await react.reactTradingPost(
         token: token, tradingPostId: tradingPostId);
     if (status == 200) {
+      EasyLoading.dismiss();
       setState(() {});
     } else {
       loadingFail(status: "Love Failed !!!");
@@ -805,6 +909,7 @@ class _TradingPostWidgetState extends State<TradingPostWidget> {
   }
 
   enableTradingPost({token, tradingPostId}) async {
+    loadingLoad(status: "Loading...");
     EnableDisableTradingPost enable = EnableDisableTradingPost();
     int status = await enable.enableOrDisableTradingPost(
         token: token, tradingPostId: tradingPostId, choice: 1);

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:toy_world/apis/deletes/delete_proposal.dart';
 import 'package:toy_world/components/component.dart';
 import 'package:toy_world/models/model_proposal.dart';
+import 'package:toy_world/screens/new_contest_page.dart';
 import 'package:toy_world/screens/profile_page.dart';
 
 class ProposalDetailPage extends StatefulWidget {
@@ -24,7 +25,7 @@ class _ProposalDetailPageState extends State<ProposalDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           sideAppBar(context, widget.role, widget.token),
@@ -170,70 +171,85 @@ class _ProposalDetailPageState extends State<ProposalDetailPage> {
                     const SizedBox(
                       height: 20.0,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 140,
-                          height: 60,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10.0, vertical: 5.0),
-                          child: ElevatedButton(
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      const Color(0xffC31432)),
-                                  shape: MaterialStateProperty.all<
-                                          RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ))),
-                              child: const Text(
-                                "Delete",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16.0),
+                    widget.role == 1
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 140,
+                                height: 60,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                    style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                                const Color(0xffC31432)),
+                                        shape: MaterialStateProperty.all<
+                                                RoundedRectangleBorder>(
+                                            RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ))),
+                                    child: const Text(
+                                      "Delete",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 16.0),
+                                    ),
+                                    onPressed: () async {
+                                      DeleteProposal proposal =
+                                          DeleteProposal();
+                                      int status =
+                                          await proposal.deleteProposal(
+                                              token: widget.token,
+                                              proposalId: widget.proposal?.id);
+                                      if (status == 200) {
+                                        loadingSuccess(
+                                            status: "Delete Success");
+                                        setState(() {});
+                                        Navigator.of(context).pop();
+                                      } else {
+                                        loadingFail(status: "Failed :(((((");
+                                      }
+                                    }),
                               ),
-                              onPressed: () async {
-                                DeleteProposal proposal = DeleteProposal();
-                                int status = await proposal.deleteProposal(
-                                    token: widget.token,
-                                    proposalId: widget.proposal?.id);
-                                if (status == 200) {
-                                  loadingSuccess(status: "Delete Success");
-                                  setState(() {});
-                                  Navigator.of(context).pop();
-                                } else {
-                                  loadingFail(status: "Failed :(((((");
-                                }
-                              }),
-                        ),
-                        const SizedBox(
-                          width: 20.0,
-                        ),
-                        Container(
-                          width: 140,
-                          height: 60,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10.0, vertical: 5.0),
-                          child: ElevatedButton(
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      const Color(0xffC31432)),
-                                  shape: MaterialStateProperty.all<
-                                          RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ))),
-                              child: const Text(
-                                "Create Contest",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16.0),
+                              const SizedBox(
+                                width: 20.0,
                               ),
-                              onPressed: () {}),
-                        ),
-                      ],
-                    )
+                              Container(
+                                width: 140,
+                                height: 60,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                    style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                                const Color(0xffDB36A4)),
+                                        shape: MaterialStateProperty.all<
+                                                RoundedRectangleBorder>(
+                                            RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ))),
+                                    child: const Text(
+                                      "Create Contest",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 16.0),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.of(context).push(MaterialPageRoute(
+                                          builder: (context) => NewContestPage(
+                                            role: widget.role,
+                                            token: widget.token,
+                                          )));
+                                    }),
+                              ),
+                            ],
+                          )
+                        : const SizedBox.shrink(),
                   ],
                 ),
               ),

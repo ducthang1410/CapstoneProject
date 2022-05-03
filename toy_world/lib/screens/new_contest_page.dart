@@ -1,17 +1,21 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:multi_image_picker2/multi_image_picker2.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:image_picker/image_picker.dart';
+
+import 'package:toy_world/apis/gets/get_group_list.dart';
 import 'package:toy_world/apis/posts/post_new_contest.dart';
 import 'package:toy_world/components/component.dart';
 import 'package:intl/intl.dart';
-import 'package:toy_world/utils/helpers.dart';
+import 'package:toy_world/models/model_group.dart';
 
 class NewContestPage extends StatefulWidget {
   int role;
   String token;
-  int groupId;
 
-  NewContestPage(
-      {required this.role, required this.token, required this.groupId});
+  NewContestPage({required this.role, required this.token});
 
   @override
   State<NewContestPage> createState() => _NewContestPageState();
@@ -19,8 +23,9 @@ class NewContestPage extends StatefulWidget {
 
 class _NewContestPageState extends State<NewContestPage> {
   final _formKey = GlobalKey<FormState>();
-  List<Asset> imagesPicker = <Asset>[];
-  String _error = 'No Error Dectected';
+
+  List<Group>? data = [];
+  Group? selectedItem;
 
   String? title;
   String? description;
@@ -30,56 +35,77 @@ class _NewContestPageState extends State<NewContestPage> {
   DateTime endRegistration = DateTime.now();
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now();
-  String? typeName;
 
-  checkCreateContest({String? imageLink}) async {
+  File? _photo;
+  final ImagePicker _picker = ImagePicker();
+  String url = "";
+
+  checkCreateContest() async {
     NewContest newContest = NewContest();
     var status = await newContest.newContest(
-        token: widget.token,
-        groupId: widget.groupId,
-        title: title,
-        description: description,
-        coverImage: imageLink,
-        slogan: slogan,
-        rule: rule,
-        startRegistration: DateFormat("yyyy-MM-ddTHH:mm:ssZ").format(startRegistration),
-        endRegistration: DateFormat("yyyy-MM-ddTHH:mm:ssZ").format(endRegistration),
-        startDate: DateFormat("yyyy-MM-ddTHH:mm:ssZ").format(startDate),
-        endDate: DateFormat("yyyy-MM-ddTHH:mm:ssZ").format(endDate),
-        typeName: typeName);
+      token: widget.token,
+      groupId: selectedItem!.id,
+      title: title,
+      description: description,
+      coverImage: url,
+      slogan: slogan,
+      rule: rule,
+      startRegistration:
+          DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(startRegistration),
+      endRegistration:
+          DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(endRegistration),
+      startDate: DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(startDate),
+      endDate: DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(endDate),
+      typeName: selectedItem!.name,
+    );
     return status;
   }
 
-  Future<void> loadAssets() async {
-    List<Asset> resultList = <Asset>[];
-    String error = 'No Error Detected';
-
-    try {
-      resultList = await MultiImagePicker.pickImages(
-        maxImages: 1,
-        enableCamera: true,
-        selectedAssets: imagesPicker,
-        cupertinoOptions: const CupertinoOptions(
-          takePhotoIcon: "chat",
-          doneButtonTitle: "Fatto",
-        ),
-        materialOptions: const MaterialOptions(
-          actionBarColor: "#abcdef",
-          actionBarTitle: "Select Photo",
-          allViewTitle: "All Photos",
-          useDetailsView: false,
-          selectCircleStrokeColor: "#000000",
-        ),
-      );
-    } on Exception catch (e) {
-      error = e.toString();
-    }
-    if (!mounted) return;
+  Future imgFromGallery() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
 
     setState(() {
-      imagesPicker = resultList;
-      _error = error;
+      if (pickedFile != null) {
+        _photo = File(pickedFile.path);
+      } else {
+        print('No image selected.');
+      }
     });
+  }
+
+  Future uploadFile() async {
+    loadingLoad(status: "Loading");
+    if (_photo == null) return;
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+
+    try {
+      Reference ref =
+          FirebaseStorage.instance.ref().child("Contest").child(fileName);
+      UploadTask uploadTask = ref.putFile(_photo!);
+      url = await (await uploadTask).ref.getDownloadURL();
+      setState(() {});
+      EasyLoading.dismiss();
+      return url;
+    } catch (e) {
+      print('error occured');
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData();
+  }
+
+  getData() async {
+    loadingLoad(status: "Loading...");
+    GroupList groups = GroupList();
+    data = await groups.getListGroup(token: widget.token);
+    EasyLoading.dismiss();
+    if (data == null) return List.empty();
+    setState(() {});
+    return data;
   }
 
   // void _selectDate(BuildContext context, selectedDate, initialDate) async {
@@ -113,14 +139,81 @@ class _NewContestPageState extends State<NewContestPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20.0),
-                          child: Text(
-                            "New Contest",
-                            style: TextStyle(
-                                color: Colors.black87,
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold),
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20.0),
+                            child: Text(
+                              "New Contest",
+                              style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: Row(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(right: 30.0),
+                                child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "Group",
+                                      style: TextStyle(
+                                          color: Color(0xff302B63),
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    )),
+                              ),
+                              Flexible(
+                                child: SizedBox(
+                                  height: 60.0,
+                                  width: 200.0,
+                                  child: DropdownButtonFormField<Group>(
+                                    isExpanded: true,
+                                    decoration: InputDecoration(
+                                      enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12.0),
+                                          borderSide: const BorderSide(
+                                              width: 3,
+                                              color: Color(0xffDB36A4))),
+                                      focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12.0),
+                                          borderSide: const BorderSide(
+                                              width: 3,
+                                              color: Color(0xffDB36A4))),
+                                    ),
+                                    hint: const Text(
+                                      'Choose group',
+                                    ),
+                                    onChanged: (Group? newValue) {
+                                      setState(() {
+                                        selectedItem = newValue;
+                                      });
+                                    },
+                                    validator: (value) =>
+                                        value == null ? 'field required' : null,
+                                    value: selectedItem,
+                                    icon: const Icon(Icons.arrow_downward),
+                                    iconSize: 24,
+                                    elevation: 16,
+                                    items: data?.map<DropdownMenuItem<Group>>(
+                                        (Group value) {
+                                      return DropdownMenuItem<Group>(
+                                        value: value,
+                                        child: Center(
+                                            child: Text(value.name ?? "")),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const Padding(
@@ -140,9 +233,12 @@ class _NewContestPageState extends State<NewContestPage> {
                           child: TextFormField(
                             minLines: 1,
                             maxLines: 3,
+                            maxLength: 100,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter some text';
+                              } else if(value.length < 6){
+                                return "Title must have at least 6 characters";
                               }
                               return null;
                             },
@@ -186,7 +282,8 @@ class _NewContestPageState extends State<NewContestPage> {
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
                           child: TextFormField(
                             minLines: 1,
-                            maxLines: 5,
+                            maxLines: 3,
+                            maxLength: 100,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter some text';
@@ -233,7 +330,8 @@ class _NewContestPageState extends State<NewContestPage> {
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
                           child: TextFormField(
                             minLines: 3,
-                            maxLines: 20,
+                            maxLines: 10,
+                            maxLength: 500,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter some text';
@@ -280,7 +378,8 @@ class _NewContestPageState extends State<NewContestPage> {
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
                           child: TextFormField(
                             minLines: 3,
-                            maxLines: 20,
+                            maxLines: 10,
+                            maxLength: 500,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter some text';
@@ -350,6 +449,8 @@ class _NewContestPageState extends State<NewContestPage> {
                               ),
                               IconButton(
                                   onPressed: () async {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
                                     final picked = await showDatePicker(
                                         context: context,
                                         initialDate: DateTime.now(),
@@ -409,6 +510,8 @@ class _NewContestPageState extends State<NewContestPage> {
                               ),
                               IconButton(
                                   onPressed: () async {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
                                     final picked = await showDatePicker(
                                         context: context,
                                         initialDate: startRegistration,
@@ -467,6 +570,8 @@ class _NewContestPageState extends State<NewContestPage> {
                               ),
                               IconButton(
                                   onPressed: () async {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
                                     final picked = await showDatePicker(
                                         context: context,
                                         initialDate: endRegistration,
@@ -523,6 +628,8 @@ class _NewContestPageState extends State<NewContestPage> {
                               ),
                               IconButton(
                                   onPressed: () async {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
                                     final picked = await showDatePicker(
                                         context: context,
                                         initialDate: startDate,
@@ -572,13 +679,17 @@ class _NewContestPageState extends State<NewContestPage> {
                                       style: TextStyle(
                                           color: Colors.white, fontSize: 16.0),
                                     ),
-                                    onPressed: loadAssets),
+                                    onPressed: imgFromGallery),
                               ),
                             ],
                           ),
                         ),
-                        imagesPicker.isNotEmpty
-                            ? buildGridViewImagePicker()
+                        _photo != null
+                            ? Flexible(
+                                child: SizedBox(
+                                    height: 300,
+                                    child: buildGridViewImagePicker()),
+                              )
                             : const SizedBox.shrink(),
                         const SizedBox(
                           height: 30,
@@ -636,27 +747,26 @@ class _NewContestPageState extends State<NewContestPage> {
                                         color: Colors.white, fontSize: 16.0),
                                   ),
                                   onPressed: () async {
-                                    try {
-                                      List<String> imageUrls;
-                                      imageUrls = await uploadImages(
-                                          imagesPicker, "Contest");
-                                      if (_formKey.currentState!.validate()) {
-                                        if (await checkCreateContest(
-                                                imageLink: imageUrls[0]) ==
-                                            200) {
-                                          setState(() {
-                                            imagesPicker.clear();
-                                          });
+                                    if (_formKey.currentState!.validate()) {
+                                      if(_photo == null){
+                                        loadingFail(status: "Please pick some image for contest");
+                                        return;
+                                      }
+                                      try {
+                                        loadingLoad(status: "Loading...");
+                                        await uploadFile();
+                                        if (await checkCreateContest() == 200) {
+                                          setState(() {});
                                           Navigator.of(context).pop();
                                           loadingSuccess(
                                               status: "Create success!!!");
                                         } else {
                                           loadingFail(status: "Create Failed");
                                         }
+                                      } catch (e) {
+                                        loadingFail(
+                                            status: "Create Failed !!! \n $e");
                                       }
-                                    } catch (e) {
-                                      loadingFail(
-                                          status: "Create Failed !!! \n $e");
                                     }
                                   }),
                             ),
@@ -726,41 +836,33 @@ class _NewContestPageState extends State<NewContestPage> {
   // }
 
   Widget buildGridViewImagePicker() {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 1,
-      children: List.generate(imagesPicker.length, (index) {
-        Asset asset = imagesPicker[index];
-        return Padding(
-          padding: const EdgeInsets.all(2.0),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              AssetThumb(
-                asset: asset,
-                width: 300,
-                height: 300,
-              ),
-              Positioned(
-                top: -4,
-                right: -4,
-                child: Container(
-                  color: const Color.fromRGBO(255, 255, 244, 0.2),
-                  child: IconButton(
-                    onPressed: () {
-                      imagesPicker.removeAt(index);
-                      setState(() {});
-                    },
-                    icon: const Icon(Icons.delete),
-                    color: Colors.black87,
-                  ),
-                ),
-              )
-            ],
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.file(
+            _photo!,
+            width: double.infinity,
+            fit: BoxFit.cover,
           ),
-        );
-      }),
+          Positioned(
+            top: -4,
+            right: -4,
+            child: Container(
+              color: const Color.fromRGBO(255, 255, 244, 0.2),
+              child: IconButton(
+                onPressed: () {
+                  _photo = null;
+                  setState(() {});
+                },
+                icon: const Icon(Icons.delete),
+                color: Colors.black87,
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 }

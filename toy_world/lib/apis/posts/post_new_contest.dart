@@ -39,9 +39,6 @@ class NewContest {
       }),
     );
 
-    print(startRegistration);
-    print(coverImage);
-
     print("Status postApi New Contest:${response.statusCode}");
     print("Status postApi New Contest:${response.body}");
 

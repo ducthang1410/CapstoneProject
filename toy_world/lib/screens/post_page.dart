@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:multi_image_picker2/multi_image_picker2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/apis/gets/get_image_post.dart';
@@ -118,13 +119,9 @@ class _PostPageState extends State<PostPage> {
         // controller: listScrollController,
         physics: const NeverScrollableScrollPhysics(),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Column(
-            children: [
-              _newPost(),
-              const SizedBox(
-                height: 6,
-              ),
-            ],
+          _newPost(),
+          const SizedBox(
+            height: 6,
           ),
           Flexible(
             child: FutureBuilder(
@@ -197,6 +194,8 @@ class _PostPageState extends State<PostPage> {
                 const SizedBox(width: 8.0),
                 Expanded(
                   child: TextField(
+                    minLines: 1,
+                    maxLines: 3,
                     controller: controller,
                     decoration: const InputDecoration.collapsed(
                       hintText: 'What\'s on your mind?',
@@ -230,6 +229,7 @@ class _PostPageState extends State<PostPage> {
                           ))),
                       onPressed: () async {
                         try {
+                          loadingLoad(status: "Loading...");
                           List<String> imageUrls;
                           imageUrls = await uploadImages(imagesPicker, "Post");
                           if (await checkNewPost(
@@ -242,9 +242,7 @@ class _PostPageState extends State<PostPage> {
                               imagesPicker.clear();
                               controller.clear();
                             });
-                            loadingSuccess(
-                                status:
-                                    "Post success!!!");
+                            loadingSuccess(status: "Post success!!!");
                           } else {
                             loadingFail(
                                 status:

@@ -10,7 +10,6 @@ import 'package:toy_world/apis/puts/put_close_cancel_bill.dart';
 import 'package:toy_world/components/component.dart';
 import 'package:toy_world/models/model_bill.dart';
 import 'package:toy_world/models/model_message_chat.dart';
-import 'package:toy_world/models/model_trading_post_detail.dart';
 
 import 'package:toy_world/screens/full_photo_page.dart';
 import 'package:toy_world/screens/trading_post_detail_page.dart';
@@ -201,6 +200,11 @@ class _TradingChatPageState extends State<TradingChatPage> {
   }
 
   checkRatingSeller() async {
+    loadingLoad(status: "Loading...");
+    if(contentRating == ""){
+      loadingFail(status: "Please give some comment for this seller");
+      return;
+    }
     RateSeller rateSeller = RateSeller();
     int status = await rateSeller.rateSeller(
         token: widget.arguments.token,

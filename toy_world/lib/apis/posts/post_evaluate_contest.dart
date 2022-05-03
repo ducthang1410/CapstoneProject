@@ -21,7 +21,6 @@ class EvaluateContest {
     );
 
     print("Status postApi Evaluate Contest:${response.statusCode}");
-    print("Status postApi Evaluate Contest:${response.body}");
 
     return response.statusCode;
   }

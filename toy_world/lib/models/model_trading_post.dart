@@ -25,6 +25,7 @@ class TradingPost {
     this.noOfComment,
     this.isLikedPost,
     this.status,
+    this.isDisabled,
     this.isReadMore
   });
 
@@ -47,6 +48,7 @@ class TradingPost {
   int? noOfComment;
   bool? isLikedPost;
   int? status;
+  bool? isDisabled;
   bool? isReadMore;
 
   factory TradingPost.fromJson(Map<String, dynamic> json) => TradingPost(
@@ -68,7 +70,8 @@ class TradingPost {
     noOfReact: json["noOfReact"],
     noOfComment: json["noOfComment"],
     isLikedPost: json["isLikedPost"],
-    status: json["status"]
+    status: json["status"],
+    isDisabled: json["isDisabled"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -90,6 +93,7 @@ class TradingPost {
     "noOfReact": noOfReact,
     "noOfComment": noOfComment,
     "isLikedPost": isLikedPost,
-    "status": status
+    "status": status,
+    "isDisabled": isDisabled,
   };
 }

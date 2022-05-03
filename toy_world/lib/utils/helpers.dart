@@ -12,6 +12,7 @@ import 'package:toy_world/screens/following_account_page.dart';
 import 'package:toy_world/screens/full_photo_page.dart';
 
 import 'package:toy_world/screens/management_page.dart';
+import 'package:toy_world/screens/proposal_user_page.dart';
 import 'package:toy_world/screens/toy_page.dart';
 
 import 'package:toy_world/utils/google_login.dart';
@@ -46,19 +47,27 @@ selectedDrawerItem(BuildContext context, item, role, token, {currentUserId}) {
       break;
     case 1:
       Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ProposalUserPage(
+            role: role,
+            token: token,
+            accountId: currentUserId,
+          )));
+      break;
+    case 2:
+      Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ManagementPage(
                 role: role,
                 token: token,
               )));
       break;
-    case 2:
+    case 3:
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ToyPage(
                 role: role,
                 token: token,
               )));
       break;
-    case 3:
+    case 4:
       signOut(context);
       break;
   }
@@ -103,15 +112,10 @@ Future<String> postImage(Asset asset, String directory) async {
   String fileName = DateTime.now().millisecondsSinceEpoch.toString();
   ByteData byteData = await asset.getByteData();
   List<int> imageData = byteData.buffer.asUint8List();
-  print(imageData);
   Reference ref =
       FirebaseStorage.instance.ref().child("$directory/" + fileName);
-  print(ref);
   UploadTask uploadTask = ref.putData(Uint8List.fromList(imageData));
-  print(uploadTask);
   TaskSnapshot snapshot = await uploadTask;
-  print(snapshot);
-  print(snapshot.ref.getDownloadURL());
   return snapshot.ref.getDownloadURL();
 }
 
@@ -162,11 +166,11 @@ showStatusTradingPost(int? status) {
 }
 
 Color showPrize(String? name) {
-  if (name == "First prize") {
+  if (name == "First prize" || name == "FIRST PRIZE") {
     return Colors.amber;
-  } else if (name == "Second prize") {
+  } else if (name == "Second prize" || name == "SECOND PRIZE") {
     return Colors.grey;
-  } else if (name == "Third prize") {
+  } else if (name == "Third prize" || name == "THIRD PRIZE") {
     return Colors.brown;
   } else {
     return Colors.black87;

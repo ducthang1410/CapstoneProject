@@ -16,6 +16,7 @@ class ModelLogin {
       this.role,
       this.status,
       this.token,
+      this.isHasPassword,
       this.isHasWishlist});
 
   int? accountId;
@@ -28,6 +29,7 @@ class ModelLogin {
   int? role;
   bool? status;
   String? token;
+  bool? isHasPassword;
   bool? isHasWishlist;
 
   factory ModelLogin.fromJson(Map<String, dynamic> json) => ModelLogin(
@@ -41,6 +43,7 @@ class ModelLogin {
       role: json["role"],
       status: json["status"],
       token: json["token"],
+      isHasPassword: json["isHasPassword"],
       isHasWishlist: json["isHasWishlist"]);
 
   Map<String, dynamic> toJson() => {
@@ -54,6 +57,7 @@ class ModelLogin {
         "role": role,
         "status": status,
         "token": token,
+        "isHasPassword": isHasPassword,
         "isHasWishlist": isHasWishlist
       };
 }

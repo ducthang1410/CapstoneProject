@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/apis/gets/get_trading_post_detail.dart';
-import 'package:toy_world/models/model_image_post.dart';
 import 'package:toy_world/models/model_trading_message.dart';
 import 'package:toy_world/models/model_trading_post_detail.dart';
 import 'package:toy_world/screens/trading_chat_page.dart';
@@ -58,6 +57,7 @@ class _TradingMessageWidgetState extends State<TradingMessageWidget> {
     data = await detail.getTradingPostDetail(
         token: _token, tradingPostId: tradingPostId);
     if (data == null) return List.empty();
+    print(data!.trading);
     setState(() {});
     return data;
   }
@@ -281,7 +281,7 @@ class _TradingMessageWidgetState extends State<TradingMessageWidget> {
                         buyerId: tradingMessage.buyerId,
                         title: tradingMessage.title,
                         toyName: tradingMessage.toyName,
-                        exchangeWith: data?.trading ?? "",
+                        exchangeWith: data?.trading == null || data?.trading == "" ? "Money" : data?.trading,
                         value: data?.value,
                         buyerName: tradingMessage.buyerName,
                         tradingPostId: tradingMessage.tradingPostId),

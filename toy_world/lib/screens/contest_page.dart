@@ -4,12 +4,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:multi_image_picker2/multi_image_picker2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toy_world/apis/deletes/delete_contest_post.dart';
 import 'package:toy_world/apis/gets/get_contest_detail.dart';
+import 'package:toy_world/apis/gets/get_contest_prize.dart';
 import 'package:toy_world/apis/gets/get_join_contest.dart';
 import 'package:toy_world/apis/gets/get_post_contest.dart';
 import 'package:toy_world/apis/gets/get_reward_contest.dart';
@@ -36,17 +38,12 @@ class ContestPage extends StatefulWidget {
   int role;
   String token;
   int contestId;
-  int contestStatus;
-  String? contestImage;
-  List<Prize>? prizes;
 
-  ContestPage(
-      {required this.role,
-      required this.token,
-      required this.contestId,
-      this.contestImage,
-      this.prizes,
-      required this.contestStatus});
+  ContestPage({
+    required this.role,
+    required this.token,
+    required this.contestId,
+  });
 
   @override
   State<ContestPage> createState() => _ContestPageState();
@@ -56,12 +53,12 @@ class _ContestPageState extends State<ContestPage>
     with SingleTickerProviderStateMixin {
   ContestPosts? data;
   List<ContestPost>? posts;
+  List<Prize> prizes = [];
   List<Rate>? rates;
   ContestDetail? contestDetail;
   List<ImagePost>? images;
   List<RewardContest>? rewards;
   RewardPost? rewardPost;
-  Prize? prizeReward;
   CheckJoinContest? hasJoined;
 
   int _currentUserId = 0;
@@ -98,6 +95,8 @@ class _ContestPageState extends State<ContestPage>
     checkHasJoin();
     getRewardContest();
     getContestDetail();
+    getContestPrize();
+    getData();
     _loadCounter();
     listScrollController.addListener(scrollListener);
     controller = TextEditingController()
@@ -140,11 +139,21 @@ class _ContestPageState extends State<ContestPage>
   }
 
   getContestDetail() async {
+    loadingLoad(status: "Loading...");
     ContestDetailApi contest = ContestDetailApi();
     contestDetail = await contest.getContestDetail(
         token: widget.token, contestId: widget.contestId);
+    EasyLoading.dismiss();
     setState(() {});
     return contestDetail;
+  }
+
+  getContestPrize() async {
+    ContestPrizeApi contestPrizeApi = ContestPrizeApi();
+    prizes = await contestPrizeApi.getContestPrize(
+        token: widget.token, contestId: widget.contestId);
+    setState(() {});
+    return prizes;
   }
 
   getRewardContest() async {
@@ -181,15 +190,21 @@ class _ContestPageState extends State<ContestPage>
     }
   }
 
-  checkFeedbackPost(int postId) async {
+  checkFeedbackPost(int postId, dialogContext) async {
+    loadingLoad(status: "Loading...");
+    if (feedbackContent == "") {
+      loadingFail(status: "Please give reason for feedback this post");
+      return;
+    }
     FeedbackContestPost feedback = FeedbackContestPost();
     int status = await feedback.feedbackContestPost(
         token: widget.token, contestPostId: postId, content: feedbackContent);
     if (status == 200) {
+      EasyLoading.dismiss();
       setState(() {});
       loadingSuccess(
           status: "Send feedback success !!!\nPlease wait for manager reply.");
-      Navigator.of(context).pop();
+      Navigator.pop(dialogContext);
     } else {
       loadingFail(status: "Can not send feedback:((((");
     }
@@ -201,21 +216,18 @@ class _ContestPageState extends State<ContestPage>
         showFeedbackContestPost(postId);
         break;
       case 2:
-        DeleteContestPost post = DeleteContestPost();
-        int status = await post.deleteContestPost(
-            token: widget.token, contestPostId: postId);
-        if (status == 200) {
-          setState(() {});
-        } else {
-          loadingFail(status: "Delete Failed !!!");
-        }
+        showConfirmDialog(postId);
         break;
     }
   }
 
-  void showFeedbackContestPost(int postId) => showDialog(
-      context: context,
-      builder: (contest) => Center(
+  void showFeedbackContestPost(int postId) {
+    BuildContext dialogContext;
+    showDialog(
+        context: context,
+        builder: (context) {
+          dialogContext = context;
+          return Center(
             child: SingleChildScrollView(
               child: AlertDialog(
                 title: const Text(
@@ -279,7 +291,7 @@ class _ContestPageState extends State<ContestPage>
                                             fontSize: 16.0),
                                       ),
                                       onPressed: () {
-                                        Navigator.of(context).pop();
+                                        Navigator.pop(dialogContext);
                                       },
                                     ),
                                   ),
@@ -311,8 +323,8 @@ class _ContestPageState extends State<ContestPage>
                                             color: Colors.white,
                                             fontSize: 16.0),
                                       ),
-                                      onPressed: () =>
-                                          checkFeedbackPost(postId),
+                                      onPressed: () => checkFeedbackPost(
+                                          postId, dialogContext),
                                     ),
                                   ),
                                 )
@@ -322,28 +334,136 @@ class _ContestPageState extends State<ContestPage>
                         ],
                       ),
                     ),
-                    Positioned(
-                      right: -40.0,
-                      top: -95.0,
-                      child: InkResponse(
-                        onTap: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const CircleAvatar(
-                          child: Icon(Icons.close),
-                          backgroundColor: Colors.redAccent,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
             ),
-          ));
+          );
+        });
+  }
 
-  void showRatingComment(Size size, ContestPost? contestPost) => showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+  showConfirmDialog(int postId) {
+    BuildContext dialogContext;
+    showDialog(
+        context: context,
+        builder: (context) {
+          dialogContext = context;
+          return Center(
+            child: AlertDialog(
+              title: const Text(
+                "Delete Post",
+                style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
+                textAlign: TextAlign.center,
+              ),
+              content: SizedBox(
+                height: 150,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Are you sure to delete this post? "),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Container(
+                                width: 130,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        Colors.redAccent,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ))),
+                                  child: const Text(
+                                    "Cancel",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(dialogContext);
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 20.0,
+                            ),
+                            Flexible(
+                              child: Container(
+                                width: 130,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        Colors.lightGreen,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ))),
+                                  child: const Text(
+                                    "Confirm",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  ),
+                                  onPressed: () async {
+                                    loadingLoad(status: "Loading...");
+                                    DeleteContestPost post =
+                                        DeleteContestPost();
+                                    int status = await post.deleteContestPost(
+                                        token: widget.token,
+                                        contestPostId: postId);
+                                    if (status == 200) {
+                                      EasyLoading.dismiss();
+                                      await getData();
+                                      setState(() {});
+                                      Navigator.pop(dialogContext);
+                                    } else {
+                                      loadingFail(status: "Delete Failed !!!");
+                                    }
+                                  },
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  void showRatingComment(Size size, ContestPost? contestPost) {
+    BuildContext dialogContext;
+    showDialog(
+        context: context,
+        builder: (context) {
+          dialogContext = context;
+          return AlertDialog(
             insetPadding:
                 const EdgeInsets.symmetric(vertical: 100.0, horizontal: 20.0),
             contentPadding: EdgeInsets.zero,
@@ -363,7 +483,7 @@ class _ContestPageState extends State<ContestPage>
                   top: -85.0,
                   child: InkResponse(
                     onTap: () {
-                      Navigator.of(context).pop();
+                      Navigator.pop(dialogContext);
                     },
                     child: const CircleAvatar(
                       child: Icon(Icons.close),
@@ -397,231 +517,252 @@ class _ContestPageState extends State<ContestPage>
                 ),
               ],
             ),
-          ));
+          );
+        });
+  }
 
-  void showRating(Size size, int postId) => showDialog(
+  void showRating(Size size, int postId) {
+    BuildContext dialogContext;
+    showDialog(
         context: context,
-        builder: (context) => Center(
-          child: SingleChildScrollView(
-            child: AlertDialog(
-              title: const Text(
-                "Rate Post",
-                style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
-                textAlign: TextAlign.center,
-              ),
-              content: SizedBox(
-                width: size.width * 0.8,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    buildRating(),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
-                    TextField(
-                      maxLines: 5,
-                      onChanged: (value) {
-                        setState(() {
-                          noteRating = value.trim();
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        hintText: "Enter your feedback",
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.grey, width: 1.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
+        builder: (context) {
+          dialogContext = context;
+          return Center(
+            child: SingleChildScrollView(
+              child: AlertDialog(
+                title: const Text(
+                  "Rate Post",
+                  style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
+                  textAlign: TextAlign.center,
+                ),
+                content: SizedBox(
+                  width: size.width * 0.8,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      buildRating(),
+                      const SizedBox(
+                        height: 20.0,
+                      ),
+                      TextField(
+                        maxLines: 5,
+                        onChanged: (value) {
+                          setState(() {
+                            noteRating = value.trim();
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          hintText: "Enter your comment",
+                          enabledBorder: OutlineInputBorder(
                             borderSide:
-                                BorderSide(color: Colors.grey, width: 1.0)),
+                                BorderSide(color: Colors.grey, width: 1.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey, width: 1.0)),
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 15.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Flexible(
-                            child: Container(
-                              width: 130,
-                              height: 50,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10.0, vertical: 5.0),
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
-                                      Colors.red,
-                                    ),
-                                    shape: MaterialStateProperty.all<
-                                            RoundedRectangleBorder>(
-                                        RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ))),
-                                child: const Text(
-                                  "Cancel",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 16.0),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Container(
+                                width: 130,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        Colors.red,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ))),
+                                  child: const Text(
+                                    "Cancel",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(dialogContext);
+                                  },
                                 ),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
                               ),
                             ),
-                          ),
-                          const SizedBox(
-                            width: 20.0,
-                          ),
-                          Flexible(
-                            child: Container(
-                              width: 130,
-                              height: 50,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10.0, vertical: 5.0),
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
-                                      Colors.lightGreen,
-                                    ),
-                                    shape: MaterialStateProperty.all<
-                                            RoundedRectangleBorder>(
-                                        RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ))),
-                                child: const Text(
-                                  "OK",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 16.0),
-                                ),
-                                onPressed: () {
-                                  checkRateContestPost(postId);
-                                },
-                              ),
+                            const SizedBox(
+                              width: 20.0,
                             ),
-                          )
-                        ],
-                      ),
-                    )
-                  ],
+                            Flexible(
+                              child: Container(
+                                width: 130,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        Colors.lightGreen,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ))),
+                                  child: const Text(
+                                    "OK",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  ),
+                                  onPressed: () {
+                                    checkRateContestPost(postId, dialogContext);
+                                  },
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-      );
+          );
+        });
+  }
 
-  void showEvaluateContest(Size size) => showDialog(
+  void showEvaluateContest(Size size) {
+    BuildContext dialogContext;
+    showDialog(
         context: context,
-        builder: (context) => Center(
-          child: SingleChildScrollView(
-            child: AlertDialog(
-              title: const Text(
-                "Evaluate Contest",
-                style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
-                textAlign: TextAlign.center,
-              ),
-              content: SizedBox(
-                width: size.width * 0.8,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    buildRating(),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
-                    TextField(
-                      maxLines: 5,
-                      onChanged: (value) {
-                        setState(() {
-                          noteRating = value.trim();
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        hintText: "Enter your evaluation",
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.grey, width: 1.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
+        builder: (context) {
+          dialogContext = context;
+          return Center(
+            child: SingleChildScrollView(
+              child: AlertDialog(
+                title: const Text(
+                  "Evaluate Contest",
+                  style: TextStyle(color: Color(0xffDB36A4), fontSize: 26),
+                  textAlign: TextAlign.center,
+                ),
+                content: SizedBox(
+                  width: size.width * 0.8,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      buildRating(),
+                      const SizedBox(
+                        height: 20.0,
+                      ),
+                      TextField(
+                        maxLines: 5,
+                        onChanged: (value) {
+                          setState(() {
+                            noteRating = value.trim();
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          hintText: "Enter your evaluation",
+                          enabledBorder: OutlineInputBorder(
                             borderSide:
-                                BorderSide(color: Colors.grey, width: 1.0)),
+                                BorderSide(color: Colors.grey, width: 1.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey, width: 1.0)),
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 15.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Flexible(
-                            child: Container(
-                              width: 130,
-                              height: 50,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10.0, vertical: 5.0),
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
-                                      Colors.red,
-                                    ),
-                                    shape: MaterialStateProperty.all<
-                                            RoundedRectangleBorder>(
-                                        RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ))),
-                                child: const Text(
-                                  "Cancel",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 16.0),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Container(
+                                width: 130,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        Colors.red,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ))),
+                                  child: const Text(
+                                    "Cancel",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(dialogContext);
+                                  },
                                 ),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
                               ),
                             ),
-                          ),
-                          const SizedBox(
-                            width: 20.0,
-                          ),
-                          Flexible(
-                            child: Container(
-                              width: 130,
-                              height: 50,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10.0, vertical: 5.0),
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
-                                      Colors.lightGreen,
-                                    ),
-                                    shape: MaterialStateProperty.all<
-                                            RoundedRectangleBorder>(
-                                        RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ))),
-                                child: const Text(
-                                  "OK",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 16.0),
-                                ),
-                                onPressed: () {
-                                  checkEvaluateContest();
-                                },
-                              ),
+                            const SizedBox(
+                              width: 20.0,
                             ),
-                          )
-                        ],
-                      ),
-                    )
-                  ],
+                            Flexible(
+                              child: Container(
+                                width: 130,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                        Colors.lightGreen,
+                                      ),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ))),
+                                  child: const Text(
+                                    "OK",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  ),
+                                  onPressed: () {
+                                    checkEvaluateContest(dialogContext);
+                                  },
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-      );
+          );
+        });
+  }
 
-  checkEvaluateContest() async {
+  checkEvaluateContest(dialogContext) async {
+    loadingLoad(status: "Loading...");
     EvaluateContest evaluateContest = EvaluateContest();
     int status = await evaluateContest.evaluateContest(
         token: widget.token,
@@ -629,7 +770,7 @@ class _ContestPageState extends State<ContestPage>
         numOfStar: rating.toInt(),
         comment: noteRating);
     if (status == 200) {
-      Navigator.of(context).pop();
+      Navigator.pop(dialogContext);
       loadingSuccess(
           status:
               "We are appreciate your evaluation !!!\n Thanks for joining our contest");
@@ -640,7 +781,12 @@ class _ContestPageState extends State<ContestPage>
     }
   }
 
-  checkRateContestPost(int postId) async {
+  checkRateContestPost(int postId, dialogContext) async {
+    loadingLoad(status: "Loading...");
+    if (noteRating == "") {
+      loadingFail(status: "Please give some rate comment for this post");
+      return;
+    }
     RateContestPost ratePost = RateContestPost();
     int status = await ratePost.rateContestPost(
         token: widget.token,
@@ -649,7 +795,8 @@ class _ContestPageState extends State<ContestPage>
         numOfStar: rating,
         note: noteRating);
     if (status == 200) {
-      Navigator.of(context).pop();
+      await getData();
+      Navigator.pop(dialogContext);
       loadingSuccess(status: "Thanks for your rating !!!");
     } else if (status == 400) {
       loadingFail(status: "You had rated this post :((((");
@@ -716,7 +863,7 @@ class _ContestPageState extends State<ContestPage>
                 child: Stack(
                   children: [
                     CachedNetworkImage(
-                      imageUrl: widget.contestImage ?? "",
+                      imageUrl: contestDetail?.coverImage ?? "",
                       fit: BoxFit.cover,
                       errorWidget: (context, url, error) => Image.asset(
                         'assets/images/img_not_available.jpeg',
@@ -807,7 +954,7 @@ class _ContestPageState extends State<ContestPage>
                               contestDetail: contestDetail,
                               contestId: widget.contestId,
                               token: widget.token,
-                              prizes: widget.prizes,
+                              prizes: prizes,
                             ),
                           ],
                         ),
@@ -826,7 +973,7 @@ class _ContestPageState extends State<ContestPage>
         mainAxisSize: MainAxisSize.min,
         children: [
           buildContestDetail(hasJoinedContest),
-          widget.prizes!.isNotEmpty
+          prizes.isNotEmpty
               ? Container(
                   margin: const EdgeInsets.symmetric(vertical: 5.0),
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -850,28 +997,25 @@ class _ContestPageState extends State<ContestPage>
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             padding: EdgeInsets.zero,
-                            itemCount: widget.prizes?.length,
+                            itemCount: prizes.length,
                             itemBuilder: (context, index) {
-                              images = widget.prizes?[index].images ?? [];
                               return prize(
-                                  prizeImage: images!.isNotEmpty
-                                      ? images?.first.url
+                                  prizeImage: prizes[index].images!.isNotEmpty
+                                      ? prizes[index].images?.first.url
                                       : "",
                                   prizeIcon: prizeIcon[index],
-                                  name: widget.prizes?[index].name ??
-                                      "Name Prize",
-                                  value:
-                                      widget.prizes?[index].value ?? "Value");
+                                  name: prizes[index].name ?? "Name Prize",
+                                  value: prizes[index].value ?? "Value");
                             }),
                       ),
                     ],
                   ),
                 )
               : const SizedBox.shrink(),
-          widget.contestStatus == 4
+          contestDetail?.status == 4
               ? buildRewardContest()
               : const SizedBox.shrink(),
-          widget.contestStatus == 3 && hasJoinedContest == true
+          contestDetail?.status == 3 && hasJoinedContest == true
               ? Container(
                   margin: const EdgeInsets.only(top: 5.0),
                   child: Column(
@@ -884,42 +1028,63 @@ class _ContestPageState extends State<ContestPage>
                   ),
                 )
               : const SizedBox.shrink(),
-          Flexible(
-            child: FutureBuilder(
-                future: getData(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    if (posts?.length != null && posts!.isNotEmpty) {
-                      return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.zero,
-                          itemCount: posts?.length,
-                          itemBuilder: (context, index) {
-                            images = posts![index].images!.cast<ImagePost>();
-                            return _post(
-                                postId: posts?[index].id,
-                                content: posts?[index].content ?? "",
-                                ownerId: posts?[index].ownerId,
-                                ownerAvatar:
-                                    posts?[index].ownerAvatar ?? _avatar,
-                                ownerName: posts?[index].ownerName ?? "",
-                                averageStar: posts?[index].averageStar ?? 0,
-                                contestPost: posts?[index],
-                                isReadMore: posts?[index].isReadMore ?? false,
-                                images: images,
-                                isRated: posts?[index].isRated);
-                          });
-                    } else {
-                      return const Center(
-                          child: Text("There is no posts available:((((("));
-                    }
-                  }
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }),
-          )
+          // Flexible(
+          //   child: FutureBuilder(
+          //       future: getData(),
+          //       builder: (context, snapshot) {
+          //         if (snapshot.hasData) {
+          //           if (posts?.length != null && posts!.isNotEmpty) {
+          //             return ListView.builder(
+          //                 shrinkWrap: true,
+          //                 physics: const NeverScrollableScrollPhysics(),
+          //                 padding: EdgeInsets.zero,
+          //                 itemCount: posts?.length,
+          //                 itemBuilder: (context, index) {
+          //                   images = posts![index].images!.cast<ImagePost>();
+          //                   return _post(
+          //                       postId: posts?[index].id,
+          //                       content: posts?[index].content ?? "",
+          //                       ownerId: posts?[index].ownerId,
+          //                       ownerAvatar:
+          //                           posts?[index].ownerAvatar ?? _avatar,
+          //                       ownerName: posts?[index].ownerName ?? "",
+          //                       averageStar: posts?[index].averageStar ?? 0,
+          //                       contestPost: posts?[index],
+          //                       isReadMore: posts?[index].isReadMore ?? false,
+          //                       images: images,
+          //                       isRated: posts?[index].isRated);
+          //                 });
+          //           } else {
+          //             return const Center(
+          //                 child: Text("There is no posts available:((((("));
+          //           }
+          //         }
+          //         return const Center(
+          //           child: CircularProgressIndicator(),
+          //         );
+          //       }),
+          // )
+          posts?.length != null && posts!.isNotEmpty
+              ? ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.zero,
+                  itemCount: posts?.length,
+                  itemBuilder: (context, index) {
+                    images = posts![index].images!.cast<ImagePost>();
+                    return _post(
+                        postId: posts?[index].id,
+                        content: posts?[index].content ?? "",
+                        ownerId: posts?[index].ownerId,
+                        ownerAvatar: posts?[index].ownerAvatar ?? _avatar,
+                        ownerName: posts?[index].ownerName ?? "",
+                        averageStar: posts?[index].averageStar ?? 0,
+                        contestPost: posts?[index],
+                        isReadMore: posts?[index].isReadMore ?? false,
+                        images: images,
+                        isRated: posts?[index].isRated);
+                  })
+              : const Center(),
         ],
       ),
     );
@@ -1127,7 +1292,7 @@ class _ContestPageState extends State<ContestPage>
                         });
                       }),
                 ),
-                hasJoinedContest == false && widget.contestStatus == 1
+                hasJoinedContest == false && contestDetail?.status == 1
                     ? Column(
                         children: [
                           const SizedBox(
@@ -1158,7 +1323,7 @@ class _ContestPageState extends State<ContestPage>
                           )
                         ],
                       )
-                    : widget.contestStatus == 4
+                    : contestDetail?.status == 4
                         ? Column(
                             children: [
                               const SizedBox(
@@ -1209,7 +1374,7 @@ class _ContestPageState extends State<ContestPage>
           prizeImage != ""
               ? CachedNetworkImage(
                   imageUrl: prizeImage,
-                  width: 50,
+                  width: 60,
                   errorWidget: (context, url, error) => Image.asset(
                     'assets/images/img_not_available.jpeg',
                     fit: BoxFit.cover,
@@ -1217,10 +1382,10 @@ class _ContestPageState extends State<ContestPage>
                 )
               : Image.asset(
                   prizeIcon,
-                  width: 50,
+                  width: 60,
                 ),
           const SizedBox(
-            width: 20.0,
+            width: 10.0,
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1253,6 +1418,7 @@ class _ContestPageState extends State<ContestPage>
   }
 
   Widget buildRewardContest() {
+    var size = MediaQuery.of(context).size;
     int numReward = rewards?.length ?? 0;
     return numReward > 0
         ? Container(
@@ -1267,55 +1433,59 @@ class _ContestPageState extends State<ContestPage>
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xffefeff1),
+                    color: Color(0xfffff748),
                   ),
                 ),
                 const SizedBox(
                   height: 20.0,
                 ),
+                buildReward(
+                    rewards?[0].rewardPost?.ownerAvatar ?? _avatar,
+                    50.0,
+                    Colors.amber,
+                    39.0,
+                    rewards?[0].rewardPost?.ownerName ?? "Name",
+                    prizeIcon[0],
+                    rewards![0].rewardPost!),
+                const SizedBox(
+                  height: 20.0,
+                ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildReward(
-                        rewards?[1].rewardPost?.sumOfStart ?? 0,
-                        rewards?[1].rewardPost?.ownerAvatar ?? _avatar,
-                        35.0,
-                        Colors.grey.shade200,
-                        24.0,
-                        rewards?[1].rewardPost?.ownerName ?? "Name",
-                        prizeIcon[1],
-                        rewards![1].rewardPost!),
-                    Expanded(
+                    SizedBox(
+                      width: size.width * 0.45,
                       child: buildReward(
-                          rewards?[0].rewardPost?.sumOfStart ?? 0,
-                          rewards?[0].rewardPost?.ownerAvatar ?? _avatar,
-                          50.0,
-                          Colors.amber,
-                          39.0,
-                          rewards?[0].rewardPost?.ownerName ?? "Name",
-                          prizeIcon[0],
-                          rewards![0].rewardPost!),
+                          rewards?[1].rewardPost?.ownerAvatar ?? _avatar,
+                          35.0,
+                          const Color(0xffc3c7c7),
+                          24.0,
+                          rewards?[1].rewardPost?.ownerName ?? "Name",
+                          prizeIcon[1],
+                          rewards![1].rewardPost!),
                     ),
-                    buildReward(
-                        rewards?[2].rewardPost?.sumOfStart ?? 0,
-                        rewards?[2].rewardPost?.ownerAvatar ?? _avatar,
-                        35.0,
-                        Colors.brown,
-                        24.0,
-                        rewards?[2].rewardPost?.ownerName ?? "Name",
-                        prizeIcon[2],
-                        rewards![2].rewardPost!),
+                    SizedBox(
+                      width: size.width * 0.45,
+                      child: buildReward(
+                          rewards?[2].rewardPost?.ownerAvatar ?? _avatar,
+                          35.0,
+                          const Color(0xffcd7f32),
+                          24.0,
+                          rewards?[2].rewardPost?.ownerName ?? "Name",
+                          prizeIcon[2],
+                          rewards![2].rewardPost!),
+                    ),
                   ],
                 ),
                 const SizedBox(
-                  height: 20.0,
+                  height: 30.0,
                 ),
                 const Text(
                   "CONGRATULATIONS TO ALL",
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Color(0xfffff748),
                       fontSize: 24),
                 ),
                 const SizedBox(
@@ -1346,32 +1516,32 @@ class _ContestPageState extends State<ContestPage>
         : const SizedBox.shrink();
   }
 
-  Widget buildReward(numOfStar, ownerAvatar, sizeAvatar, color, position,
-      ownerName, prizeIcon, RewardPost rewardPost) {
+  Widget buildReward(ownerAvatar, sizeAvatar, color, position, ownerName,
+      prizeIcon, RewardPost rewardPost) {
     return Container(
       padding: const EdgeInsets.all(5.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "$numOfStar ",
-                style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.amber),
-              ),
-              const Icon(
-                Icons.star,
-                color: Colors.amber,
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 10.0,
-          ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: [
+          //     Text(
+          //       "$numOfStar ",
+          //       style: const TextStyle(
+          //           fontSize: 18,
+          //           fontWeight: FontWeight.bold,
+          //           color: Colors.amber),
+          //     ),
+          //     const Icon(
+          //       Icons.star,
+          //       color: Colors.amber,
+          //     )
+          //   ],
+          // ),
+          // const SizedBox(
+          //   height: 10.0,
+          // ),
           Stack(
             overflow: Overflow.visible,
             children: [
@@ -1400,10 +1570,10 @@ class _ContestPageState extends State<ContestPage>
             ownerName,
             maxLines: 2,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xffefeff1),
+              color: color,
             ),
           )
         ],
@@ -1429,6 +1599,8 @@ class _ContestPageState extends State<ContestPage>
                 Expanded(
                   child: TextField(
                     controller: controller,
+                    minLines: 1,
+                    maxLines: 3,
                     decoration: const InputDecoration.collapsed(
                       hintText: 'Post your product ...',
                     ),
@@ -1460,7 +1632,14 @@ class _ContestPageState extends State<ContestPage>
                             borderRadius: BorderRadius.circular(10.0),
                           ))),
                       onPressed: () async {
+                        if (controller.text == "") {
+                          loadingFail(
+                              status:
+                                  "Please write content of your submission");
+                          return;
+                        }
                         try {
+                          loadingLoad(status: "Loading...");
                           List<String> imageUrls;
                           imageUrls =
                               await uploadImages(imagesPicker, "Runner");
@@ -1474,6 +1653,7 @@ class _ContestPageState extends State<ContestPage>
                               imagesPicker.clear();
                               controller.clear();
                             });
+                            getData();
                             loadingSuccess(status: "Post success!!!");
                           } else {
                             loadingFail(
@@ -1664,7 +1844,7 @@ class _ContestPageState extends State<ContestPage>
             },
             itemBuilder: (context) =>
                 (widget.role == 1 || ownerId == _currentUserId) &&
-                        widget.contestStatus != 4
+                        contestDetail?.status != 4
                     ? const [
                         PopupMenuItem(
                           child: Text("Feedback"),
@@ -1703,7 +1883,7 @@ class _ContestPageState extends State<ContestPage>
                   fontSize: 16),
             ),
             onTap: () =>
-                widget.contestStatus == 3 ? showRating(size, postId) : () {}),
+                contestDetail?.status == 3 ? showRating(size, postId) : () {}),
         _postButton(
             Icon(
               FontAwesomeIcons.comment,

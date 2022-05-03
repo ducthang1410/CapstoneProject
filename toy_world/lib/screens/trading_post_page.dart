@@ -58,13 +58,9 @@ class _TradingPostPageState extends State<TradingPostPage> {
       body: SingleChildScrollView(
         physics: const NeverScrollableScrollPhysics(),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Column(
-            children: [
-              _newTradingPost(),
-              const SizedBox(
-                height: 6,
-              ),
-            ],
+          _newTradingPost(),
+          const SizedBox(
+            height: 6,
           ),
           Flexible(
             child: FutureBuilder(
@@ -94,7 +90,7 @@ class _TradingPostPageState extends State<TradingPostPage> {
                               toyName: posts![index].toyName,
                               address: posts![index].address,
                               phoneNum: posts![index].phone,
-                              exchange: posts![index].exchange,
+                              exchange: posts?[index].exchange ?? "Money",
                               value: posts![index].value,
                               images: posts?[index].images ?? [],
                               numOfReact: posts![index].noOfReact!.toInt(),
